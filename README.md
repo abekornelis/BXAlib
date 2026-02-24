@@ -30,6 +30,6 @@ To use any of these macros, use PGM and pass a SYSPARM containing
 and therefore may not be changed or disabled in any way.*
 
 Documentation:
-- [Getting started](doc\$README.md)
-- [Documentation overview](doc\$DOC.md)
-- [Macro index by category](doc\$INDEX.md)
+- [Getting started](doc/$README.md)
+- [Documentation overview](doc/$DOC.md)
+- [Macro index by category](doc/$INDEX.md)
