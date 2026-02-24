@@ -1,13 +1,11 @@
-# BALO macro
+# BASNZ macro
 
-
-- Branch and Link on Ones condition
-- Branch and Link on Overflow condition
+Branch and Save on Non-Zero condition
 
 ## Syntax
 
 ``` hlasm
-&LABEL   BALO  &REG,                   * Register for return address   *
+&LABEL   BASNZ &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
                &TYPE=LOCAL             *                                
 ```

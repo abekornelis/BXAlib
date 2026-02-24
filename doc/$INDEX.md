@@ -12,31 +12,31 @@ following categories:
 
 ## Structured programming
 
-| Macro    | Function                                                 |
-|----------|----------------------------------------------------------|
-| BEGSR    | BEGin SubRoutine (start of subroutine definition)        |
-| CASE     | Multi-branch if statement                                |
-| DO       | Start of a loop                                          |
-| ELSE     | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
-| END      | END of program, generates subroutine cross reference     |
-| ENDCASE  | End of a case construct                                  |
-| ENDDO    | End of a DO loop                                         |
-| ENDIF    | End of an IF-THEN-ELSE-EDIF construct                    |
-| ENDSR    | End of a subroutine definition                           |
-| EXSR     | EXecute SubRoutine (subroutine invocation)               |
-| EXSR0    | (helper macro for EXSR)                                  |
-| GLUE     | Call module in a different Amode/Rmode                   |
-| GOTO     | Branch with IF-like condition coded as parameters        |
-| IF$      | (helper macro for IF/CASE/DO)                            |
-| IF$ALC   | (helper macro for IF/CASE/DO)                            |
-| IF$LS    | (helper macro for IF/CASE/DO)                            |
-| IF$LU    | (helper macro for IF/CASE/DO)                            |
-| IF       | Start of IF-THEN-ELSE-ENDIF construct                    |
-| LEAVE    | Exit from IF/CASE/LOOP construct                         |
-| LOOP     | Repeat DO-ENDDO loop                                     |
-| PGM      | ProGraM start                                            |
-| PGM0     | (helper macro with PGM)                                  |
-| RETRN    | RETuRN from subroutine                                   |
+| Macro             | Function                                                 |
+|-------------------|----------------------------------------------------------|
+| [BEGSR](BEGSR.md) | BEGin SubRoutine (start of subroutine definition)        |
+| CASE              | Multi-branch if statement                                |
+| DO                | Start of a loop                                          |
+| ELSE              | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
+| END               | END of program, generates subroutine cross reference     |
+| ENDCASE           | End of a case construct                                  |
+| ENDDO             | End of a DO loop                                         |
+| ENDIF             | End of an IF-THEN-ELSE-EDIF construct                    |
+| ENDSR             | End of a subroutine definition                           |
+| EXSR              | EXecute SubRoutine (subroutine invocation)               |
+| EXSR0             | (helper macro for EXSR)                                  |
+| GLUE              | Call module in a different Amode/Rmode                   |
+| GOTO              | Branch with IF-like condition coded as parameters        |
+| IF$               | (helper macro for IF/CASE/DO)                            |
+| IF$ALC            | (helper macro for IF/CASE/DO)                            |
+| IF$LS             | (helper macro for IF/CASE/DO)                            |
+| IF$LU             | (helper macro for IF/CASE/DO)                            |
+| IF                | Start of IF-THEN-ELSE-ENDIF construct                    |
+| LEAVE             | Exit from IF/CASE/LOOP construct                         |
+| LOOP              | Repeat DO-ENDDO loop                                     |
+| PGM               | ProGraM start                                            |
+| PGM0              | (helper macro with PGM)                                  |
+| RETRN             | RETuRN from subroutine                                   |
 
 ## Register management
 
@@ -97,33 +97,33 @@ following categories:
 | [BALO](BALO.md)   | BAL on Ones/Overflow                                     |
 | [BALP](BALP.md)   | BAL on Plus                                              |
 | [BALZ](BALZ.md)   | BAL on Zero                                              |
-| BASC              | BAS Conditionally                                        |
-| BASE              | BAS on Equal                                             |
-| BASH              | BAS on High                                              |
-| BASL              | BAS on Low                                               |
-| BASM              | BAS on Mixed/Minus                                       |
-| BASNE             | BAS on Not Equal                                         |
-| BASNH             | BAS on Not High                                          |
-| BASNL             | BAS on Not Low                                           |
-| BASNM             | BAS on Not Mixed/Minus                                   |
-| BASNO             | BAS on Not Ones/Overflow                                 |
-| BASNP             | BAS on Not Plus                                          |
-| BASNZ             | BAS on Not Zero                                          |
-| BASO              | BAS on Ones/Overflow                                     |
-| BASP              | BAS on Plus                                              |
-| BASZ              | BAS on Zero                                              |
-| BHE               | Branch on High or Equal                                  |
-| BHER              | Branch on High or Equal Register                         |
-| BLE               | Branch on Low or Equal                                   |
-| BLER              | Branch on Low or Equal Register                          |
-| BLH               | Branch on Low or High                                    |
-| BLHR              | Branch on Low or High Register                           |
-| BNHE              | Branch on Not High or Equal                              |
-| BNHER             | Branch on Not High or Equal Register                     |
-| BNLE              | Branch on Not Low or Equal                               |
-| BNLER             | Branch on Not Low or Equal Register                      |
-| BNLH              | Branch on Not Low or High                                |
-| BNLHR             | Branch on Not Low or High Register                       |
+| [BASC](BASC.md)   | BAS Conditionally                                        |
+| [BASE](BASE.md)   | BAS on Equal                                             |
+| [BASH](BASH.md)   | BAS on High                                              |
+| [BASL](BASL.md)   | BAS on Low                                               |
+| [BASM](BASM.md)   | BAS on Mixed/Minus                                       |
+| [BASNE](BASNE.md) | BAS on Not Equal                                         |
+| [BASNH](BASNH.md) | BAS on Not High                                          |
+| [BASNL](BASNL.md) | BAS on Not Low                                           |
+| [BASNM](BASNM.md) | BAS on Not Mixed/Minus                                   |
+| [BASNO](BASNO.md) | BAS on Not Ones/Overflow                                 |
+| [BASNP](BASNP.md) | BAS on Not Plus                                          |
+| [BASNZ](BASNZ.md) | BAS on Not Zero                                          |
+| [BASO](BASO.md)   | BAS on Ones/Overflow                                     |
+| [BASP](BASP.md)   | BAS on Plus                                              |
+| [BASZ](BASZ.md)   | BAS on Zero                                              |
+| [BHE](BHE.md)     | Branch on High or Equal                                  |
+| [BHER](BHER.md)   | Branch on High or Equal Register                         |
+| [BLE](BLE.md)     | Branch on Low or Equal                                   |
+| [BLER](BLER.md)   | Branch on Low or Equal Register                          |
+| [BLH](BLH.md)     | Branch on Low or High                                    |
+| [BLHR](BLHR.md)   | Branch on Low or High Register                           |
+| [BNHE](BNHE.md)   | Branch on Not High or Equal                              |
+| [BNHER](BNHER.md) | Branch on Not High or Equal Register                     |
+| [BNLE](BNLE.md)   | Branch on Not Low or Equal                               |
+| [BNLER](BNLER.md) | Branch on Not Low or Equal Register                      |
+| [BNLH](BNLH.md)   | Branch on Not Low or High                                |
+| [BNLHR](BNLHR.md) | Branch on Not Low or High Register                       |
 
 ## Other instruction set extensions
 
@@ -156,7 +156,7 @@ following categories:
 |-----------------------|------------------------------------------------------------|
 | [ABND](ABND.md)       | Branch to routine that issues abend (ABNDPGM)              |
 | [ABNDPGM](ABNDPGM.md) | Generates an out-of-line routine that abends the program   |
-| BXAEPSW               | Extract PSW                                                |
+| [BXAEPSW](BXAEPSW.md) | Extract PSW                                                |
 | CHKLIC                | Check license (assembly-time)                              |
 | CHKLIT                | Check whether argument is a valid numeric literal          |
 | CHKMAP                | Check parameters entered on a MAPxxx macro                 |
