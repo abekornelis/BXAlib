@@ -1,0 +1,436 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Job File Control Block                           00180000
+.*                                                                      00190000
+&LABEL   MAPJFCB &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPJFCB                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPJFCB        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'JFCB').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPJFCB).MEND                                  00460002
+&BXA_MAC_MAPJFCB SETB 1                                                 00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_JFCB                                             00490000
+&BXA_CB_JFCB SETC 'JFCB'                                                00500000
+.*                                                                      00510000
+.* JFCBTSDM - JOB MANAGEMENT/DATA MANAGEMENT INTERFACE                  00520000
+JFCCAT   EQUOVR ,,b,JFCBTSDM                                            00530000
+JFCVSL   EQUOVR ,,b,JFCBTSDM                                            00540000
+JFCSDS   EQUOVR ,,b,JFCBTSDM                                            00550000
+JFCTTR   EQUOVR ,,b,JFCBTSDM                                            00560000
+JFCNWRIT EQUOVR ,,b,JFCBTSDM                                            00570000
+JFCNDSCB EQUOVR ,,b,JFCBTSDM                                            00580000
+JFCNDCB  EQUOVR ,,b,JFCBTSDM                                            00590000
+JFCPAT   EQUOVR ,,b,JFCBTSDM                                            00600000
+.*                                                                      00610000
+.* JFCTDSI1 -  TDSI byte 1                                              00620000
+JFCTRKNO EQUOVR ,,b,JFCTDSI1                                            00630000
+JFCNOREC EQUOVR ,,v,JFCTDSI1                                            00640000
+JFC18TRK EQUOVR ,,b,JFCTDSI1                                            00650000
+JFC36TRK EQUOVR ,,b,JFCTDSI1                                            00660000
+JFC128TK EQUOVR ,,b,JFCTDSI1                                            00670000
+JFCMEDIA EQUOVR ,,b,JFCTDSI1                                            00680000
+JFCNOMED EQUOVR ,,v,JFCTDSI1                                            00690000
+JFCBMED1 EQUOVR ,,v,JFCTDSI1                                            00700000
+JFCBMED2 EQUOVR ,,v,JFCTDSI1                                            00710000
+JFCBMED3 EQUOVR ,,v,JFCTDSI1                                            00720000
+JFCBMED4 EQUOVR ,,v,JFCTDSI1                                            00730000
+JFCBMED5 EQUOVR ,,v,JFCTDSI1                                            00740000
+JFCBMED6 EQUOVR ,,v,JFCTDSI1                                            00750000
+JFCBMED7 EQUOVR ,,v,JFCTDSI1                                            00760000
+JFCBMED8 EQUOVR ,,v,JFCTDSI1                                            00770000
+.*                                                                      00780000
+.* JFCTDSI2 - TDSI byte 2                                               00790000
+JFCOMPTY EQUOVR ,,b,JFCTDSI2                                            00800000
+JFCCMPNS EQUOVR ,,v,JFCTDSI2                                            00810000
+JFCNOCMP EQUOVR ,,b,JFCTDSI2                                            00820000
+JFCBIDRC EQUOVR ,,b,JFCTDSI2                                            00830000
+JFCBCMPY EQUOVR ,,b,JFCTDSI2                                            00840000
+JFCSPECL EQUOVR ,,b,JFCTDSI2                                            00850000
+JFCNOSPC EQUOVR ,,v,JFCTDSI2                                            00860000
+JFCRDCOM EQUOVR ,,b,JFCTDSI2                                            00870000
+.*                                                                      00880000
+.* JFCBLTYP - LABEL TYPE (LABEL=)                                       00890000
+JFCDSEQN EQUOVR ,,b,JFCBLTYP                                            00900000
+JFCBAL   EQUOVR ,,b,JFCBLTYP                                            00910000
+JFCBLTM  EQUOVR ,,b,JFCBLTYP                                            00920000
+JFCBLP   EQUOVR ,,b,JFCBLTYP                                            00930000
+JFCSUL   EQUOVR ,,b,JFCBLTYP                                            00940000
+JFCNSL   EQUOVR ,,b,JFCBLTYP                                            00950000
+JFCSL    EQUOVR ,,b,JFCBLTYP                                            00960000
+JFCNL    EQUOVR ,,b,JFCBLTYP                                            00970000
+.*                                                                      00980000
+.* JFCBUFOF - TAPE DATA SET - THIS FIELD CONTAINS THE BUFFER OFFSET     00990000
+JFCBFOFL EQUOVR ,,b,JFCBUFOF                                            01000000
+.*                                                                      01010000
+.* JFCFUNC - FUNCTION INDICATORS (DCB=FUNC=)                            01020000
+JFCFNCBI EQUOVR ,,b,JFCFUNC                                             01030000
+JFCFNCBR EQUOVR ,,b,JFCFUNC                                             01040000
+JFCFNCBP EQUOVR ,,b,JFCFUNC                                             01050000
+JFCFNCBW EQUOVR ,,b,JFCFUNC                                             01060000
+JFCFNCBD EQUOVR ,,b,JFCFUNC                                             01070000
+JFCFNCBX EQUOVR ,,b,JFCFUNC                                             01080000
+JFCFNCBT EQUOVR ,,b,JFCFUNC                                             01090000
+JFCRSV31 EQUOVR ,,b,JFCFUNC                                             01100000
+.*                                                                      01110000
+.* JFCBFLG1 - FLAG BYTE                                                 01120000
+JFCSTAND EQUOVR ,,b,JFCBFLG1                                            01130000
+JFCSLCRE EQUOVR ,,b,JFCBFLG1                                            01140000
+JFCSLDES EQUOVR ,,b,JFCBFLG1                                            01150000
+JFCDUAL  EQUOVR ,,b,JFCBFLG1                                            01160000
+JFCOPEN  EQUOVR ,,b,JFCBFLG1                                            01170000
+JFCBPWBP EQUOVR ,,b,JFCBFLG1                                            01180000
+.*                                                                      01190000
+.* JFCBFLG2 - FLAG BYTE OF OPEN SWITCHES                                01200000
+JFCINOP  EQUOVR ,,b,JFCBFLG2                                            01210000
+JFCOUTOP EQUOVR ,,b,JFCBFLG2                                            01220000
+JFCDEFER EQUOVR ,,b,JFCBFLG2                                            01230000
+JFCNRPS  EQUOVR ,,b,JFCBFLG2                                            01240000
+JFCMODNW EQUOVR ,,b,JFCBFLG2                                            01250000
+JFCSDRPS EQUOVR ,,b,JFCBFLG2                                            01260000
+JFCTRACE EQUOVR ,,b,JFCBFLG2                                            01270000
+JFCBBUFF EQUOVR ,,b,JFCBFLG2                                            01280000
+JFCRCTLG EQUOVR ,,b,JFCBFLG2                                            01290000
+.*                                                                      01300000
+.* JFCBIND1 - INDICATOR BYTE 1                                          01310000
+JFCRLSE  EQUOVR ,,b,JFCBIND1                                            01320000
+JFCLOC   EQUOVR ,,b,JFCBIND1                                            01330000
+JFCADDED EQUOVR ,,b,JFCBIND1                                            01340000
+JFCGDG   EQUOVR ,,b,JFCBIND1                                            01350000
+JFCPDS   EQUOVR ,,b,JFCBIND1                                            01360000
+JFCBRLSE EQUOVR ,,b,JFCBIND1                                            01370000
+JFCBLOCT EQUOVR ,,b,JFCBIND1                                            01380000
+JFCBNEWV EQUOVR ,,b,JFCBIND1                                            01390000
+JFCBPMEM EQUOVR ,,b,JFCBIND1                                            01400000
+.*                                                                      01410000
+.* JFCBIND2 - INDICATOR BYTE 2                                          01420000
+JFCDISP  EQUOVR ,,b,JFCBIND2                                            01430000
+JFCNEW   EQUOVR ,,b,JFCBIND2                                            01440000
+JFCMOD   EQUOVR ,,b,JFCBIND2                                            01450000
+JFCOLD   EQUOVR ,,b,JFCBIND2                                            01460000
+JFCBRWPW EQUOVR ,,b,JFCBIND2                                            01470000
+JFCSECUR EQUOVR ,,b,JFCBIND2                                            01480000
+JFCSHARE EQUOVR ,,b,JFCBIND2                                            01490000
+JFCENT   EQUOVR ,,b,JFCBIND2                                            01500000
+JFCREQ   EQUOVR ,,b,JFCBIND2                                            01510000
+JFCTEMP  EQUOVR ,,b,JFCBIND2                                            01520000
+JFCBSTAT EQUOVR ,,b,JFCBIND2                                            01530000
+JFCBSCTY EQUOVR ,,b,JFCBIND2                                            01540000
+JFCBGDGA EQUOVR ,,b,JFCBIND2                                            01550000
+.*                                                                      01560000
+.* JFCBHIAR - ** RESERVED-O **                                          01570000
+JFCHIER  EQUOVR ,,b,JFCBHIAR                                            01580000
+JFCHIER1 EQUOVR ,,b,JFCBHIAR                                            01590000
+.*                                                                      01600000
+.* JFCBFALN - BUFFER ALIGNMENT    (DCB=BFALN=)                          01610000
+JFCDWORD EQUOVR ,,b,JFCBFALN                                            01620000
+JFCFWORD EQUOVR ,,b,JFCBFALN                                            01630000
+.*                                                                      01640000
+.* JFCBFTEK - BUFFERING TECHNIQUE (DCB=BFTEK=)                          01650000
+JFCSIM   EQUOVR ,,b,JFCBFTEK                                            01660000
+JFCBBFTA EQUOVR ,,b,JFCBFTEK                                            01670000
+JFCBBFTR EQUOVR ,,b,JFCBFTEK                                            01680000
+JFCEXC   EQUOVR ,,b,JFCBFTEK                                            01690000
+JFCDYN   EQUOVR ,,b,JFCBFTEK                                            01700000
+.*                                                                      01710000
+.* JFCEROPT - ERROR OPTION  (DCB=EROPT=)                                01720000
+JFCACC   EQUOVR ,,b,JFCEROPT                                            01730000
+JFCSKP   EQUOVR ,,b,JFCEROPT                                            01740000
+JFCABN   EQUOVR ,,b,JFCEROPT                                            01750000
+JFCTOPT  EQUOVR ,,b,JFCEROPT                                            01760000
+JFCRSV02 EQUOVR ,,b,JFCEROPT                                            01770000
+JFCRSV03 EQUOVR ,,b,JFCEROPT                                            01780000
+JFCRSV04 EQUOVR ,,b,JFCEROPT                                            01790000
+JFCRSV05 EQUOVR ,,b,JFCEROPT                                            01800000
+.*                                                                      01810000
+.* JFCTRTCH -  TAPE RECORDING TECHNIQUE (DCB=TRTCH=)                    01820000
+JFCEVEN  EQUOVR ,,v,JFCTRTCH                                            01830000
+JFCTRAN  EQUOVR ,,v,JFCTRTCH                                            01840000
+JFCCONV  EQUOVR ,,v,JFCTRTCH                                            01850000
+JFCTREV  EQUOVR ,,v,JFCTRTCH                                            01860000
+JFCCOMP  EQUOVR ,,v,JFCTRTCH                                            01870000
+JFCNCOMP EQUOVR ,,v,JFCTRTCH                                            01880000
+JFC1TRAK EQUOVR ,,v,JFCTRTCH                                            01890000
+JFC2TRAK EQUOVR ,,v,JFCTRTCH                                            01900000
+JFC4TRAK EQUOVR ,,v,JFCTRTCH                                            01910000
+.*                                                                      01920000
+.* JFCCODE -  ** RESERVED-O **    (DCB=CODE=)                           01930000
+JFCNOCON EQUOVR ,,b,JFCCODE                                             01940000
+JFCBCD   EQUOVR ,,b,JFCCODE                                             01950000
+JFCFRI   EQUOVR ,,b,JFCCODE                                             01960000
+JFCBUR   EQUOVR ,,b,JFCCODE                                             01970000
+JFCNCR   EQUOVR ,,b,JFCCODE                                             01980000
+JFCASCII EQUOVR ,,b,JFCCODE                                             01990000
+JFCTTY   EQUOVR ,,b,JFCCODE                                             02000000
+JFCRSV32 EQUOVR ,,b,JFCCODE                                             02010000
+.*                                                                      02020000
+.* JFCMODE - MODE OF OPERATION (CARD READER, CARD PUNCH)                02030000
+JFCBIN   EQUOVR ,,b,JFCMODE                                             02040000
+JFCEBCD  EQUOVR ,,b,JFCMODE                                             02050000
+JFCMODEO EQUOVR ,,b,JFCMODE                                             02060000
+JFCMODER EQUOVR ,,b,JFCMODE                                             02070000
+JFCRSV06 EQUOVR ,,b,JFCMODE                                             02080000
+JFCRSV07 EQUOVR ,,b,JFCMODE                                             02090000
+.*                                                                      02100000
+.* JFCSTACK - STACKER SELECTION (CARD READER, CARD PUNCH)               02110000
+JFCTWO   EQUOVR ,,b,JFCSTACK                                            02120000
+JFCONE   EQUOVR ,,b,JFCSTACK                                            02130000
+.*                                                                      02140000
+.* JFCPRTSP - NORMAL PRINTER SPACING (DCB=PRTSP=)                       02150000
+JFCSPTHR EQUOVR ,,v,JFCPRTSP                                            02160000
+JFCSPTWO EQUOVR ,,v,JFCPRTSP                                            02170000
+JFCSPONE EQUOVR ,,v,JFCPRTSP                                            02180000
+JFCSPNO  EQUOVR ,,v,JFCPRTSP                                            02190000
+.*                                                                      02200000
+.* JFCDEN - TAPE DENSITY - 2400/3400 SERIES MAGNETIC TAPE               02210000
+JFC200   EQUOVR ,,v,JFCDEN                                              02220000
+JFC556   EQUOVR ,,v,JFCDEN                                              02230000
+JFC800   EQUOVR ,,v,JFCDEN                                              02240000
+JFC1600  EQUOVR ,,v,JFCDEN                                              02250000
+JFC6250  EQUOVR ,,v,JFCDEN                                              02260000
+.*                                                                      02270000
+.* JFCDSRG1 - BYTE 1 OF JFCDSORG (DCB=DSORG=)                           02280000
+JFCORGIS EQUOVR ,,b,JFCDSRG1                                            02290000
+JFCORGPS EQUOVR ,,b,JFCDSRG1                                            02300000
+JFCORGDA EQUOVR ,,b,JFCDSRG1                                            02310000
+JFCORGCX EQUOVR ,,b,JFCDSRG1                                            02320000
+JFCORGCQ EQUOVR ,,b,JFCDSRG1                                            02330000
+JFCORGMQ EQUOVR ,,b,JFCDSRG1                                            02340000
+JFCORGPO EQUOVR ,,b,JFCDSRG1                                            02350000
+JFCORGU  EQUOVR ,,b,JFCDSRG1                                            02360000
+.*                                                                      02370000
+.* JFCDSRG2 - BYTE 2 OF JFCDSORG (DCB=DSORG= cont.)                     02380000
+JFCORGGS EQUOVR ,,b,JFCDSRG2                                            02390000
+JFCORGTX EQUOVR ,,b,JFCDSRG2                                            02400000
+JFCORGTQ EQUOVR ,,b,JFCDSRG2                                            02410000
+JFCRSV13 EQUOVR ,,b,JFCDSRG2                                            02420000
+JFCORGAM EQUOVR ,,b,JFCDSRG2                                            02430000
+JFCORGTR EQUOVR ,,b,JFCDSRG2                                            02440000
+JFCRSV15 EQUOVR ,,b,JFCDSRG2                                            02450000
+JFCRSV16 EQUOVR ,,b,JFCDSRG2                                            02460000
+.*                                                                      02470000
+.* JFCRECFM - RECORD FORMAT (DCB=RECFM=) (AMP=('RECFM='))               02480000
+JFCRCFM  EQUOVR ,,b,JFCRECFM                                            02490000
+JFCFMREC EQUOVR ,,b,JFCRECFM                                            02500000
+JFCUND   EQUOVR ,,b,JFCRECFM                                            02510000
+JFCFIX   EQUOVR ,,b,JFCRECFM                                            02520000
+JFCVAR   EQUOVR ,,b,JFCRECFM                                            02530000
+JFCVARD  EQUOVR ,,b,JFCRECFM                                            02540000
+JFCRFO   EQUOVR ,,b,JFCRECFM                                            02550000
+JFCRFB   EQUOVR ,,b,JFCRECFM                                            02560000
+JFCRFS   EQUOVR ,,b,JFCRECFM                                            02570000
+JFCCHAR  EQUOVR ,,b,JFCRECFM                                            02580000
+JFCASA   EQUOVR ,,b,JFCRECFM                                            02590000
+JFCMAC   EQUOVR ,,b,JFCRECFM                                            02600000
+JFCNOCC  EQUOVR ,,v,JFCRECFM                                            02610000
+.*                                                                      02620000
+.* JFCOPTCD - OPTION CODES (DCB=OPTCD=)                                 02630000
+JFCWVCSP EQUOVR ,,b,JFCOPTCD                                            02640000
+JFCALLOW EQUOVR ,,b,JFCOPTCD                                            02650000
+JFCPCIBT EQUOVR ,,b,JFCOPTCD                                            02660000
+JFCBCKPT EQUOVR ,,b,JFCOPTCD                                            02670000
+JFCRSV18 EQUOVR ,,b,JFCOPTCD                                            02680000
+JFCREDUC EQUOVR ,,b,JFCOPTCD                                            02690000
+JFCSRCHD EQUOVR ,,b,JFCOPTCD                                            02700000
+JFCRSV21 EQUOVR ,,b,JFCOPTCD                                            02710000
+JFCOPTJ  EQUOVR ,,b,JFCOPTCD                                            02720000
+.*                                                                      02730000
+JFCWVCIS EQUOVR ,,b,JFCOPTCD                                            02740000
+JFCRSV17 EQUOVR ,,b,JFCOPTCD                                            02750000
+JFCMAST  EQUOVR ,,b,JFCOPTCD                                            02760000
+JFCIND   EQUOVR ,,b,JFCOPTCD                                            02770000
+JFCCYL   EQUOVR ,,b,JFCOPTCD                                            02780000
+JFCRSV19 EQUOVR ,,b,JFCOPTCD                                            02790000
+JFCDEL   EQUOVR ,,b,JFCOPTCD                                            02800000
+JFCREORG EQUOVR ,,b,JFCOPTCD                                            02810000
+.*                                                                      02820000
+JFCWVCBD EQUOVR ,,b,JFCOPTCD                                            02830000
+JFCOVER  EQUOVR ,,b,JFCOPTCD                                            02840000
+JFCEXT   EQUOVR ,,b,JFCOPTCD                                            02850000
+JFCFEED  EQUOVR ,,b,JFCOPTCD                                            02860000
+JFCACT   EQUOVR ,,b,JFCOPTCD                                            02870000
+JFCRSV20 EQUOVR ,,b,JFCOPTCD                                            02880000
+JFCRSV22 EQUOVR ,,b,JFCOPTCD                                            02890000
+JFCREL   EQUOVR ,,b,JFCOPTCD                                            02900000
+.*                                                                      02910000
+JFCOPTQ  EQUOVR ,,b,JFCOPTCD                                            02920000
+.*                                                                      02930000
+JFCSDNAM EQUOVR ,,b,JFCOPTCD                                            02940000
+JFCWUMSG EQUOVR ,,b,JFCOPTCD                                            02950000
+JFCCBWU  EQUOVR ,,b,JFCOPTCD                                            02960000
+.*                                                                      02970000
+.* JFCPCI - PROGRAM-CONTROLLED INTERRUPTION (PCI) FLAG                  02980000
+JFCPCIX1 EQUOVR ,,b,JFCPCI                                              02990000
+JFCPCIX2 EQUOVR ,,b,JFCPCI                                              03000000
+JFCPCIA1 EQUOVR ,,b,JFCPCI                                              03010000
+JFCPCIA2 EQUOVR ,,b,JFCPCI                                              03020000
+JFCPCIN1 EQUOVR ,,b,JFCPCI                                              03030000
+JFCPCIN2 EQUOVR ,,b,JFCPCI                                              03040000
+JFCPCIR1 EQUOVR ,,b,JFCPCI                                              03050000
+JFCPCIR2 EQUOVR ,,b,JFCPCI                                              03060000
+.*                                                                      03070000
+.* JFCUCSOP - OPERATION OF THE UCS IMAGE TO BE LOADED                   03080000
+JFCBEXTP EQUOVR ,,b,JFCUCSOP                                            03090000
+JFCFOLD  EQUOVR ,,b,JFCUCSOP                                            03100000
+JFCRSV25 EQUOVR ,,b,JFCUCSOP                                            03110000
+JFCVER   EQUOVR ,,b,JFCUCSOP                                            03120000
+JFCFCBAL EQUOVR ,,b,JFCUCSOP                                            03130000
+JFCFCBVR EQUOVR ,,b,JFCUCSOP                                            03140000
+JFCRSV26 EQUOVR ,,b,JFCUCSOP                                            03150000
+JFCRSV27 EQUOVR ,,b,JFCUCSOP                                            03160000
+.*                                                                      03170000
+.* JFCCPRI - TRANSMISSION PRIORITY (DCB=CPRI=)   (TCAM)                 03180000
+JFCRSV53 EQUOVR ,,b,JFCCPRI                                             03190000
+JFCRSV54 EQUOVR ,,b,JFCCPRI                                             03200000
+JFCRSV55 EQUOVR ,,b,JFCCPRI                                             03210000
+JFCRSV33 EQUOVR ,,b,JFCCPRI                                             03220000
+JFCRSV34 EQUOVR ,,b,JFCCPRI                                             03230000
+JFCRECV  EQUOVR ,,b,JFCCPRI                                             03240000
+JFCEQUAL EQUOVR ,,b,JFCCPRI                                             03250000
+JFCSEND  EQUOVR ,,b,JFCCPRI                                             03260000
+.*                                                                      03270000
+.* JFCBPQTY - SPACE= Primary quantity  (SPACE=(,(prim-qty)))            03280000
+JFCBPQTY DSOVR 0FL3                                                     03290000
+.*                                                                      03300000
+.* JFCBCTRI - SPACE PARAMETERS (SPACE=)                                 03310000
+JFCBSPAC EQUOVR ,,b,JFCBCTRI                                            03320000
+JFCBCYL  EQUOVR ,,b,JFCBCTRI                                            03330000
+JFCBTRK  EQUOVR ,,b,JFCBCTRI                                            03340000
+JFCBAVR  EQUOVR ,,b,JFCBCTRI                                            03350000
+JFCBMSGP EQUOVR ,,b,JFCBCTRI                                            03360000
+.* JFCRSV29 EQUOVR ,,b,JFCBCTRI     Last seen in z/OS                   03370000
+JFCONTIG EQUOVR ,,b,JFCBCTRI                                            03380000
+JFCMIXG  EQUOVR ,,b,JFCBCTRI                                            03390000
+JFCALX   EQUOVR ,,b,JFCBCTRI                                            03400000
+JFCROUND EQUOVR ,,b,JFCBCTRI                                            03410000
+JFCBABS  EQUOVR ,,v,JFCBCTRI                                            03420000
+.*                                                                      03430000
+.* JFCBSQTY - SPACE= Secondary quantity (SPACE=(,(,sec-qty)))           03440000
+JFCBSQTY DSOVR 0FL3                                                     03450000
+.*                                                                      03460000
+.* JFCBDQTY - SPACE= Directory quantity (SPACE=(,(,,dir-qty)))          03470000
+JFCBDQTY DSOVR FL3                                                      03480000
+.*                                                                      03490000
+.* JFCFLGS1 - FLAG BYTE (ICB488)                                        03500000
+JFCBDLET EQUOVR ,,b,JFCFLGS1                                            03510000
+JFCBLSR  EQUOVR ,,b,JFCFLGS1                                            03520000
+JFCTOPEN EQUOVR ,,b,JFCFLGS1                                            03530000
+JFCBADSP EQUOVR ,,b,JFCFLGS1                                            03540000
+JFCBPROT EQUOVR ,,b,JFCFLGS1                                            03550000
+JFCBCEOV EQUOVR ,,b,JFCFLGS1                                            03560000
+JFCVRDS  EQUOVR ,,b,JFCFLGS1                                            03570000
+JFCBCKDS EQUOVR ,,b,JFCFLGS1                                            03580000
+JFCBUAFF EQUOVR ,,b,JFCFLGS1                                            03590000
+.*                                                                      03600000
+.* JFCBFLG3 - FLAG BYTE (OS/VS2)  (MDC316)                              03610000
+JFCDQDSP EQUOVR ,,b,JFCBFLG3                                            03620000
+JFCBEXP  EQUOVR ,,b,JFCBFLG3                                            03630000
+JFCBBFTK EQUOVR ,,b,JFCBFLG3                                            03640000
+JFCPOSID EQUOVR ,,b,JFCBFLG3                                            03650000
+.* JFCBRV04 EQUOVR ,,b,JFCBFLG3        * Last seen in OS/390 V2R6       03660000
+JFCTEMPS EQUOVR ,,b,JFCBFLG3           * replaces JFCBRV04              03661000
+.* JFCBRV05 EQUOVR ,,b,JFCBFLG3        * Last seen in OS/390 V2R6       03670000
+JFCBDDTK EQUOVR ,,b,JFCBFLG3           * replaces JFCBRV05              03671000
+JFCBRV06 EQUOVR ,,b,JFCBFLG3                                            03680000
+JFCBRV07 EQUOVR ,,b,JFCBFLG3                                            03690000
+.*                                                                      03700000
+.* JFCVLDQ - Volser dequeue indicators                                  03710000
+JFCVLDQ1 EQUOVR ,,b,JFCVLDQ                                             03720000
+JFCVLDQ2 EQUOVR ,,b,JFCVLDQ                                             03730000
+JFCVLDQ3 EQUOVR ,,b,JFCVLDQ                                             03740000
+JFCVLDQ4 EQUOVR ,,b,JFCVLDQ                                             03750000
+JFCVLDQ5 EQUOVR ,,b,JFCVLDQ                                             03760000
+.*                                                                      03770000
+.* IEFJFCBN does not generate a DSECT-statement                         03780000
+         MNOTE *,'Including IEFJFCBN mapping macro'                     03790000
+JFCB     DSECT ,                       * Start of JFCB DSECT            03800000
+         IEFJFCBN LIST=YES             * Keep current listing options   03810000
+         EQUOVR *END                                                    03820000
+         DSOVR *END                                                     03830000
+*                                                                       03840000
+         ORG   ,                       *                                03850000
+JFCB_LEN EQU   *-JFCB                  * Length of JFCB                 03860000
+.*                                                                      03870000
+.* Return to our original CSECT name                                    03880000
+&SYSECT  &SYSSTYP                                                       03890000
+.*                                                                      03900000
+.MEND    MEND                                                           03920002

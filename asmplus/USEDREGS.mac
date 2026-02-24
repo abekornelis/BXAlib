@@ -1,0 +1,132 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro lists all registers currently in use                      00180000
+.*                                                                      00190000
+         USEDREGS &OPT                 * DETAILS or nothing             00200000
+.*                                                                      00210000
+.* &OPT  If specified as DETAILS, active entries from the               00220000
+.*       BXA_USELBL and BXA_USEREG tables will be shown                 00230000
+.*                                                                      00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC USEDREGS               * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00250101
+.* Declare variables                                                    00251000
+         GBLB  &BXA_USED_REGS(16)      * Use status of regs R0-R15      00260000
+         GBLC  &BXA_USELBL(50)         * Used labels ...                00270000
+         GBLC  &BXA_USEFLD(50)         *   and fields...                00280000
+         GBLA  &BXA_USEREG(50)         *   and associated registers     00290000
+         GBLA  &BXA_USENDX0(5)         * Low valid pointers             00300000
+         GBLA  &BXA_USENDX1(5)         * High valid pointers            00310000
+         GBLA  &BXA_USENDX             * Pointer for USENDX0/USENDX1    00320000
+         LCLA  &N                      * Pointer for BXA_USE...         00330000
+         LCLA  &REG                    * Register number                00340000
+         LCLC  &LBL                    * Label from table               00350000
+         LCLC  &FLD                    * Field name from table          00360000
+         LCLC  &ARG                    * 1 argument from SYSLIST        00370000
+         LCLC  &ARGS                   * Arguments from SYSLIST         00380000
+         LCLA  &I                      * Index into &SYSLIST            00390000
+         LCLA  &R                      * Index into &BXA_USED_REGS      00400000
+         LCLC  &USEDREGS               * Used regs on labeled USING     00410000
+         LCLC  &USEDREG                * 1 index from USEDREGS          00420000
+.*                                                                      00430000
+.* Check the OPT parameter                                              00440000
+         AIF   (K'&OPT EQ 0).NOERR1                                     00450000
+         AIF   ('&OPT' EQ 'DETAILS').NOERR1                             00460000
+.ERR1A   MNOTE 8,'&OPT is an unsupported option: ignored'               00470000
+.NOERR1  ANOP                                                           00480000
+.*                                                                      00490000
+.* Create list of registers currently in use                            00500000
+&ARGS    SETC  ''                      * Empty list of regs             00510000
+&I       SETA  0                       * Index BXA_USED_REGS            00520000
+.LOOPR   ANOP  ,                       * For all registers              00530000
+&I       SETA  &I+1                    * Point next register            00540000
+         AIF   (&I GT 16).LOOPROK      * At end: issue message          00550000
+         AIF   (NOT &BXA_USED_REGS(&I)).LOOPR * Unused reg: no action   00560000
+&R       SETA  &I-1                    * Obtain register number         00570000
+&ARGS    SETC  '&ARGS'.',R'.'&R'       * Add register to list           00580000
+         AGO   .LOOPR                  * And go check next register     00590000
+.LOOPROK ANOP                                                           00600000
+         AIF   (K'&ARGS GT 0).LOOPRN0                                   00610000
+&ARGS    SETC  ',None'                                                  00620000
+.LOOPRN0 ANOP  ,                       * ARGS not empty                 00630000
+&ARGS    SETC  '&ARGS'(2,*)            * Remove leading comma           00640000
+         MNOTE *,'Registers in use: &ARGS'                              00650000
+.*                                                                      00660000
+.* If DETAILS not specified: we're done                                 00670000
+         AIF   ('&OPT' NE 'DETAILS').LOOP2OK                            00680000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX)                                00690000
+.LOOP2   ANOP                                                           00700000
+&N       SETA  &N+1                                                     00710000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP2OK                00720000
+&REG     SETA  &BXA_USEREG(&N)-1       * Create reg.nr. from index      00730000
+&FLD     SETC  '&BXA_USEFLD(&N)'       * Copy fieldname                 00740000
+&LBL     SETC  '&BXA_USELBL(&N)'       * Copy label                     00750000
+         AIF   (K'&LBL GE 8).LOOP2M    * Go issue message               00760000
+&LBL     SETC  '&LBL'.(8-K'&LBL)' '    * Fill up to 8 chars             00770000
+.LOOP2M  ANOP  ,                       *                                00780000
+         AIF   (K'&FLD GT 0).LOOP2M2   * With field: issue msg 2        00790000
+         MNOTE *,'&LBL USE R&REG'      * Report register use            00800000
+         AGO   .LOOP2                  *                                00810000
+.LOOP2M2 ANOP  ,                       * Message 2:                     00820000
+         MNOTE *,'&LBL USE &FLD.,R&REG' * Report normal use             00830000
+         AGO   .LOOP2                  *                                00840000
+.LOOP2OK ANOP  ,                       *                                00850000
+.*                                                                      00860000
+.MEND    MEND                                                           00870002

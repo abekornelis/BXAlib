@@ -1,0 +1,156 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Contents Directory Entry                         00180000
+.*                                                                      00190000
+.* CDEs for FLPA/MLPA are in a chain. Field CVTQLPAQ points to          00200000
+.* a dummy header entry, which points to the first real CDE on the      00210000
+.* queue. The last entry in the chain has CDCHAIN=0.                    00220000
+.* CDEs for dynamic LPA are also in a chain, Field ECVTDLPF points      00230000
+.* to the first entry - no header entry is provided. The last entry     00240000
+.* in the chain is a dummy entry with CDENAME=XL8'00'. It points to     00250000
+.* the first real entry in the FLPA/MLPA queue.                         00260000
+.*                                                                      00270000
+&LABEL   MAPCDE &DSECT=YES,            * YES or NO                     *00280000
+               &CB=,                   * Control block to generate     *00290000
+               &PRFX=                  * Prefix to use                  00300000
+.********************************************************************** 00301001
+.*                                                                      00302001
+.*       IMPORTANT NOTICE                                               00303001
+.*       ========= ======                                               00304001
+.*                                                                      00305001
+.* Code below checks whether 'USER' accepted the terms and conditions   00306001
+.* of the license for the BXA macro library. This code is to be treated 00307001
+.* as part of the Copyright Notice and therefore may not be changed     00308001
+.* or disabled in any way.                                              00309001
+.*                                                                      00309101
+.********************************************************************** 00309201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00309301
+         CHKLIC MAPCDE                 * Check license acceptance       00309401
+         AIF   (&BXA_RC NE 0).MEND                                      00309502
+.********************************************************************** 00309601
+.*                                                                      00309701
+.* End of special code that is part of the Copyright Notice             00309801
+.*                                                                      00309901
+.********************************************************************** 00310001
+.*                                                                      00311000
+.* Declare variables                                                    00320000
+         GBLB  &BXA_MAC_MAPCDE         * Map has been generated?        00330000
+.*                                                                      00350000
+.* Check parameters                                                     00360000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00370000
+               CB=&CB,                 *                               *00380000
+               PRFX=&PRFX              *                                00390000
+         AIF   (&BXA_RC GT 4).MEND                                      00400002
+.*                                                                      00410000
+.* Check the CB parameter                                               00420000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00430000
+         AIF   ('&CB' EQ 'CDE').EMBED                                   00440000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.* Generate embedded definition                                         00480000
+.EMBED   ANOP                                                           00490000
+&LABEL   NESTCB &CB,X,&PRFX                                             00500000
+         MEXIT                                                          00510000
+.*                                                                      00520000
+.DSECT   ANOP                                                           00530000
+         AIF   (&BXA_MAC_MAPCDE).MEND                                   00540002
+&BXA_MAC_MAPCDE SETB 1                                                  00550000
+.* Set up translation from control block to macro for DCL               00560000
+         GBLC  &BXA_CB_CDE                                              00570000
+&BXA_CB_CDE SETC 'CDE'                                                  00580000
+.*                                                                      00590000
+.* CDENTPT - Module's relocated Entry Point address                     00600000
+CDEMODE  EQUOVR ,,b,CDENTPT                                             00610000
+.*                                                                      00620000
+.* CDATTRB - Flag byte                                                  00630000
+CDEOM    EQUOVR ,,b,CDATTRB                                             00640000
+CDIDENTY EQUOVR ,,b,CDATTRB                                             00650000
+CDRACDTY EQUOVR ,,b,CDATTRB                                             00660000
+CDCDEX   EQUOVR ,,b,CDATTRB                                             00670000
+CDELPDE  EQUOVR ,,b,CDATTRB                                             00680000
+CDGLOBAL EQUOVR ,,b,CDATTRB                                             00690000
+CDCONTMN EQUOVR ,,b,CDATTRB                                             00700000
+CDRACF   EQUOVR ,,b,CDATTRB                                             00710000
+.*                                                                      00720000
+.* CDATTR - Attribute flags                                             00730000
+CDNIP    EQUOVR ,,b,CDATTR                                              00740000
+CDNIC    EQUOVR ,,b,CDATTR                                              00750000
+CDREN    EQUOVR ,,b,CDATTR                                              00760000
+CDSER    EQUOVR ,,b,CDATTR                                              00770000
+CDNFN    EQUOVR ,,b,CDATTR                                              00780000
+CDMIN    EQUOVR ,,b,CDATTR                                              00790000
+CDJPA    EQUOVR ,,b,CDATTR                                              00800000
+CDNLR    EQUOVR ,,b,CDATTR                                              00810000
+.*                                                                      00820000
+.* CDATTR2 - Second attribute field                                     00830000
+CDSPZ    EQUOVR ,,b,CDATTR2                                             00840000
+CDREL    EQUOVR ,,b,CDATTR2                                             00850000
+CDXLE    EQUOVR ,,b,CDATTR2                                             00860000
+CDRLC    EQUOVR ,,b,CDATTR2                                             00870000
+CDEANYM  EQUOVR ,,b,CDATTR2                                             00880000
+CDOLY    EQUOVR ,,b,CDATTR2                                             00890000
+CDSYSLIB EQUOVR ,,b,CDATTR2                                             00900000
+CDAUTH   EQUOVR ,,b,CDATTR2                                             00910000
+.*                                                                      00920000
+.* CDATTR3 - 3rd attribute field                                        00930000
+CDPATHN  EQUOVR ,,b,CDATTR3                                             00940000
+CDPML    EQUOVR ,,b,CDATTR3                                             00950000
+CDESPLIT EQUOVR ,,b,CDATTR3                                             00960000
+CDERTLS  EQUOVR ,,b,CDATTR3                                             00970000
+CDEDYLPA EQUOVR ,,b,CDATTR3                                             00980000
+CDEPROTP EQUOVR ,,b,CDATTR3                                             00990000
+.*                                                                      01000000
+         MNOTE *,'Including IHACDE mapping macro'                       01010000
+         IHACDE ,                                                       01020000
+         EQUOVR *END                                                    01030000
+*                                                                       01040000
+CDENTRY  DSECT ,                       * Resume CDE DSECT               01050000
+CDE      EQU   CDENTRY                 * Label for USINGs               01060000
+         ORG   ,                                                        01070000
+CDE_LEN  EQU   *-CDE                   * Length of CDE                  01080000
+.*                                                                      01090000
+.* Return to our original CSECT name                                    01100000
+&SYSECT  &SYSSTYP                                                       01110000
+.*                                                                      01120000
+.MEND    MEND                                                           01140002

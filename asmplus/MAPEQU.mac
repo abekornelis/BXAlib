@@ -1,0 +1,111 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for equates                                            00180000
+.*                                                                      00190000
+         MAPEQU                                                         00200000
+.********************************************************************** 00201001
+.*                                                                      00202001
+.*       IMPORTANT NOTICE                                               00203001
+.*       ========= ======                                               00204001
+.*                                                                      00205001
+.* Code below checks whether 'USER' accepted the terms and conditions   00206001
+.* of the license for the BXA macro library. This code is to be treated 00207001
+.* as part of the Copyright Notice and therefore may not be changed     00208001
+.* or disabled in any way.                                              00209001
+.*                                                                      00209101
+.********************************************************************** 00209201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00209301
+         CHKLIC MAPEQU                 * Check license acceptance       00209401
+         AIF   (&BXA_RC NE 0).MEND                                      00209502
+.********************************************************************** 00209601
+.*                                                                      00209701
+.* End of special code that is part of the Copyright Notice             00209801
+.*                                                                      00209901
+.********************************************************************** 00210001
+.*                                                                      00211000
+.* Prevent multiple expansion                                           00220000
+         GBLB  &BXA_MAC_MAPEQU                                          00230000
+         AIF   (&BXA_MAC_MAPEQU).MEND                                   00240002
+&BXA_MAC_MAPEQU SETB  1                                                 00250000
+.*                                                                      00260000
+         MNOTE *,'Generating Equates'                                   00270000
+*                                                                       00280000
+* Equates for registers                                                 00290000
+*                                                                       00300000
+         GENMAPS (REGS,BITS)                                            00310000
+.*                                                                      00320000
+.* Put equates in a DSECT to prevent warning messages in ASM listing    00330000
+BXA_EQU  DSECT                                                          00340000
+*                                                                       00350000
+* Equates for masks                                                     00360000
+*                                                                       00370000
+NNNN     EQU   B'0000'                 *                                00380000
+NNNY     EQU   B'0001'                 *                                00390000
+NNYN     EQU   B'0010'                 *                                00400000
+NNYY     EQU   B'0011'                 *                                00410000
+NYNN     EQU   B'0100'                 *                                00420000
+NYNY     EQU   B'0101'                 *                                00430000
+NYYN     EQU   B'0110'                 *                                00440000
+NYYY     EQU   B'0111'                 *                                00450000
+YNNN     EQU   B'1000'                 *                                00460000
+YNNY     EQU   B'1001'                 *                                00470000
+YNYN     EQU   B'1010'                 *                                00480000
+YNYY     EQU   B'1011'                 *                                00490000
+YYNN     EQU   B'1100'                 *                                00500000
+YYNY     EQU   B'1101'                 *                                00510000
+YYYN     EQU   B'1110'                 *                                00520000
+YYYY     EQU   B'1111'                 *                                00530000
+NOBYTE   EQU   NNNN                    *                                00540000
+ALLBYTES EQU   YYYY                    *                                00550000
+*                                                                       00560000
+* Equates for ALETs                                                     00570000
+*                                                                       00580000
+ALET_PRIM EQU  0                       * Alet for PASN                  00590000
+ALET_SEC  EQU  1                       * Alet for SASN                  00600000
+ALET_HOME EQU  2                       * ALET for HASN                  00610000
+*                                                                       00620000
+.*                                                                      00630000
+.* Return to our original CSECT name                                    00640000
+&SYSECT  &SYSSTYP                                                       00650000
+.*                                                                      00660000
+.MEND    MEND                                                           00680002

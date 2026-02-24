@@ -1,0 +1,7 @@
+*                                                                       00010000
+* This load module has no specific requirements                         00020000
+*                                                                       00030000
+ SETOPT     PARM(REUS=RENT)                                             00040000
+ INCLUDE OBJECTS(BXAIO00)                                               00050000
+ ENTRY           BXAIO00                                                00060000
+ NAME            BXAIO00(R)                                             00070000

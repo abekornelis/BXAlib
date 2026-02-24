@@ -1,0 +1,164 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Data Facilities Area                             00180000
+.*                                                                      00190000
+&LABEL   MAPDFA &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPDFA                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPDFA         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'DFA').EMBED                                   00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPDFA).MEND                                   00460002
+&BXA_MAC_MAPDFA SETB 1                                                  00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_DFA                                              00490000
+&BXA_CB_DFA SETC 'DFA'                                                  00500000
+.*                                                                      00510000
+.* DFAFEAT1 - FEATURES BYTE 1                                           00520000
+DFAXA    EQUOVR ,,b,DFAFEAT1                                            00530000
+DFALSR   EQUOVR ,,b,DFAFEAT1                                            00540000
+DFAEOS   EQUOVR ,,b,DFAFEAT1                                            00550000
+DFAXRF   EQUOVR ,,b,DFAFEAT1                                            00560000
+DFAEXPCI EQUOVR ,,b,DFAFEAT1                                            00570000
+DFAEOSIC EQUOVR ,,b,DFAFEAT1                                            00580000
+DFASMS   EQUOVR ,,b,DFAFEAT1                                            00590000
+DFAPDSE  EQUOVR ,,b,DFAFEAT1                                            00600000
+.*                                                                      00610000
+.* DFAFEAT2 - FEATURES BYTE 2                                           00620000
+DFADLS   EQUOVR ,,b,DFAFEAT2                                            00630000
+DFAPML   EQUOVR ,,b,DFAFEAT2                                            00640000
+DFAFMS   EQUOVR ,,b,DFAFEAT2                                            00650000
+DFACMPAC EQUOVR ,,b,DFAFEAT2                                            00660000
+DFABPBLD EQUOVR ,,b,DFAFEAT2                                            00670000
+DFASSF   EQUOVR ,,b,DFAFEAT2                                            00680000
+DFAMMEXT EQUOVR ,,b,DFAFEAT2                                            00690000
+DFAINDEF EQUOVR ,,b,DFAFEAT2                                            00700000
+.*                                                                      00710000
+.* DFAFEAT3 - FEATURES BYTE 3                                           00720000
+DFAVOLSN EQUOVR ,,b,DFAFEAT3                                            00730000
+DFASAMEX EQUOVR ,,b,DFAFEAT3                                            00740000
+DFASMSEX EQUOVR ,,b,DFAFEAT3                                            00750000
+DFAKSDEX EQUOVR ,,b,DFAFEAT3                                            00760000
+DFACMPCT EQUOVR ,,b,DFAFEAT3                                            00770000
+DFARLSJ3 EQUOVR ,,b,DFAFEAT3                                            00780000
+DFARECAL EQUOVR ,,b,DFAFEAT3                                            00790000
+DFADEEXT EQUOVR ,,b,DFAFEAT3                                            00800000
+DFADLL   EQUOVR ,,b,DFAFEAT3                                            00810000
+.*                                                                      00820000
+.* DFAFEAT4 - FEATURES BYTE 4                                           00830000
+DFAFDAT  EQUOVR ,,b,DFAFEAT4                                            00840000
+DFANSRV  EQUOVR ,,b,DFAFEAT4                                            00850000
+DFADYNL  EQUOVR ,,b,DFAFEAT4                                            00860000
+DFACIR2  EQUOVR ,,b,DFAFEAT4                                            00870000
+DFARTLS  EQUOVR ,,b,DFAFEAT4                                            00880000
+DFADYLPA EQUOVR ,,b,DFAFEAT4                                            00890000
+DFAFORK  EQUOVR ,,b,DFAFEAT4                                            00900000
+DFASNBK  EQUOVR ,,b,DFAFEAT4                                            00910000
+DFASNAP  EQUOVR ,,b,DFAFEAT4                                            00920000
+.*                                                                      00930000
+.* DFALPKG - LICENSED PACKAGE BYTE                                      00940000
+.* DFAHSM   EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       00950000
+.* DFADSS   EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       00960000
+.* DFARMM   EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       00970000
+.* DFAOPT   EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       00980000
+.* DFADFP0  EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       00990000
+.* DFAADSM  EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       01000000
+.* DFASORT  EQUOVR ,,b,DFALPKG         * Last seen in OS/390 V2R6       01010000
+.*                                                                      01020000
+.* DFALPKG2 - 2ND LICENSED PACKAGE BYTE                                 01030000
+.* DFANFS   EQUOVR ,,b,DFALPKG2        * Last seen in OS/390 V2R6       01040000
+.*                                                                      01050000
+.* DFAPROD - PRODUCT BYTE                                               01060000
+DFADFP   EQUOVR ,,v,DFAPROD                                             01070000
+DFADFSMS EQUOVR ,,v,DFAPROD                                             01080000
+.*                                                                      01090000
+         MNOTE *,'Including IHADFA mapping macro'                       01100000
+         IHADFA ,                      *                                01110000
+         EQUOVR *END                                                    01120000
+*                                                                       01130000
+DFA      DSECT ,                       * Return to DFA                  01140000
+         ORG                                                            01150000
+DFA_LEN  EQU   *-DFA                   * Length of DFA                  01160000
+.*                                                                      01170000
+.* Return to our original CSECT name                                    01180000
+&SYSECT  &SYSSTYP                                                       01190000
+.*                                                                      01200000
+.MEND    MEND                                                           01220002

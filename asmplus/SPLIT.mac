@@ -1,0 +1,163 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro splits a parameter string in its constituent parts        00180000
+.*                                                                      00190000
+.* The number of parameters found is returned in BXA_NUMVAL             00200000
+.* The parameters are returned in BXA_PRM(n)                            00210000
+.*                                                                      00220000
+&LABEL   SPLIT &INPUT                  * Parameter to be split          00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC SPLIT                  * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLC  &BXA_PRM(3)             * Output parameters              00260000
+         GBLA  &BXA_NUMVAL             * Nr of parameters found         00270000
+         LCLC  &IN                     * Copy of INPUT                  00280000
+         LCLC  &C                      * Single character from input    00290000
+         LCLC  &PRM(3)                 * Parameters found               00300000
+         LCLA  &P                      * Index for BXA_PRM              00310000
+         LCLA  &I,&J                   * Work var.                      00320000
+         LCLA  &PAR                    * Nr of parentheses levels       00330000
+         LCLA  &COMMA                  * Comma location                 00340000
+         LCLB  &STRING                 * On if scanning within quotes   00350000
+.*                                                                      00360000
+.* Input string is empty?                                               00370000
+         AIF   (K'&INPUT LE 0).EXIT    * Skip all if input empty        00380000
+.*                                                                      00390000
+.* Remove leading blanks                                                00400000
+&IN      SETC  '&INPUT'                * Copy input string              00410000
+.LOOP0   ANOP  ,                       *                                00420000
+         AIF   ('&IN'(1,1) NE ' ').LOOP0OK                              00430000
+         AIF   (K'&IN LE 1).EXIT       * Skip all if nothing remains    00440000
+&IN      SETC  '&IN'(2,*)              * Remove leading blank           00450000
+         AGO   .LOOP0                  *                                00460000
+.LOOP0OK ANOP  ,                       *                                00470000
+.*                                                                      00480000
+.* Remove trailing commas                                               00490000
+.LOOP1   ANOP  ,                       *                                00500000
+         AIF   ('&IN'(K'&IN,1) NE ',').LOOP1OK                          00510000
+         AIF   (K'&IN LE 1).EXIT       * Skip all if nothing remains    00520000
+&IN      SETC  '&IN'(1,K'&IN-1)        * Remove trailing comma          00530000
+         AGO   .LOOP1                  *                                00540000
+.LOOP1OK ANOP  ,                       *                                00550000
+.*                                                                      00560000
+.* Arguments are passed as a single string without trailing commas.     00570000
+.* Decompose the INPUT field in its constituent parameters.             00580000
+.* Discard trailing comments - if any.                                  00590000
+&P       SETA  1                       * First output string is target  00600000
+.LOOP2   ANOP  ,                       * Search next character          00610000
+&I       SETA  ('&IN' FIND '(, '')')   * Locate comma or parenthesis    00620000
+         AIF   (&I EQ 0).LOOP2ND       * End: go copy remainder         00630000
+&C       SETC  '&IN'(&I,1)             * Extract character found        00640000
+         AIF   ('&C' EQ '''').LOOP2QU  * Quote                          00650000
+         AIF   (&STRING).LOOP2CP       * Within string: just copy       00660000
+         AIF   ('&C' EQ '(').LOOP2LP   * Left Parenthesis               00670000
+         AIF   ('&C' EQ ')').LOOP2RP   * Right Parenthesis              00680000
+         AIF   ('&C' EQ ' ').LOOP2SP   * Space                          00690000
+.* Must be a comma: check parentheses level                             00700000
+         AIF   (&PAR GT 0).LOOP2CP     * Within parentheses: copy       00710000
+         AIF   (&I EQ 1).LOOP2C1       * Leading comma?                 00720000
+&PRM(&P) SETC  '&PRM(&P)'.'&IN'(1,&I-1) * Up to & excluding comma       00730000
+.LOOP2C1 ANOP  ,                       *                                00740000
+&IN      SETC  '&IN'(&I+1,*)           * Remainder remains in IN        00750000
+&P       SETA  &P+1                    * Point next parameter           00760000
+         AGO   .LOOP2                  *                                00770000
+.*                                                                      00780000
+.LOOP2LP ANOP  ,                       * Found Left Parenthesis         00790000
+&PAR     SETA  &PAR+1                  * Increment parenthesis level    00800000
+         AGO   .LOOP2CP                * Go copy up to parenthesis      00810000
+.LOOP2RP ANOP  ,                       * Found Right Parenthesis        00820000
+&PAR     SETA  &PAR-1                  * Increment parenthesis level    00830000
+         AGO   .LOOP2CP                * Go copy up to parenthesis      00840000
+.LOOP2SP ANOP  ,                       * Found a space                  00850000
+&IN      SETC  '&IN'(1,&I-1)           * Discard all comments           00860000
+         AGO   .LOOP2ND                * Go copy remainder              00870000
+.LOOP2QU ANOP  ,                       * Found a quote                  00880000
+&STRING  SETB  (&STRING XOR 1)         * Flip String status             00890000
+         AGO   .LOOP2CP                * Go copy up to quote            00900000
+.LOOP2CP ANOP  ,                       * Copy part of input             00910000
+         AIF   (&I GE K'&IN).LOOP2ND   * Copy up to end of string?      00920000
+&PRM(&P) SETC  '&PRM(&P)'.'&IN'(1,&I)  * Up to & including delimiter    00930000
+&IN      SETC  '&IN'(&I+1,*)           * Remainder remains in IN        00940000
+         AGO   .LOOP2                  *                                00950000
+.LOOP2ND ANOP  ,                       *                                00960000
+&PRM(&P) SETC  '&PRM(&P)'.'&IN'        * Copy remainder of input        00970000
+.*                                                                      00980000
+.* Copy results to global variables                                     00990000
+.EXIT    ANOP  ,                       *                                01000000
+&BXA_NUMVAL SETA &P                    * Nr of parms found              01010000
+&I       SETA  0                       * Index for BXA_PRM              01020000
+.LOOP3   ANOP  ,                       *                                01030000
+&I       SETA  &I+1                    * Point next parm                01040000
+         AIF   (&I GT &P).LOOP3OK      * End-of-parmlist?               01050000
+&BXA_PRM(&I) SETC '&PRM(&I)'           * Copy parameter                 01060000
+         AGO   .LOOP3                  *                                01070000
+.LOOP3OK ANOP  ,                       *                                01080000
+.*                                                                      01090000
+.* Wipe any remaining entries in BXA_PRM                                01100000
+&I       SETA  &P                      * Point last valid               01110000
+.LOOP4   ANOP  ,                       *                                01120000
+&I       SETA  &I+1                    * Point next entry               01130000
+         AIF   (&I GT N'&BXA_PRM).LOOP4OK * End-of-table?               01140000
+&BXA_PRM(&I) SETC ''                   * Wipe parameter                 01150000
+         AGO   .LOOP4                  *                                01160000
+.LOOP4OK ANOP  ,                       *                                01170000
+.*                                                                      01180000
+.MEND    MEND                                                           01190002

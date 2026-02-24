@@ -1,0 +1,394 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Task Control Block                               00180000
+.*                                                                      00190000
+&LABEL   MAPTCB &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPTCB                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPTCB         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'TCB').EMBED                                   00360000
+         AIF   ('&CB' EQ 'TCBFIX').EMBED                                00370000
+         AIF   ('&CB' EQ 'TCBXTNT2').EMBED                              00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPTCB).MEND                                   00480002
+&BXA_MAC_MAPTCB SETB 1                                                  00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_TCB                                              00510000
+         GBLC  &BXA_CB_TCBFIX                                           00520000
+         GBLC  &BXA_CB_TCBXTNT2                                         00530000
+&BXA_CB_TCB SETC 'TCB'                                                  00540000
+&BXA_CB_TCBFIX SETC 'TCB'                                               00550000
+&BXA_CB_TCBXTNT2 SETC 'TCB'                                             00560000
+.*                                                                      00570000
+.* TCBPMASK - SPIE BITS                                                 00580000
+.* TCBPM    EQUOVR ,,b,TCBPMASK        * Last seen in OS/390 V2R6       00590000
+.*                                                                      00600000
+.* TCBCMPF - INDICATOR FLAGS                                            00610000
+TCBCREQ  EQUOVR ,,b,TCBCMPF                                             00620000
+TCBCSTEP EQUOVR ,,b,TCBCMPF                                             00630000
+TCBCPP   EQUOVR ,,b,TCBCMPF                                             00640000
+TCBDMPO  EQUOVR ,,b,TCBCMPF                                             00650000
+TCBSTCC  EQUOVR ,,b,TCBCMPF                                             00660000
+TCBNOCC  EQUOVR ,,b,TCBCMPF                                             00670000
+TCBCDBL  EQUOVR ,,b,TCBCMPF                                             00680000
+TCBCASID EQUOVR ,,b,TCBCMPF                                             00690000
+TCBCWTO  EQUOVR ,,b,TCBCMPF                                             00700000
+TCBRV316 EQUOVR ,,b,TCBCMPF                                             00710000
+TCBCIND  EQUOVR ,,b,TCBCMPF                                             00720000
+TCBCMSG  EQUOVR ,,b,TCBCMPF                                             00730000
+.*                                                                      00740000
+.* TCBABF - FLAG BYTE                                                   00750000
+TCBMOD91 EQUOVR ,,b,TCBABF                                              00760000
+TCBNOCHK EQUOVR ,,b,TCBABF                                              00770000
+TCBGRPH  EQUOVR ,,b,TCBABF                                              00780000
+TCBTCPP  EQUOVR ,,b,TCBABF                                              00790000
+TCBTCP   EQUOVR ,,b,TCBABF                                              00800000
+TCBOLTEP EQUOVR ,,b,TCBABF                                              00810000
+.*                                                                      00820000
+.* TCBPKF - STORAGE PROTECTION KEY FOR THIS TASK.                       00830000
+TCBFLAG  EQUOVR ,,b,TCBPKF                                              00840000
+TCBZERO  EQUOVR ,,b,TCBPKF                                              00850000
+.*                                                                      00860000
+.* TCBFLGS1 - FIRST TCB FLAG BYTE                                       00870000
+TCBFA    EQUOVR ,,b,TCBFLGS1                                            00880000
+TCBFE    EQUOVR ,,b,TCBFLGS1                                            00890000
+TCBFERA  EQUOVR ,,b,TCBFLGS1                                            00900000
+TCBNONPR EQUOVR ,,b,TCBFLGS1                                            00910000
+TCBPDUMP EQUOVR ,,b,TCBFLGS1                                            00920000
+TCBFT    EQUOVR ,,b,TCBFLGS1                                            00930000
+TCBFS    EQUOVR ,,b,TCBFLGS1                                            00940000
+TCBFX    EQUOVR ,,b,TCBFLGS1                                            00950000
+.*                                                                      00960000
+.* TCBFLGS2 - SECOND FLAG BYTE                                          00970000
+TCBFOINP EQUOVR ,,b,TCBFLGS2                                            00980000
+TCBFSTI  EQUOVR ,,b,TCBFLGS2                                            00990000
+TCBFABOP EQUOVR ,,b,TCBFLGS2                                            01000000
+TCBFSMC  EQUOVR ,,b,TCBFLGS2                                            01010000
+TCBFJMC  EQUOVR ,,b,TCBFLGS2                                            01020000
+TCBFDSOP EQUOVR ,,b,TCBFLGS2                                            01030000
+TCBFETXR EQUOVR ,,b,TCBFLGS2                                            01040000
+TCBFTS   EQUOVR ,,b,TCBFLGS2                                            01050000
+.*                                                                      01060000
+.* TCBFLGS3 - THIRD FLAG BYTE.                                          01070000
+TCBFSM   EQUOVR ,,b,TCBFLGS3                                            01080000
+TCBRT1S  EQUOVR ,,b,TCBFLGS3                                            01090000
+TCBABTRM EQUOVR ,,b,TCBFLGS3                                            01100000
+TCBFXSET EQUOVR ,,b,TCBFLGS3                                            01110000
+TCBENQRM EQUOVR ,,b,TCBFLGS3                                            01120000
+TCBDWSTA EQUOVR ,,b,TCBFLGS3                                            01130000
+.*                                                                      01140000
+.* TCBFLGS4 - NONDISPATCHABILITY FLAGS                                  01150000
+TCBNDUMP EQUOVR ,,b,TCBFLGS4                                            01160000
+TCBSER   EQUOVR ,,b,TCBFLGS4                                            01170000
+TCBRQENA EQUOVR ,,b,TCBFLGS4                                            01180000
+TCBHNDSP EQUOVR ,,b,TCBFLGS4                                            01190000
+TCBUXNDV EQUOVR ,,b,TCBFLGS4                                            01200000
+TCBRBWF  EQUOVR ,,b,TCBFLGS4                                            01210000
+TCBONDSP EQUOVR ,,b,TCBFLGS4                                            01220000
+.*                                                                      01230000
+.* TCBFLGS5 - MORE NONDISPATCHABILITY FLAGS.                            01240000
+TCBFC    EQUOVR ,,b,TCBFLGS5                                            01250000
+TCBABWF  EQUOVR ,,b,TCBFLGS5                                            01260000
+TCBUXNDF EQUOVR ,,b,TCBFLGS5                                            01270000
+TCBPAGE  EQUOVR ,,b,TCBFLGS5                                            01280000
+TCBANDSP EQUOVR ,,b,TCBFLGS5                                            01290000
+TCBSYS   EQUOVR ,,b,TCBFLGS5                                            01300000
+TCBSTP   EQUOVR ,,b,TCBFLGS5                                            01310000
+TCBFCD1  EQUOVR ,,b,TCBFLGS5                                            01320000
+TCBPNDSP EQUOVR ,,b,TCBFLGS5                                            01330000
+.*                                                                      01340000
+.* TCBPURGE - HIGH ORDER BYTE                                           01350000
+TCBJPQF  EQUOVR ,,b,TCBPURGE                                            01360000
+.*                                                                      01370000
+.* TCBTME - ADDRESS OF THE TIMER QUEUE ELEMENT (TQE)                    01380000
+TCBTQET  EQUOVR ,,b,TCBTME                                              01390000
+.*                                                                      01400000
+.* TCBTSFLG - TIME SHARING FLAGS                                        01410000
+TCBTSTSK EQUOVR ,,b,TCBTSFLG                                            01420000
+TCBSTPPR EQUOVR ,,b,TCBTSFLG                                            01430000
+TCBATT   EQUOVR ,,b,TCBTSFLG                                            01440000
+TCBTIOTG EQUOVR ,,b,TCBTSFLG                                            01450000
+TCBSMCP  EQUOVR ,,b,TCBTSFLG                                            01460000
+TCBDYDSP EQUOVR ,,b,TCBTSFLG                                            01470000
+TCBCPUBN EQUOVR ,,b,TCBTSFLG                                            01480000
+.*                                                                      01490000
+.* TCBNSTAE - FLAGS INTERNAL TO STAE ROUTINE                            01500000
+TCBSTABE EQUOVR ,,b,TCBNSTAE                                            01510000
+TCBQUIES EQUOVR ,,b,TCBNSTAE                                            01520000
+TCB33E   EQUOVR ,,b,TCBNSTAE                                            01530000
+TCBPPSUP EQUOVR ,,b,TCBNSTAE                                            01540000
+TCBHALT  EQUOVR ,,b,TCBNSTAE                                            01550000
+TCBSYNCH EQUOVR ,,b,TCBNSTAE                                            01560000
+TCBSTCUR EQUOVR ,,b,TCBNSTAE                                            01570000
+.*                                                                      01580000
+.* TCBTCTGF - FLAG BYTE FOR TIMING CONTROL TABLE                        01590000
+TCBSMFGF EQUOVR ,,b,TCBTCTGF                                            01600000
+.*                                                                      01610000
+.* TCBNDSP1 - BYTE 1                                                    01620000
+TCBDARTN EQUOVR ,,b,TCBNDSP1                                            01630000
+TNONDISP EQUOVR ,,b,TCBNDSP1                                            01640000
+TCBDARPN EQUOVR ,,b,TCBNDSP1                                            01650000
+PNONDISP EQUOVR ,,b,TCBNDSP1                                            01660000
+TCBRSTND EQUOVR ,,b,TCBNDSP1                                            01670000
+TCBRSPND EQUOVR ,,b,TCBNDSP1                                            01680000
+TCBDDRND EQUOVR ,,b,TCBNDSP1                                            01690000
+TCBTPSP  EQUOVR ,,b,TCBNDSP1                                            01700000
+TCBPIEND EQUOVR ,,b,TCBNDSP1                                            01710000
+TCBABTIN EQUOVR ,,b,TCBNDSP1                                            01720000
+.*                                                                      01730000
+.* TCBNDSP2 - BYTE 2                                                    01740000
+TCBABD   EQUOVR ,,b,TCBNDSP2                                            01750000
+TCBSTPP  EQUOVR ,,b,TCBNDSP2                                            01760000
+TCBNDSVC EQUOVR ,,b,TCBNDSP2                                            01770000
+TCBNDTS  EQUOVR ,,b,TCBNDSP2                                            01780000
+TCBIWAIT EQUOVR ,,b,TCBNDSP2                                            01790000
+TCBOWAIT EQUOVR ,,b,TCBNDSP2                                            01800000
+TCBDSS   EQUOVR ,,b,TCBNDSP2                                            01810000
+TCBABE   EQUOVR ,,b,TCBNDSP2                                            01820000
+.*                                                                      01830000
+.* TCBNDSP3 - BYTE 3                                                    01840000
+TCBLJSND EQUOVR ,,b,TCBNDSP3                                            01850000
+TCBNDNYI EQUOVR ,,b,TCBNDSP3                                            01860000
+TCBSRBND EQUOVR ,,b,TCBNDSP3                                            01870000
+TCBSLPER EQUOVR ,,b,TCBNDSP3                                            01880000
+TCBS3MR  EQUOVR ,,b,TCBNDSP3                                            01890000
+TCBAREQ  EQUOVR ,,b,TCBNDSP3                                            01900000
+TCBNDSMF EQUOVR ,,b,TCBNDSP3                                            01910000
+TCBNDINT EQUOVR ,,b,TCBNDSP3                                            01920000
+.*                                                                      01930000
+.* TCBRECDE - ABEND RECURSION BYTE                                      01940000
+TCBREC   EQUOVR ,,b,TCBRECDE                                            01950000
+TCBOPEN  EQUOVR ,,v,TCBRECDE                                            01960000
+TCBCLOSD EQUOVR ,,v,TCBRECDE                                            01970000
+TCBCLOSE EQUOVR ,,v,TCBRECDE                                            01980000
+TCBCLOSF EQUOVR ,,v,TCBRECDE                                            01990000
+TCBGREC  EQUOVR ,,v,TCBRECDE                                            02000000
+TCBADUMP EQUOVR ,,v,TCBRECDE                                            02010000
+TCBPTAXE EQUOVR ,,v,TCBRECDE                                            02020000
+TCBMESG  EQUOVR ,,v,TCBRECDE                                            02030000
+TCBDYNAM EQUOVR ,,v,TCBRECDE                                            02040000
+TCBDAMSG EQUOVR ,,v,TCBRECDE                                            02050000
+TCBQTIP  EQUOVR ,,v,TCBRECDE                                            02060000
+TCBTCAMP EQUOVR ,,v,TCBRECDE                                            02070000
+TCBINDRC EQUOVR ,,v,TCBRECDE                                            02080000
+TCBSAVCD EQUOVR ,,v,TCBRECDE                                            02090000
+TCBTYP1W EQUOVR ,,v,TCBRECDE                                            02100000
+TCBWTPSE EQUOVR ,,v,TCBRECDE                                            02110000
+TCBVTAM1 EQUOVR ,,v,TCBRECDE                                            02120000
+TCBVTAM2 EQUOVR ,,v,TCBRECDE                                            02130000
+TCBVTAM3 EQUOVR ,,v,TCBRECDE                                            02140000
+TCBVTAM4 EQUOVR ,,v,TCBRECDE                                            02150000
+TCBNOSTA EQUOVR ,,v,TCBRECDE                                            02160000
+TCBSTRET EQUOVR ,,v,TCBRECDE                                            02170000
+TCBCONVR EQUOVR ,,v,TCBRECDE                                            02180000
+TCBDARET EQUOVR ,,v,TCBRECDE                                            02190000
+TCBTYP1R EQUOVR ,,v,TCBRECDE                                            02200000
+TCBNEWRB EQUOVR ,,v,TCBRECDE                                            02210000
+TCBMCCNS EQUOVR ,,v,TCBRECDE                                            02220000
+.*                                                                      02230000
+.* TCBFLGS6 - TASK-RELATED FLAGS                                        02240000
+TCBRV    EQUOVR ,,b,TCBFLGS6                                            02250000
+TCBPIE17 EQUOVR ,,b,TCBFLGS6                                            02260000
+TCBCPU   EQUOVR ,,b,TCBFLGS6                                            02270000
+TCBSPVLK EQUOVR ,,b,TCBFLGS6                                            02280000
+TCBMIGR  EQUOVR ,,b,TCBFLGS6                                            02290000
+TCBAPG   EQUOVR ,,b,TCBFLGS6                                            02300000
+TCBNTJS  EQUOVR ,,b,TCBFLGS6                                            02310000
+.*                                                                      02320000
+.* TCBFLGS7 - TASK-RELATED FLAGS                                        02330000
+TCBGPECB EQUOVR ,,b,TCBFLGS7                                            02340000
+TCBSVCSP EQUOVR ,,b,TCBFLGS7                                            02350000
+TCBSTACK EQUOVR ,,b,TCBFLGS7                                            02360000
+TCBSVCS  EQUOVR ,,b,TCBFLGS7                                            02370000
+TCBRSTSK EQUOVR ,,b,TCBFLGS7                                            02380000
+TCBADMP  EQUOVR ,,b,TCBFLGS7                                            02390000
+TCBGTOFM EQUOVR ,,b,TCBFLGS7                                            02400000
+.*                                                                      02410000
+.* TCBDAR - DAMAGE ASSESSMENT ROUTINE (DAR) FLAGS                       02420000
+TCBDARP  EQUOVR ,,b,TCBDAR                                              02430000
+TCBDARS  EQUOVR ,,b,TCBDAR                                              02440000
+TCBDARD  EQUOVR ,,b,TCBDAR                                              02450000
+TCBDARC  EQUOVR ,,b,TCBDAR                                              02460000
+TCBDARMC EQUOVR ,,b,TCBDAR                                              02470000
+TCBDARO  EQUOVR ,,b,TCBDAR                                              02480000
+TCBDARWT EQUOVR ,,b,TCBDAR                                              02490000
+TCBDARMS EQUOVR ,,b,TCBDAR                                              02500000
+TCBEXSVC EQUOVR ,,b,TCBDAR                                              02510000
+.*                                                                      02520000
+.* TCBNSSP - NORMAL STACK SAVE AREA POINTER.                            02530000
+TCBNSSQA EQUOVR ,,b,TCBNSSP                                             02540000
+.*                                                                      02550000
+.* TCBTID - TASK ID NUMBER                                              02560000
+TCBTID   DSOVR HL1                                                      02570000
+TCBPAGID EQUOVR ,,v,TCBTID                                              02580000
+TCBSYERR EQUOVR ,,v,TCBTID                                              02590000
+TCBCOMM  EQUOVR ,,v,TCBTID                                              02600000
+TCBIORMS EQUOVR ,,v,TCBTID                                              02610000
+TCBMASTR EQUOVR ,,v,TCBTID                                              02620000
+TCBJES   EQUOVR ,,v,TCBTID                                              02630000
+TCBDSSID EQUOVR ,,v,TCBTID                                              02640000
+TCBLOGID EQUOVR ,,v,TCBTID                                              02650000
+.*                                                                      02660000
+.* TCBFLGS8 - GUPI FLAG BYTE FIELD                                      02670000
+TCBDYING EQUOVR ,,b,TCBFLGS8                                            02680000
+.*                                                                      02690000
+.* TCBXSCT1 - FLAG BYTE                                                 02700000
+TCBACTIV EQUOVR ,,b,TCBXSCT1                                            02710000
+TCBS3A   EQUOVR ,,b,TCBXSCT1                                            02720000
+TCBLLREQ EQUOVR ,,b,TCBXSCT1                                            02730000
+TCBTDORM EQUOVR ,,b,TCBXSCT1                                            02740000
+.*                                                                      02750000
+.* TCBXSCT2 - FLAG BYTE                                                 02760000
+TCBCMLF  EQUOVR ,,b,TCBXSCT2                                            02770000
+TCBLLNEW EQUOVR ,,b,TCBXSCT2                                            02780000
+.*                                                                      02790000
+.* TCBESTRM - ESTAE TERM OPTIONS                                        02800000
+TCBETERM EQUOVR ,,b,TCBESTRM                                            02810000
+TCBSTAFX EQUOVR ,,b,TCBESTRM                                            02820000
+.*                                                                      02830000
+.* TCBFBYT1 - FLAG BYTE.                                                02840000
+TCBEOTFM EQUOVR ,,b,TCBFBYT1                                            02850000
+TCBRTM1E EQUOVR ,,b,TCBFBYT1                                            02860000
+TCBNDIOS EQUOVR ,,b,TCBFBYT1                                            02870000
+TCBPGNLY EQUOVR ,,b,TCBFBYT1                                            02880000
+TCBRTM2  EQUOVR ,,b,TCBFBYT1                                            02890000
+TCBEOT   EQUOVR ,,b,TCBFBYT1                                            02900000
+TCBSATTN EQUOVR ,,b,TCBFBYT1                                            02910000
+TCBLLH   EQUOVR ,,b,TCBFBYT1                                            02920000
+.*                                                                      02930000
+.* TCBFBYT2 - FLAG BYTE.                                                02940000
+TCBCNCB  EQUOVR ,,b,TCBFBYT2                                            02950000
+TCBFMW   EQUOVR ,,b,TCBFBYT2                                            02960000
+TCBFDW   EQUOVR ,,b,TCBFBYT2                                            02970000
+TCBFPRAP EQUOVR ,,b,TCBFBYT2                                            02980000
+TCBRT1NR EQUOVR ,,b,TCBFBYT2                                            02990000
+TCBECBNV EQUOVR ,,b,TCBFBYT2                                            03000000
+TCBSSPC  EQUOVR ,,b,TCBFBYT2                                            03010000
+TCBRTM1C EQUOVR ,,b,TCBFBYT2                                            03020000
+.*                                                                      03030000
+.* TCBFBYT3 - FLAG BYTE                                                 03040000
+TCBEXP   EQUOVR ,,b,TCBFBYT3                                            03050000
+TCBNCTL  EQUOVR ,,b,TCBFBYT3                                            03060000
+TCBRTMDE EQUOVR ,,b,TCBFBYT3                                            03070000
+.*                                                                      03080000
+.* TCBFBYT4 - FLAG BYTE.                                                03090000
+TCBPMC   EQUOVR ,,b,TCBFBYT4                                            03100000
+TCBNOJLB EQUOVR ,,b,TCBFBYT4                                            03110000
+.*                                                                      03120000
+.* TCBRBYT1 - RTM Flag byte                                             03130000
+TCBPVICT EQUOVR ,,b,TCBRBYT1                                            03140000
+TCBPKING EQUOVR ,,b,TCBRBYT1                                            03150000
+TCBPCAND EQUOVR ,,b,TCBRBYT1                                            03160000
+TCBPTOP  EQUOVR ,,b,TCBRBYT1                                            03170000
+.*                                                                      03180000
+.* TCBLEVEL - LEVEL NUMBER OF TCB                                       03190000
+TCBVS02A EQUOVR ,,v,TCBLEVEL                                            03200000
+TCBVS02B EQUOVR ,,v,TCBLEVEL                                            03210000
+TCBVS03  EQUOVR ,,v,TCBLEVEL                                            03220000
+TCBVERS  EQUOVR ,,v,TCBLEVEL                                            03230000
+.*                                                                      03240000
+.* TCBTFLG - GTF FLAG BYTE                                              03250000
+TCBASYNC EQUOVR ,,b,TCBTFLG                                             03260000
+TCBERRTN EQUOVR ,,b,TCBTFLG                                             03270000
+TCBDSPIT EQUOVR ,,b,TCBTFLG                                             03280000
+.*                                                                      03290000
+.* TCBPERCP - POINTER TO A QUEUE OF SPIS.                               03300000
+TCBRCVRY EQUOVR ,,b,TCBPERCP                                            03310000
+.*                                                                      03320000
+         MNOTE *,'Including IKJTCB mapping macro'                       03330000
+         IKJTCB DSECT=YES,             * Generate TCB                  *03340000
+               LIST=YES                * with unchanged PRINT option    03350000
+         EQUOVR *END                                                    03360000
+         DSOVR *END                                                     03370000
+*                                                                       03380000
+TCBFIX   DSECT ,                       * Reset to TCB DSECT             03390000
+         ORG                                                            03400000
+TCBFIX_LEN EQU TCB-TCBFIX              * Length of TCB prefix           03410000
+TCB_LEN  EQU *-TCB                     * Length of TCB proper           03420000
+*                                                                       03430000
+TCBXTNT2 DSECT ,                       * Reset to TCB extension         03440000
+         ORG                                                            03450000
+TCBXTNT2_LEN EQU *-TCBXTNT2            * Length of TCB extension        03460000
+.*                                                                      03470000
+.* Return to our original CSECT name                                    03480000
+&SYSECT  &SYSSTYP                                                       03490000
+.*                                                                      03500000
+.MEND    MEND                                                           03520002

@@ -1,0 +1,82 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Define internal subroutine for SETMODE                               00180000
+.*                                                                      00190000
+         SETMODE0 ,                    *                                00200000
+.*                                                                      00210000
+.* Declarations                                                         00220000
+         GBLB  &BXA_SETMODE            * On if SETMODE expanded before  00230000
+.*                                                                      00240000
+.* Include sub-macro on first invocation                                00250000
+         AIF   (&BXA_SETMODE).MEND                                      00260001
+&BXA_SETMODE SETB 1                    * Signal macro is defined        00270000
+         PUSH  PRINT,NOPRINT                                            00280000
+         PRINT OFF,NOPRINT                                              00290000
+.*                                                                      00300000
+         MACRO                                                          00310000
+         SAVE_PSWKEY &REG              * Register (no parentheses)      00320000
+.*                                                                      00330000
+.* Declare variables                                                    00340000
+         GBLC  &BXA_SETMODE_SAVE       * Register with saved psw key    00350000
+         LCLC  &_REG                   * &REG or default: R2            00360000
+.*                                                                      00370000
+.* Check REG parameter                                                  00380000
+&_REG    SETC  '&REG'                  * Copy specified register        00390000
+         AIF   (K'&REG NE 0).NOERR1    * Register was specified?        00400000
+&_REG    SETC  'R2'                    * No: apply default              00410000
+.NOERR1  ANOP                                                           00420000
+.*                                                                      00430000
+.* Generate code                                                        00440000
+         IPK   ,                       * Insert current PSW key in R2   00450000
+         AIF   ('&_REG' EQ 'R2').SAVEOK                                 00460000
+         AIF   ('&_REG' EQ 'R02').SAVEOK                                00470000
+         AIF   ('&_REG' EQ '2').SAVEOK                                  00480000
+         AIF   ('&_REG' EQ '02').SAVEOK                                 00490000
+         LR    &_REG,R2                * Copy PSW key to save register  00500000
+.SAVEOK  ANOP                                                           00510000
+&BXA_SETMODE_SAVE SETC '&_REG'         * Set saved-pswkey register      00520000
+.*                                                                      00530000
+.MEND    MEND  ,                       * End of internal macro          00540001
+         POP   PRINT,NOPRINT                                            00550000
+.*                                                                      00560000
+.MEND    MEND                                                           00580001

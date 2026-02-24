@@ -1,0 +1,118 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* WTO with remote text                                                 00180000
+.*                                                                      00190000
+&LABEL   RWTO  &TEXT                   * Text for WTO                   00200000
+.*                                                                      00210000
+.* &LABEL specifies an optional label                                   00220000
+.* &TEXT  specifies the text for the WTO. Must specify one of the       00230000
+.*        following:                                                    00240000
+.*        - Literal text, enclosed in apostrophes                       00250000
+.*        - Fieldname of the field containing the parmlist (MAPWTOPL)   00260000
+.*        - (reg) pointing to the parmlist (MAPWTOPL)                   00270000
+.*                                                                      00280000
+.********************************************************************** 00281001
+.*                                                                      00282001
+.*       IMPORTANT NOTICE                                               00283001
+.*       ========= ======                                               00284001
+.*                                                                      00285001
+.* Code below checks whether 'USER' accepted the terms and conditions   00286001
+.* of the license for the BXA macro library. This code is to be treated 00287001
+.* as part of the Copyright Notice and therefore may not be changed     00288001
+.* or disabled in any way.                                              00289001
+.*                                                                      00289101
+.********************************************************************** 00289201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00289301
+         CHKLIC RWTO                   * Check license acceptance       00289401
+         AIF   (&BXA_RC NE 0).MEND                                      00289502
+.********************************************************************** 00289601
+.*                                                                      00289701
+.* End of special code that is part of the Copyright Notice             00289801
+.*                                                                      00289901
+.********************************************************************** 00290001
+.*                                                                      00291001
+.* Define variables                                                     00300000
+         GBLA  &BXA_NUMVAL             * Result from CHKREG             00310000
+         LCLC  &RLBL                   * Remote label                   00320000
+         LCLC  &_REG                   * Register to plist              00330000
+.*                                                                      00340000
+.* Check TEXT parameter                                                 00350000
+         AIF   (K'&TEXT EQ 0).ERR1A    *                                00360000
+         AIF   ('&TEXT'(1,1) NE '(').NOERR1                             00370000
+&_REG    SETC  '&TEXT(1)'              *                                00380000
+         CHKREG &_REG,g                * Valid GPR?                     00390000
+         AIF   (&BXA_RC GT 4).ERR1B    *                                00400000
+         AGO   .NOERR1                                                  00410000
+.ERR1A   MNOTE 8,'Missing text for WTO'                                 00420000
+         MEXIT                                                          00430000
+.ERR1B   MNOTE 8,'&_REG is not a valid general purpose register'        00440000
+         MEXIT                                                          00450000
+.NOERR1  ANOP                                                           00460000
+.*                                                                      00470000
+.* Check nr of arguments                                                00480000
+         AIF   (N'&SYSLIST EQ 1).NOERR2                                 00490000
+.ERR2A   MNOTE 4,'Expected only 1 argument: remainder ignored'          00500000
+.NOERR2  ANOP                                                           00510000
+.*                                                                      00520000
+.* Generate code                                                        00530000
+         AIF   ('&TEXT'(1,1) EQ '''').GENLIT                            00540000
+         AIF   ('&TEXT'(1,1) EQ '(').GENREG                             00550000
+         AGO   .GENLOC                 *                                00560000
+.*                                                                      00570000
+.GENLIT  ANOP  ,                       * Generate for literal argument  00580000
+&RLBL    SETC  'RWTO&SYSNDX'           *                                00590000
+&RLBL    RDATA WTO,&TEXT               * Define message text (remote)   00600000
+&LABEL   L     R1,=AL4(&RLBL)          * Point remote plist             00610000
+         AGO   .WTO                    *                                00620000
+.*                                                                      00630000
+.GENREG  ANOP  ,                       * Generate for register argument 00640000
+&LABEL   CPY   R1,&_REG,NOWARN         * Point remote plist             00650000
+         AGO   .WTO                    *                                00660000
+.*                                                                      00670000
+.GENLOC  ANOP  ,                       * Generate for location argument 00680000
+&LABEL   LA    R1,&TEXT                * Point remote plist             00690000
+.*                                                                      00700000
+.WTO     ANOP  ,                       *                                00710000
+         SVC   35                      * Issue WTO                      00720000
+.*                                                                      00730000
+.MEND    MEND                                                           00740002

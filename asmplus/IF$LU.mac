@@ -1,0 +1,122 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Load an unsigned field or literal into a register                    00180000
+.* This is a sub-macro for use by the $IF-macro only                    00190000
+.*                                                                      00200000
+&LABEL   IF$LU &REG,                   * Register to load              *00210000
+               &FLD,                   * Field or literal with value   *00220000
+               &LITLEN,                * Length of literal or 0 for fld*00230000
+               &TYPE                                                    00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC IF$LU                  * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         LCLA  &LEN                                                     00270000
+         LCLA  &I                                                       00280000
+         LCLC  &_FLD                                                    00290000
+.*                                                                      00300000
+.* Determine length of field to be loaded                               00310000
+         AIF   (K'&LITLEN EQ 0).FLDLEN                                  00320000
+         AIF   (&LITLEN EQ 0).FLDLEN                                    00330000
+&LEN     SETA  &LITLEN                 * Length is that of literal      00340000
+         AGO   .LENOK                                                   00350000
+.FLDLEN  ANOP  ,                                                        00360000
+&LEN     SETA  L'&FLD                  * Length is that of field        00370000
+.LENOK   ANOP                                                           00380000
+.*                                                                      00390000
+.* Action depends on length of field to be loaded                       00400000
+         AIF   (&LEN EQ 1).LEN1                                         00410000
+         AIF   (&LEN EQ 2).LEN2                                         00420000
+         AIF   (&LEN EQ 3).LEN3                                         00430000
+         AIF   (&LEN EQ 4).LEN4                                         00440000
+&_FLD    SETC  (DOUBLE '&FLD')                                          00450000
+         MNOTE 8,'&_FLD is too long to load into a register'            00460000
+         MEXIT                                                          00470000
+.*                                                                      00480000
+.* Load a 1-byte value into a register                                  00490000
+.LEN1    ANOP  ,                                                        00500000
+&LABEL   CLEAR &REG                                                     00510000
+         IC    &REG,&FLD               * Load unsigned byte             00520000
+         MEXIT                                                          00530000
+.*                                                                      00540000
+.* Load a 2-byte value into a register                                  00550000
+.LEN2    ANOP  ,                                                        00560000
+&LABEL   CLEAR &REG                                                     00570000
+         ICM   &REG,NNYY,&FLD          * Load unsigned bytes            00580000
+         MEXIT                                                          00590000
+.*                                                                      00600000
+.* Load a 3-byte value into a register                                  00610000
+.LEN3    ANOP  ,                                                        00620000
+&LABEL   CLEAR &REG                                                     00630000
+         ICM   &REG,NYYY,&FLD          * Load unsigned bytes            00640000
+         MEXIT                                                          00650000
+.*                                                                      00660000
+.* Load a 4-byte value into a register                                  00670000
+.LEN4    ANOP  ,                                                        00680000
+&I       SETA  ('AFV' FIND '&TYPE')    * Some aligned type?             00690000
+         AIF   (&I NE 0).LEN4_L        * Yes: use L                     00700000
+         AIF   ('&FLD'(1,1) EQ '=').LEN4_L * 4-byte literal: aligned!   00710000
+&LABEL   ICM   &REG,YYYY,&FLD          * Load unsigned bytes            00720000
+         MEXIT                                                          00730000
+.LEN4_L  ANOP  ,                                                        00740000
+&LABEL   L     &REG,&FLD               * Load unsigned bytes            00750000
+         MEXIT                                                          00760000
+.*                                                                      00770000
+.MEND    MEND                                                           00780002

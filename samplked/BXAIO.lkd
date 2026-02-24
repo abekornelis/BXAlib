@@ -1,0 +1,21 @@
+*                                                                       00010000
+* This load module has no specific requirements                         00020000
+*                                                                       00030000
+* All entry points of this module are AMODE ANY (either 24 or 31)       00040000
+*                                     RMODE dependent on AMODE          00050000
+* Because AMODE(ANY),RMODE(ANY) is not supported the module             00060000
+* is created with AMODE(31),RMODE(ANY).                                 00070000
+* If, however, the module is called with AMODE(24) no problems          00080000
+* should occur, provided the module is loaded into storage below 16M.   00090000
+*                                                                       00100000
+ SETOPT     PARM(REUS=SERIAL)                                           00110000
+ INCLUDE OBJECTS(BXAIO)                                                 00120000
+ ENTRY           BXAIO                                                  00130000
+ ALIAS           BXAIOCCD                                               00140000
+ ALIAS           BXAIOCPD                                               00150000
+ ALIAS           BXAIOCCX                                               00160000
+ ALIAS           BXAIOPDD                                               00170000
+ ALIAS           BXAIOCSC                                               00180000
+ ALIAS           BXAIOACD                                               00190000
+ ALIAS           BXAIOSVD                                               00200000
+ NAME            BXAIO(R)                                               00210000

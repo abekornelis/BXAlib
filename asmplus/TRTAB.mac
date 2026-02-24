@@ -1,0 +1,356 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro generates tables for use wit TR and/or TRT instructions   00180000
+.*                                                                      00190000
+&LABEL   TRTAB &TYPE,                  * Base type of table            *00200000
+               &CHARS=                 * Other valid characters         00210000
+.*                                                                      00220000
+.* &TYPE:  UC       for uppercase characters (A-Z)                      00230000
+.*         LC       for lowercase characters (a-z)                      00240000
+.*         ALPHA    for lower and/or uppercase characters (A-Z, a-z)    00250000
+.*         DIGITS   for decimal digits (0-9)                            00260000
+.*         HEX      for hex digits (0-9, A-F)                           00270000
+.*         NOT      for anything except specified &CHARS                00280000
+.*         NOTUC    for anything except uppercase                       00290000
+.*         NOTLC    for anything except lowercase                       00300000
+.*         NOTALPHA for anything except upper and/or lowercase chars    00310000
+.*         NOTDIGIT for anything except decimal digits                  00320000
+.*         NOTHEX   for anything except hex digits                      00330000
+.*         TOHEX    for translation from X'00'-X'0F' to readable hex    00340000
+.*         TOLOWER  for translation from uppercase to lowercase         00350000
+.*         TOUPPER  for translation from lowercase to uppercase         00360000
+.* &CHARS: a sublist of allowable characters, decimal codes, or hex     00370000
+.*         codes in the range 0-255 (X'00'-X'FF'). In singles or in     00380000
+.*         pairs for translation.                                       00390000
+.*                                                                      00400000
+.********************************************************************** 00401001
+.*                                                                      00402001
+.*       IMPORTANT NOTICE                                               00403001
+.*       ========= ======                                               00404001
+.*                                                                      00405001
+.* Code below checks whether 'USER' accepted the terms and conditions   00406001
+.* of the license for the BXA macro library. This code is to be treated 00407001
+.* as part of the Copyright Notice and therefore may not be changed     00408001
+.* or disabled in any way.                                              00409001
+.*                                                                      00409101
+.********************************************************************** 00409201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00409301
+         CHKLIC TRTAB                  * Check license acceptance       00409401
+         AIF   (&BXA_RC NE 0).MEND                                      00409502
+.********************************************************************** 00409601
+.*                                                                      00409701
+.* End of special code that is part of the Copyright Notice             00409801
+.*                                                                      00409901
+.********************************************************************** 00410001
+.*                                                                      00410101
+.* Declare locals                                                       00411000
+         LCLC  &UC,&LC,&DIG,&NOT,&TOHEX                                 00420000
+.*                                                                      00430000
+.* Check the validity of the LABEL parameter                            00440000
+         AIF   (K'&LABEL NE 0).NOERR1                                   00450000
+ERROR1   MNOTE 8,'Missing label parameter on TRTAB macro'               00460000
+.NOERR1  ANOP                                                           00470000
+.*                                                                      00480000
+.* Check validity of TYPE pararmeter                                    00490000
+         AIF   ('&TYPE' EQ 'UC').UC                                     00500000
+         AIF   ('&TYPE' EQ 'LC').LC                                     00510000
+         AIF   ('&TYPE' EQ 'ALPHA').ALPHA                               00520000
+         AIF   ('&TYPE' EQ 'DIGITS').DIGITS                             00530000
+         AIF   ('&TYPE' EQ 'HEX').HEX                                   00540000
+         AIF   ('&TYPE' EQ 'NOT').NOT                                   00550000
+         AIF   ('&TYPE' EQ 'NOTUC').NOTUC                               00560000
+         AIF   ('&TYPE' EQ 'NOTLC').NOTLC                               00570000
+         AIF   ('&TYPE' EQ 'NOTALPHA').NOTALPHA                         00580000
+         AIF   ('&TYPE' EQ 'NOTDIGIT').NOTDIGIT                         00590000
+         AIF   ('&TYPE' EQ 'NOTHEX').NOTHEX                             00600000
+         AIF   ('&TYPE' EQ 'TOHEX').TOHEX                               00610000
+         AIF   ('&TYPE' EQ 'TOLOWER').TOLOWER                           00620000
+         AIF   ('&TYPE' EQ 'TOUPPER').TOUPPER                           00630000
+         AIF   ('&TYPE' EQ '').NOTYPE                                   00640000
+         MNOTE 8,'Invalid TYPE specified on TRTAB macro'                00650000
+         MEXIT                                                          00660000
+.*                                                                      00670000
+.* Set locals, depending on TYPE parameter                              00680000
+.UC      ANOP                                                           00690000
+&UC      SETC  'UC'                                                     00700000
+         AGO   .NOTYPE                                                  00710000
+.LC      ANOP                                                           00720000
+&LC      SETC  'LC'                                                     00730000
+         AGO   .NOTYPE                                                  00740000
+.ALPHA   ANOP                                                           00750000
+&UC      SETC  'UC'                                                     00760000
+&LC      SETC  'LC'                                                     00770000
+         AGO   .NOTYPE                                                  00780000
+.DIGITS  ANOP                                                           00790000
+&DIG     SETC  'DIG'                                                    00800000
+         AGO   .NOTYPE                                                  00810000
+.HEX     ANOP                                                           00820000
+&UC      SETC  'HEX'                                                    00830000
+&DIG     SETC  'DIG'                                                    00840000
+         AGO   .NOTYPE                                                  00850000
+.NOT     ANOP                                                           00860000
+&NOT     SETC  'YES'                                                    00870000
+         AGO   .NOTYPE                                                  00880000
+.NOTUC   ANOP                                                           00890000
+&UC      SETC  'UC'                                                     00900000
+&NOT     SETC  'YES'                                                    00910000
+         AGO   .NOTYPE                                                  00920000
+.NOTLC   ANOP                                                           00930000
+&LC      SETC  'LC'                                                     00940000
+&NOT     SETC  'YES'                                                    00950000
+         AGO   .NOTYPE                                                  00960000
+.NOTALPHA ANOP                                                          00970000
+&UC      SETC  'UC'                                                     00980000
+&LC      SETC  'LC'                                                     00990000
+&NOT     SETC  'YES'                                                    01000000
+         AGO   .NOTYPE                                                  01010000
+.NOTDIGIT ANOP                                                          01020000
+&DIG     SETC  'DIG'                                                    01030000
+&NOT     SETC  'YES'                                                    01040000
+         AGO   .NOTYPE                                                  01050000
+.NOTHEX  ANOP                                                           01060000
+&UC      SETC  'HEX'                                                    01070000
+&DIG     SETC  'DIG'                                                    01080000
+&NOT     SETC  'YES'                                                    01090000
+         AGO   .NOTYPE                                                  01100000
+.TOHEX   ANOP                                                           01110000
+&TOHEX   SETC  'YES'                                                    01120000
+         AGO   .NOTYPE                                                  01130000
+.TOLOWER ANOP                                                           01140000
+&UC      SETC  'LC'                                                     01150000
+&LC      SETC  'LC'                                                     01160000
+         AGO   .NOTYPE                                                  01170000
+.TOUPPER ANOP                                                           01180000
+&UC      SETC  'UC'                                                     01190000
+&LC      SETC  'UC'                                                     01200000
+         AGO   .NOTYPE                                                  01210000
+.NOTYPE  ANOP                                                           01220000
+.*                                                                      01230000
+.* Variable NOT must be either YES or NO                                01240000
+         AIF   ('&NOT' EQ 'YES').NOTOK                                  01250000
+&NOT     SETC  'NO'                                                     01260000
+.NOTOK   ANOP                                                           01270000
+.*                                                                      01280000
+         PUSH  PRINT                                                    01290000
+         PRINT NODATA                                                   01300000
+.*                                                                      01310000
+.* Pre-fill table, depending on NOT-parameter                           01320000
+         AIF   ('&NOT' EQ 'YES').LABELNO                                01330000
+&LABEL   DC    256X'00'                * All codes invalid, except:     01340000
+         AGO   .LABELOK                                                 01350000
+.LABELNO ANOP                                                           01360000
+&LABEL   DC    256X'FF'                * All codes valid, except:       01370000
+.LABELOK ANOP                                                           01380000
+.*                                                                      01390000
+.* Generate allowed uppercase characters                                01400000
+         AIF   ('&UC' NE 'HEX').NOTUCHEX                                01410000
+         AIF   ('&NOT' EQ 'YES').UCHEXNO                                01420000
+         ORG   &LABEL+C'A'             * Starting with 'A'              01430000
+         DC    C'ABCDEF'               * 6 valid chars                  01440000
+         AGO   .NOTUCHEX                                                01450000
+.UCHEXNO ANOP                                                           01460000
+         ORG   &LABEL+C'A'             * Starting with 'A'              01470000
+         DC    6X'00'                  * 6 invalid chars                01480000
+.NOTUCHEX ANOP                                                          01490000
+.*                                                                      01500000
+         AIF   ('&UC' NE 'UC').NOTUCUC                                  01510000
+         AIF   ('&NOT' EQ 'YES').UCUCNO                                 01520000
+         ORG   &LABEL+C'A'             * Starting with 'A'              01530000
+         DC    C'ABCDEFGHI'            * 9 valid chars                  01540000
+         ORG   &LABEL+C'J'             * Starting with 'J'              01550000
+         DC    C'JKLMNOPQR'            * 9 more valid chars             01560000
+         ORG   &LABEL+C'S'             * Starting with 'S'              01570000
+         DC    C'STUVWXYZ'             * the last 8 valid chars         01580000
+         AGO   .NOTUCUC                                                 01590000
+.UCUCNO  ANOP                                                           01600000
+         ORG   &LABEL+C'A'             * Starting with 'A'              01610000
+         DC    9X'00'                  * 9 invalid chars                01620000
+         ORG   &LABEL+C'J'             * Starting with 'J'              01630000
+         DC    9X'00'                  * 9 more invalid chars           01640000
+         ORG   &LABEL+C'S'             * Starting with 'S'              01650000
+         DC    8X'00'                  * the last 8 invalid chars       01660000
+.NOTUCUC ANOP                                                           01670000
+.*                                                                      01680000
+         AIF   ('&UC' NE 'LC').NOTUCLC                                  01690000
+         ORG   &LABEL+C'A'             * Starting with 'A'              01700000
+         DC    C'abcdefghi'            * 9 valid chars                  01710000
+         ORG   &LABEL+C'J'             * Starting with 'J'              01720000
+         DC    C'jklmnopqr'            * 9 more valid chars             01730000
+         ORG   &LABEL+C'S'             * Starting with 'S'              01740000
+         DC    C'stuvwxyz'             * the last 8 valid chars         01750000
+.NOTUCLC ANOP                                                           01760000
+.*                                                                      01770000
+.* Generate allowed lowercase characters                                01780000
+         AIF   ('&LC' NE 'LC').NOTLCLC                                  01790000
+         AIF   ('&NOT' EQ 'YES').LCLCNO                                 01800000
+         ORG   &LABEL+C'a'             * Starting with 'a'              01810000
+         DC    C'abcdefghi'            * 9 valid chars                  01820000
+         ORG   &LABEL+C'j'             * Starting with 'j'              01830000
+         DC    C'jklmnopqr'            * 9 more valid chars             01840000
+         ORG   &LABEL+C's'             * Starting with 's'              01850000
+         DC    C'stuvwxyz'             * the last 8 valid chars         01860000
+         AGO   .NOTLCLC                                                 01870000
+.LCLCNO  ANOP                                                           01880000
+         ORG   &LABEL+C'a'             * Starting with 'a'              01890000
+         DC    9X'00'                  * 9 invalid chars                01900000
+         ORG   &LABEL+C'j'             * Starting with 'j'              01910000
+         DC    9X'00'                  * 9 more invalid chars           01920000
+         ORG   &LABEL+C's'             * Starting with 's'              01930000
+         DC    8X'00'                  * the last 8 invalid chars       01940000
+.NOTLCLC ANOP                                                           01950000
+.*                                                                      01960000
+         AIF   ('&LC' NE 'UC').NOTLCUC                                  01970000
+         ORG   &LABEL+C'a'             * Starting with 'a'              01980000
+         DC    C'ABCDEFGHI'            * 9 valid chars                  01990000
+         ORG   &LABEL+C'j'             * Starting with 'j'              02000000
+         DC    C'JKLMNOPQR'            * 9 more valid chars             02010000
+         ORG   &LABEL+C's'             * Starting with 's'              02020000
+         DC    C'STUVWXYZ'             * the last 8 valid chars         02030000
+.NOTLCUC ANOP                                                           02040000
+.*                                                                      02050000
+.* Generate allowed digit-characters                                    02060000
+         AIF   ('&DIG' NE 'DIG').NOTDIG                                 02070000
+         AIF   ('&NOT' EQ 'YES').DIGNO                                  02080000
+         ORG   &LABEL+C'0'             * Starting with '0'              02090000
+         DC    C'0123456789'           * 10 valid chars                 02100000
+         AGO   .NOTDIG                                                  02110000
+.DIGNO   ANOP                                                           02120000
+         ORG   &LABEL+C'0'             * Starting with '0'              02130000
+         DC    10X'00'                 * 10 invalid chars               02140000
+.NOTDIG  ANOP                                                           02150000
+.*                                                                      02160000
+.* Generate allowed tohex-characters                                    02170000
+         AIF   ('&TOHEX' NE 'YES').NOTTOHEX                             02180000
+         ORG   &LABEL                  * Starting with X'00'            02190000
+         DC    C'0123456789ABCDEF'     * 16 valid chars                 02200000
+.NOTTOHEX ANOP ,                       *                                02210000
+.*                                                                      02220000
+.* If &CHARS has no value, we're done                                   02230000
+         AIF   (K'&CHARS EQ 0).ENDMAC                                   02240000
+.*                                                                      02250000
+.* &CHARS must be in sublist notation                                   02260000
+         AIF   ('&CHARS'(1,1) EQ '(').NOERR2                            02270000
+.ERROR2  MNOTE 8,'CHARS parameter must be specified in sublist notation*02280000
+               '                                                        02290000
+.NOERR2  ANOP                                                           02300000
+.*                                                                      02310000
+.* Initialize locals for looping thru the &CHARS table                  02320000
+         LCLA  &I                                                       02330000
+         LCLC  &ARG1,&ARG2                                              02340000
+&I       SETA  0                                                        02350000
+.*                                                                      02360000
+.* Loop thru all the CHARS-entries. Each entry is a self-defining term  02370000
+.* or a sublist of two self-defining term. Each term should represent   02380000
+.* a 1-byte value. If 1 term is defined, it will be translated unto     02390000
+.* itself, otherwise the first term will be translated into the second. 02400000
+.*                                                                      02410000
+.LOOP    ANOP                                                           02420000
+&I       SETA  &I+1                                                     02430000
+         AIF   (&I GT N'&CHARS).LOOPEND                                 02440000
+.* ARG can be a single argument or a sublist of two arguments           02450000
+         AIF   ('&CHARS(&I)'(1,1) EQ '(').SUBLIST                       02460000
+.* ARG is a single argument                                             02470000
+&ARG1    SETC  '&CHARS(&I)'                                             02480000
+&ARG2    SETC  ''                                                       02490000
+.* If NOT is specified, ARG2 must be X'00'                              02500000
+         AIF   ('&NOT' EQ 'NO').ARG_OK                                  02510000
+&ARG2    SETC  'X''00'''                                                02520000
+         AGO   .ARG_OK                                                  02530000
+.*                                                                      02540000
+.SUBLIST ANOP                                                           02550000
+         AIF   (N'&CHARS(&I) EQ 0).ERROR3A                              02560000
+         AIF   (N'&CHARS(&I) EQ 1).ERROR3B                              02570000
+         AIF   (N'&CHARS(&I) GT 2).ERROR3C                              02580000
+         AGO   .NOERR3                                                  02590000
+.ERROR3A MNOTE 8,'Empty sublist on CHARS-parameter: ignored'            02600000
+         AGO   .LOOP                                                    02610000
+.ERROR3B MNOTE 8,'Sublist with only one sub-parm on CHARS-parameter: ig*02620000
+               nored'                                                   02630000
+         AGO   .LOOP                                                    02640000
+.ERROR3C MNOTE 8,'Sublist on CHARS-parameter with more than 2 sub-parms*02650000
+               : ignored'                                               02660000
+         AGO   .LOOP                                                    02670000
+.ERROR3D MNOTE 8,'Sublist on CHARS-parameter contains empty sub-paramet*02680000
+               er: ignored'                                             02690000
+         AGO   .LOOP                                                    02700000
+.NOERR3  ANOP                                                           02710000
+.* ARG is a valid double argument                                       02720000
+&ARG1    SETC  '&CHARS(&I,1)'                                           02730000
+         AIF   (K'&ARG1 EQ 0).ERROR3D                                   02740000
+&ARG2    SETC  '&CHARS(&I,2)'                                           02750000
+         AIF   (K'&ARG2 EQ 0).ERROR3D                                   02760000
+.ARG_OK  ANOP                                                           02770000
+.* If ARG1 has only 1 character, change it to C'x'                      02780000
+         AIF   (K'&ARG1 GT 1).ARG1OK1                                   02790000
+&ARG1    SETC  'C'''.'&ARG1'.''''                                       02800000
+.ARG1OK1 ANOP  ,                                                        02810000
+         AIF   ('&ARG1'(1,1) NE '''').ARG1OK2                           02820000
+&ARG1    SETC  'C'.'&ARG1'                                              02830000
+.ARG1OK2 ANOP  ,                                                        02840000
+.* If ARG2 is empty, copy ARG1                                          02850000
+         AIF   (K'&ARG2 GT 0).ARG2OK1                                   02860000
+&ARG2    SETC  '&ARG1'                                                  02870000
+.ARG2OK1 ANOP  ,                                                        02880000
+.* If ARG2 has only 1 character, change it to C'x'                      02890000
+         AIF   (K'&ARG2 GT 1).ARG2OK2                                   02900000
+&ARG2    SETC  'C'''.'&ARG2'.''''                                       02910000
+.ARG2OK2 ANOP  ,                                                        02920000
+         AIF   ('&ARG2'(1,1) NE '''').ARG2OK3                           02930000
+&ARG2    SETC  'C'.'&ARG2'                                              02940000
+.ARG2OK3 ANOP  ,                                                        02950000
+.*                                                                      02960000
+.* Generate table entry                                                 02970000
+         ORG   &LABEL+&ARG1            * Translatable code              02980000
+         DC    &ARG2                   * resulting code                 02990000
+.*                                                                      03000000
+.* And go process next CHARS-entry                                      03010000
+         AGO   .LOOP                                                    03020000
+.*                                                                      03030000
+.LOOPEND ANOP                                                           03040000
+.ENDMAC  ANOP                                                           03050000
+* Reset program counter to end-of-table                                 03060000
+         ORG                                                            03070000
+.*                                                                      03080000
+         POP   PRINT                                                    03090000
+.*                                                                      03100000
+.MEND    MEND                                                           03110002

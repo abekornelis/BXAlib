@@ -1,0 +1,142 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the System Managed Directory Entry                   00180000
+.*                                                                      00190000
+.* Warning: Field SMDE_LEN has been renamed to SMDE_SIZE                00200000
+.*                                                                      00210000
+&LABEL   MAPSMDE &DSECT=YES,           * YES or NO                     *00220000
+               &CB=,                   * Control block to generate     *00230000
+               &PRFX=                  * Prefix to use                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC MAPSMDE                * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         GBLB  &BXA_MAC_MAPSMDE        * Map has been generated?        00270000
+.*                                                                      00290000
+.* Check parameters                                                     00300000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00310000
+               CB=&CB,                 *                               *00320000
+               PRFX=&PRFX              *                                00330000
+         AIF   (&BXA_RC GT 4).MEND                                      00340002
+.*                                                                      00350000
+.* Check the CB parameter                                               00360000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00370000
+         AIF   ('&CB' EQ 'SMDE').EMBED                                  00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPSMDE).MEND                                  00480002
+&BXA_MAC_MAPSMDE SETB 1                                                 00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_SMDE                                             00510000
+         GBLC  &BXA_CB_SMDE_FD                                          00520000
+         GBLC  &BXA_CB_SMDE_NAME                                        00530000
+         GBLC  &BXA_CB_SMDE_NLST                                        00540000
+         GBLC  &BXA_CB_SMDE_PNAME                                       00550000
+         GBLC  &BXA_CB_SMDE_TOKEN                                       00560000
+&BXA_CB_SMDE SETC 'SMDE'                                                00570000
+&BXA_CB_SMDE_FD SETC 'SMDE'                                             00580000
+&BXA_CB_SMDE_NAME SETC 'SMDE'                                           00590000
+&BXA_CB_SMDE_NLST SETC 'SMDE'                                           00600000
+&BXA_CB_SMDE_PNAME SETC 'SMDE'                                          00610000
+&BXA_CB_SMDE_TOKEN SETC 'SMDE'                                          00620000
+.*                                                                      00630000
+         GENMAPS (PMAR)                                                 00640000
+.*                                                                      00650000
+.* SMDE_LEN - LENGTH OF CONTROL BLOCK.                                  00660000
+SMDE_LEN           DSOVR  *NEWNAME,SMDE_SIZE                            00670000
+.*                                                                      00680000
+.* SMDE_LVL - SMDE VERSION NUMBER                                       00690000
+SMDE_LVL_VAL       EQUOVR ,,v,SMDE_LVL                                  00700000
+.*                                                                      00710000
+.* SMDE_LIBTYPE - SOURCE LIBRARY TYPE.                                  00720000
+SMDE_LIBTYPE_C370LIB EQUOVR ,,v,SMDE_LIBTYPE                            00730000
+SMDE_LIBTYPE_HFS   EQUOVR ,,v,SMDE_LIBTYPE                              00740000
+SMDE_LIBTYPE_PDSE  EQUOVR ,,v,SMDE_LIBTYPE                              00750000
+SMDE_LIBTYPE_PDS   EQUOVR ,,v,SMDE_LIBTYPE                              00760000
+.*                                                                      00770000
+.* SMDE_FLAG - FLAG BYTE                                                00780000
+SMDE_FLAG_ALIAS    EQUOVR ,,b,SMDE_FLAG                                 00790000
+SMDE_FLAG_LMOD     EQUOVR ,,b,SMDE_FLAG                                 00800000
+SMDE_SYSTEM_DCB    EQUOVR ,,b,SMDE_FLAG                                 00810000
+.*                                                                      00820000
+.* SMDE_LIBF - LIBRARY FLAG (Z-BYTE)                                    00830000
+SMDE_LIBF_TASKLIB  EQUOVR ,,v,SMDE_LIBF                                 00840000
+SMDE_LIBF_LINKLIB  EQUOVR ,,v,SMDE_LIBF                                 00850000
+SMDE_LIBF_PRIVATE  EQUOVR ,,v,SMDE_LIBF                                 00860000
+.*                                                                      00870000
+         MNOTE *,'Including IGWSMDE mapping macro'                      00880000
+         IGWSMDE ,                     * Generate IGWSMDE               00890000
+         EQUOVR *END                                                    00900000
+*                                                                       00910000
+SMDE     DSECT ,                       * Resume SMDE DSECT              00920000
+         ORG   ,                       *                                00930000
+SMDE_LEN EQU   *-SMDE                  * Length of SMDE                 00940000
+.*                                                                      00950000
+.* Return to our original CSECT name                                    00960000
+&SYSECT  &SYSSTYP                                                       00970000
+.*                                                                      00980000
+.MEND    MEND                                                           01000002

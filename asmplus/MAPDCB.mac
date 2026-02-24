@@ -1,0 +1,798 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Data Control Block                               00180000
+.* The DCB must be located below 16M                                    00190000
+.*                                                                      00200000
+&LABEL   MAPDCB &DSECT=YES,            * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPDCB                 * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLB  &BXA_MAC_MAPDCB         * Map has been generated?        00260000
+.*                                                                      00280000
+.* Check parameters                                                     00290000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00300000
+               CB=&CB,                 *                               *00310000
+               PRFX=&PRFX              *                                00320000
+         AIF   (&BXA_RC GT 4).MEND                                      00330002
+.*                                                                      00340000
+.* Check the CB parameter                                               00350000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00360000
+         AIF   ('&CB' EQ 'BDW').EMBED                                   00370000
+         AIF   ('&CB' EQ 'DCB').EMBED                                   00380000
+         AIF   ('&CB' EQ 'RDW').EMBED                                   00390000
+         AIF   ('&CB' EQ 'SDW').EMBED                                   00400000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00410000
+         MEXIT                                                          00420000
+.*                                                                      00430000
+.* Generate embedded definition                                         00440000
+.EMBED   ANOP                                                           00450000
+&LABEL   NESTCB &CB,X,&PRFX                                             00460000
+         MEXIT                                                          00470000
+.*                                                                      00480000
+.DSECT   ANOP                                                           00490000
+         AIF   (&BXA_MAC_MAPDCB).MEND                                   00500002
+&BXA_MAC_MAPDCB SETB 1                                                  00510000
+.* Set up translation from control block to macro for DCL               00520000
+         GBLC  &BXA_CB_BDW                                              00530000
+         GBLC  &BXA_CB_DCB                                              00540000
+         GBLC  &BXA_CB_RDW                                              00550000
+         GBLC  &BXA_CB_SDW                                              00560000
+&BXA_CB_BDW SETC 'DCB'                                                  00570000
+&BXA_CB_DCB SETC 'DCB'                                                  00580000
+&BXA_CB_RDW SETC 'DCB'                                                  00590000
+&BXA_CB_SDW SETC 'DCB'                                                  00600000
+.*                                                                      00610000
+.* To be able to refer to DCBDEVT on overridden EQU statements, the     00620000
+.* field must be defined prior to the assignment of code-values to      00630000
+.* EQUated symbols. The following DSOVR statements move its             00640000
+.* definition to an appropriate place.                                  00650000
+DCBDVTBA+2 DSOVR *NEWNAME,DCBDEVT      * Name second unlabeled DS after*00660000
+                                       * the DCBDVTBA label             00670000
+DCBDEVT  DSOVR *NEWNAME,*NONAME        * Remove label from the original*00680000
+                                       * DCBDEVT-defining statement     00690000
+.*                                                                      00700000
+.* Declare code-values for device types                                 00710000
+DCBDV311 EQUOVR ,,v,DCBDEVT                                             00720000
+DCBDV301 EQUOVR ,,v,DCBDEVT                                             00730000
+DCBDV303 EQUOVR ,,v,DCBDEVT                                             00740000
+DCBDV345 EQUOVR ,,v,DCBDEVT                                             00750000
+DCBDV321 EQUOVR ,,v,DCBDEVT                                             00760000
+DCBD1305 EQUOVR ,,v,DCBDEVT                                             00770000
+DCBDV305 EQUOVR ,,v,DCBDEVT                                             00780000
+DCBDV314 EQUOVR ,,v,DCBDEVT                                             00790000
+DCBDV330 EQUOVR ,,v,DCBDEVT                                             00800000
+DCBDV340 EQUOVR ,,v,DCBDEVT                                             00810000
+DCBDV350 EQUOVR ,,v,DCBDEVT                                             00820000
+DCBDV375 EQUOVR ,,v,DCBDEVT                                             00830000
+DCBDV331 EQUOVR ,,v,DCBDEVT                                             00840000
+DCBDV380 EQUOVR ,,v,DCBDEVT                                             00850000
+DCBDV390 EQUOVR ,,v,DCBDEVT                                             00860000
+.*                                                                      00870000
+.* Declare code-values for tape recording technique                     00880000
+DCBMTE   EQUOVR ,,v,DCBTRTCH                                            00890000
+DCBMTT   EQUOVR ,,v,DCBTRTCH                                            00900000
+DCBMTC   EQUOVR ,,v,DCBTRTCH                                            00910000
+DCBMTET  EQUOVR ,,v,DCBTRTCH                                            00920000
+DCBCMPAC EQUOVR ,,v,DCBTRTCH                                            00930000
+DCBNOPAC EQUOVR ,,v,DCBTRTCH                                            00940000
+.*                                                                      00950000
+.* Declare code-values for device types                                 00960000
+DCBDVMT  EQUOVR ,,v,DCBDEVT                                             00970000
+DCBDVMT2 EQUOVR ,,v,DCBDEVT                                             00980000
+DCBDVMT3 EQUOVR ,,v,DCBDEVT                                             00990000
+DCBDVMT4 EQUOVR ,,v,DCBDEVT                                             01000000
+.*                                                                      01010000
+.* Declare code-values for tape density                                 01020000
+DCBMTDN0 EQUOVR ,,v,DCBDEN                                              01030000
+DCBMTDN1 EQUOVR ,,v,DCBDEN                                              01040000
+DCBMTDN2 EQUOVR ,,v,DCBDEN                                              01050000
+DCBMTDN3 EQUOVR ,,v,DCBDEN                                              01060000
+DCBMTDN4 EQUOVR ,,v,DCBDEN                                              01070000
+.*                                                                      01080000
+.* Declare bit-fields for paper tape translate table                    01090000
+DCBPTCDN EQUOVR ,,b,DCBCODE                                             01100000
+DCBPTCDI EQUOVR ,,b,DCBCODE                                             01110000
+DCBPTCDF EQUOVR ,,b,DCBCODE                                             01120000
+DCBPTCDB EQUOVR ,,b,DCBCODE                                             01130000
+DCBPTCDC EQUOVR ,,b,DCBCODE                                             01140000
+DCBPTCDA EQUOVR ,,b,DCBCODE                                             01150000
+DCBPTCDT EQUOVR ,,b,DCBCODE                                             01160000
+.*                                                                      01170000
+.* Declare code-values for device types                                 01180000
+DCBDVPTP EQUOVR ,,v,DCBDEVT                                             01190000
+.*                                                                      01200000
+.* Declare bit-fields for paper tape flags                              01210000
+DCBPTIC  EQUOVR ,,b,DCBPTFLG                                            01220000
+DCBPTECT EQUOVR ,,b,DCBPTFLG                                            01230000
+DCBPTECR EQUOVR ,,b,DCBPTFLG                                            01240000
+DCBPTUCT EQUOVR ,,b,DCBPTFLG                                            01250000
+DCBPTERR EQUOVR ,,b,DCBPTFLG                                            01260000
+.*                                                                      01270000
+.* Declare code-values for printer spacing                              01280000
+DCBPRSP0 EQUOVR ,,v,DCBPRTSP                                            01290000
+DCBPRSP1 EQUOVR ,,v,DCBPRTSP                                            01300000
+DCBPRSP2 EQUOVR ,,v,DCBPRTSP                                            01310000
+DCBPRSP3 EQUOVR ,,v,DCBPRTSP                                            01320000
+.*                                                                      01330000
+.* Declare code-values for device types                                 01340000
+DCBDVPR1 EQUOVR ,,v,DCBDEVT                                             01350000
+DCBDVPR2 EQUOVR ,,v,DCBDEVT                                             01360000
+DCBDVPR3 EQUOVR ,,v,DCBDEVT                                             01370000
+DCBDVPR4 EQUOVR ,,v,DCBDEVT                                             01380000
+DCBDVPRT EQUOVR ,,v,DCBDEVT                                             01390000
+DCBDVPR5 EQUOVR ,,v,DCBDEVT                                             01400000
+.*                                                                      01410000
+.* Declare code-values for printer overflow                             01420000
+DCBPRC9  EQUOVR ,,v,DCBPRTOV                                            01430000
+DCBPRC12 EQUOVR ,,v,DCBPRTOV                                            01440000
+.*                                                                      01450000
+.* Declare bit-fields for printer byte                                  01460000
+DCBTRCID EQUOVR ,,b,DCBPRBYT                                            01470000
+.*                                                                      01480000
+.* Declare bit-fields for stacker select                                01490000
+DCBMODEC EQUOVR ,,b,DCBSTACK                                            01500000
+DCBMODEE EQUOVR ,,b,DCBSTACK                                            01510000
+DCBMODEO EQUOVR ,,b,DCBSTACK                                            01520000
+DCBMODER EQUOVR ,,b,DCBSTACK                                            01530000
+DCBSTCK2 EQUOVR ,,b,DCBSTACK                                            01540000
+DCBSTCK1 EQUOVR ,,b,DCBSTACK                                            01550000
+.*                                                                      01560000
+.* Declare code-values for device types                                 01570000
+DCBDVCR0 EQUOVR ,,v,DCBDEVT                                             01580000
+DCBDVCP0 EQUOVR ,,v,DCBDEVT                                             01590000
+DCBDVCRP EQUOVR ,,v,DCBDEVT                                             01600000
+DCBDVCR1 EQUOVR ,,v,DCBDEVT                                             01610000
+DCBDVCPR EQUOVR ,,v,DCBDEVT                                             01620000
+DCBDVCR2 EQUOVR ,,v,DCBDEVT                                             01630000
+DCBDVCP1 EQUOVR ,,v,DCBDEVT                                             01640000
+.*                                                                      01650000
+.* Declare function indicator bits                                      01660000
+DCBFNCBI EQUOVR ,,b,DCBFUNC                                             01670000
+DCBFNCBR EQUOVR ,,b,DCBFUNC                                             01680000
+DCBFNCBP EQUOVR ,,b,DCBFUNC                                             01690000
+DCBFNCBW EQUOVR ,,b,DCBFUNC                                             01700000
+DCBFNCBD EQUOVR ,,b,DCBFUNC                                             01710000
+DCBFNCBX EQUOVR ,,b,DCBFUNC                                             01720000
+DCBFNCBT EQUOVR ,,b,DCBFUNC                                             01730000
+.*                                                                      01740000
+.* Declare bit-fields for WTT flags                                     01750000
+DCBBQWRU EQUOVR ,,b,DCBBQFLG                                            01760000
+DCBBQIAM EQUOVR ,,b,DCBBQFLG                                            01770000
+DCBBQWRS EQUOVR ,,b,DCBBQFLG                                            01780000
+DCBBQWRE EQUOVR ,,b,DCBBQFLG                                            01790000
+.*                                                                      01800000
+.* Declare bit-fields for optical reader flags                          01810000
+DCBEOPFG EQUOVR ,,b,DCBORFLG                                            01820000
+.*                                                                      01830000
+.* Declare bit-fields for optical reader byte                           01840000
+DCBORSYN EQUOVR ,,b,DCBORBYT                                            01850000
+DCBOREOF EQUOVR ,,b,DCBORBYT                                            01860000
+DCBORBFP EQUOVR ,,b,DCBORBYT                                            01870000
+.*                                                                      01880000
+.* Declare code-values for device types                                 01890000
+DCBDVOR5 EQUOVR ,,v,DCBDEVT                                             01900000
+DCBDVOR7 EQUOVR ,,v,DCBDEVT                                             01910000
+DCBDVOR8 EQUOVR ,,v,DCBDEVT                                             01920000
+DCBDVOR9 EQUOVR ,,v,DCBDEVT                                             01930000
+.*                                                                      01940000
+.* Declare error indicator bits                                         01950000
+DCBORNRM EQUOVR ,,b,DCBEIB                                              01960000
+DCBORREJ EQUOVR ,,b,DCBEIB                                              01970000
+DCBORERR EQUOVR ,,b,DCBEIB                                              01980000
+DCBORECK EQUOVR ,,b,DCBEIB                                              01990000
+DCBORWLR EQUOVR ,,b,DCBEIB                                              02000000
+DCBORHPR EQUOVR ,,b,DCBEIB                                              02010000
+DCBORDCK EQUOVR ,,b,DCBEIB                                              02020000
+.*                                                                      02030000
+.* Declare bit-fields for indicator and counter byte                    02040000
+DCBMRDCT EQUOVR ,,b,DCBMRIND                                            02050000
+DCBMRSCU EQUOVR ,,b,DCBMRIND                                            02060000
+DCBMRPLO EQUOVR ,,b,DCBMRIND                                            02070000
+DCBMRPLS EQUOVR ,,b,DCBMRIND                                            02080000
+DCBMRERP EQUOVR ,,b,DCBMRIND                                            02090000
+DCBMRERS EQUOVR ,,b,DCBMRIND                                            02100000
+.*                                                                      02110000
+.* Declare bit-fields for magnetic reader flag byte                     02120000
+DCBMRSCC EQUOVR ,,b,DCBMRFLG                                            02130000
+DCBMRDBG EQUOVR ,,b,DCBMRFLG                                            02140000
+DCBMRDRU EQUOVR ,,b,DCBMRFLG                                            02150000
+DCBMRDR  EQUOVR ,,b,DCBMRFLG                                            02160000
+DCBMRPCC EQUOVR ,,b,DCBMRFLG                                            02170000
+DCBMRDWT EQUOVR ,,b,DCBMRFLG                                            02180000
+DCBMRUE  EQUOVR ,,b,DCBMRFLG                                            02190000
+.*                                                                      02200000
+.* Declare code-values for device types                                 02210000
+DCBDVMR  EQUOVR ,,v,DCBDEVT                                             02220000
+DCBDVORS EQUOVR ,,v,DCBDEVT                                             02230000
+DCBDVMRS EQUOVR ,,v,DCBDEVT                                             02240000
+DCBDVDRI EQUOVR ,,v,DCBDEVT                                             02250000
+.*                                                                      02260000
+.* Declare code-values for device types                                 02270000
+DCBDVTRM EQUOVR ,,v,DCBDEVT                                             02280000
+.*                                                                      02290000
+.* Declare bit-fields for data set organisation                         02300000
+DCBDSGIS EQUOVR ,,b,DCBDSRG1                                            02310000
+DCBDSGPS EQUOVR ,,b,DCBDSRG1                                            02320000
+DCBDSGDA EQUOVR ,,b,DCBDSRG1                                            02330000
+DCBDSGCX EQUOVR ,,b,DCBDSRG1                                            02340000
+DCBDSGPO EQUOVR ,,b,DCBDSRG1                                            02350000
+DCBDSGU  EQUOVR ,,b,DCBDSRG1                                            02360000
+.*                                                                      02370000
+DCBDSGGS EQUOVR ,,b,DCBDSRG2                                            02380000
+DCBDSGTX EQUOVR ,,b,DCBDSRG2                                            02390000
+DCBDSGTQ EQUOVR ,,b,DCBDSRG2                                            02400000
+DCBACBM  EQUOVR ,,b,DCBDSRG2                                            02410000
+DCBDSGTR EQUOVR ,,b,DCBDSRG2                                            02420000
+.*                                                                      02430000
+.* Declare bit fields for QSAM LRI update processing                    02440000
+DCB1DVDS EQUOVR ,,b,DCBQSLM                                             02450000
+DCBUPDCM EQUOVR ,,b,DCBQSLM                                             02460000
+DCBUPDBT EQUOVR ,,b,DCBQSLM                                             02470000
+DCBUPDT  EQUOVR ,,b,DCBQSLM                                             02480000
+DCBNUPD  EQUOVR ,,b,DCBQSLM                                             02490000
+DCBSVDEB EQUOVR ,,b,DCBQSLM                                             02500000
+.*                                                                      02510000
+.* Declare hierarchy bit                                                02520000
+DCBH1    EQUOVR ,,b,DCBHIARC                                            02530000
+DCBH0    EQUOVR ,,b,DCBHIARC                                            02540000
+.*                                                                      02550000
+.* Declare bit-fields for buffering technique                           02560000
+DCBBFT   EQUOVR ,,b,DCBBFTEK                                            02570000
+DCBBFTA  EQUOVR ,,b,DCBBFTEK                                            02580000
+DCBBFTR  EQUOVR ,,b,DCBBFTEK                                            02590000
+DCBBFTS  EQUOVR ,,b,DCBBFTEK                                            02600000
+DCBBFTKR EQUOVR ,,b,DCBBFTEK                                            02610000
+DCBBFTE  EQUOVR ,,b,DCBBFTEK                                            02620000
+DCBBFTKD EQUOVR ,,b,DCBBFTEK                                            02630000
+DCBBFTK  EQUOVR ,,b,DCBBFTEK                                            02640000
+DCBBXLRI EQUOVR ,,b,DCBBFTEK                                            02650000
+.*                                                                      02660000
+.* Declare bit-fields for buffering alignment                           02670000
+DCBBFA   EQUOVR ,,b,DCBBFALN                                            02680000
+DCBBFAD  EQUOVR ,,b,DCBBFALN                                            02690000
+DCBBFAF1 EQUOVR ,,b,DCBBFALN                                            02700000
+DCBBFAF2 EQUOVR ,,b,DCBBFALN                                            02710000
+.*                                                                      02720000
+.* Declare bit-fields for record format                                 02730000
+DCBRECLA EQUOVR ,,b,DCBRECFM                                            02740000
+DCBRECD  EQUOVR ,,b,DCBRECFM                                            02750000
+DCBRECL  EQUOVR ,,b,DCBRECFM                                            02760000
+DCBRECF  EQUOVR ,,b,DCBRECFM                                            02770000
+DCBRECV  EQUOVR ,,b,DCBRECFM                                            02780000
+DCBRECU  EQUOVR ,,b,DCBRECFM                                            02790000
+DCBRECTO EQUOVR ,,b,DCBRECFM                                            02800000
+DCBRECBR EQUOVR ,,b,DCBRECFM                                            02810000
+DCBRECSB EQUOVR ,,b,DCBRECFM                                            02820000
+DCBRECCC EQUOVR ,,b,DCBRECFM                                            02830000
+DCBRECCA EQUOVR ,,b,DCBRECFM                                            02840000
+DCBRECCM EQUOVR ,,b,DCBRECFM                                            02850000
+DCBRECKL EQUOVR ,,b,DCBRECFM                                            02860000
+.*                                                                      02870000
+.* Declare bit-fields for error recording option                        02880000
+DCBERPT  EQUOVR ,,b,DCBERROP                                            02890000
+DCBERPC  EQUOVR ,,b,DCBERROP                                            02900000
+DCBERPW  EQUOVR ,,b,DCBERROP                                            02910000
+DCBERPR  EQUOVR ,,b,DCBERROP                                            02920000
+DCBERPN  EQUOVR ,,b,DCBERROP                                            02930000
+.*                                                                      02940000
+.* Declare bits for program-controlled interruption handling            02950000
+DCBPCIX1 EQUOVR ,,b,DCBPCI                                              02960000
+DCBPCIX2 EQUOVR ,,b,DCBPCI                                              02970000
+DCBPCIA1 EQUOVR ,,b,DCBPCI                                              02980000
+DCBPCIA2 EQUOVR ,,b,DCBPCI                                              02990000
+DCBPCIN1 EQUOVR ,,b,DCBPCI                                              03000000
+DCBPCIN2 EQUOVR ,,b,DCBPCI                                              03010000
+DCBPCIR1 EQUOVR ,,b,DCBPCI                                              03020000
+DCBPCIR2 EQUOVR ,,b,DCBPCI                                              03030000
+.*                                                                      03040000
+.* Declare communication priority bits                                  03050000
+DCBCPR   EQUOVR ,,b,DCBCPRI                                             03060000
+DCBCPE   EQUOVR ,,b,DCBCPRI                                             03070000
+DCBCPS   EQUOVR ,,b,DCBCPRI                                             03080000
+.*                                                                      03090000
+.* Declare bit-fields for status byte                                   03100000
+DCBAUTOI EQUOVR ,,b,DCBTRSTA                                            03110000
+DCBAUTOD EQUOVR ,,b,DCBTRSTA                                            03120000
+DCBINITL EQUOVR ,,b,DCBTRSTA                                            03130000
+DCBRSTRT EQUOVR ,,b,DCBTRSTA                                            03140000
+DCBIPLED EQUOVR ,,b,DCBTRSTA                                            03150000
+DCBBAKUP EQUOVR ,,b,DCBTRSTA                                            03160000
+DCBNIDLE EQUOVR ,,b,DCBTRSTA                                            03170000
+DCBCHNGL EQUOVR ,,b,DCBTRSTA                                            03180000
+.*                                                                      03190000
+.* Declare open flags                                                   03200000
+DCBOFLWR EQUOVR ,,b,DCBOFLGS                                            03210000
+DCBOFIOD EQUOVR ,,b,DCBOFLGS                                            03220000
+DCBOFLRB EQUOVR ,,b,DCBOFLGS                                            03230000
+DCBOFEOV EQUOVR ,,b,DCBOFLGS                                            03240000
+DCBOFOPN EQUOVR ,,b,DCBOFLGS                                            03250000
+DCBOFPPC EQUOVR ,,b,DCBOFLGS                                            03260000
+DCBOFTM  EQUOVR ,,b,DCBOFLGS                                            03270000
+DCBOFUEX EQUOVR ,,b,DCBOFLGS                                            03280000
+DCBOLOCK EQUOVR ,,b,DCBOFLGS                                            03290000
+DCBOFIOF EQUOVR ,,b,DCBOFLGS                                            03300000
+DCBOBUSY EQUOVR ,,b,DCBOFLGS                                            03310000
+.*                                                                      03320000
+.* Declare IOS flags                                                    03330000
+DCBIBEC  EQUOVR ,,b,DCBIFLG                                             03340000
+DCBIFNEP EQUOVR ,,v,DCBIFLG                                             03350000
+DCBEX    EQUOVR ,,b,DCBIFLG                                             03360000
+DCBIFPEC EQUOVR ,,b,DCBIFLG                                             03370000
+DCBIBPCT EQUOVR ,,b,DCBIFLG                                             03380000
+DCBIFC9  EQUOVR ,,b,DCBIFLG                                             03390000
+DCBIFC12 EQUOVR ,,b,DCBIFLG                                             03400000
+DCBIBIOE EQUOVR ,,b,DCBIFLG                                             03410000
+DCBIFER  EQUOVR ,,v,DCBIFLG                                             03420000
+DCBIFNE1 EQUOVR ,,b,DCBIFLG                                             03430000
+DCBIFTIM EQUOVR ,,b,DCBIFLG                                             03440000
+DCBIFNE2 EQUOVR ,,b,DCBIFLG                                             03450000
+DCBIFNE3 EQUOVR ,,b,DCBIFLG                                             03460000
+.*                                                                      03470000
+.* Declare bit-fields for macro reference                               03480000
+DCBMRECP EQUOVR ,,b,DCBMACR1                                            03490000
+DCBMRFE  EQUOVR ,,b,DCBMACR1                                            03500000
+DCBMRGET EQUOVR ,,b,DCBMACR1                                            03510000
+DCBMRPTQ EQUOVR ,,b,DCBMACR1                                            03520000
+DCBMRAPG EQUOVR ,,b,DCBMACR1                                            03530000
+DCBMRRD  EQUOVR ,,b,DCBMACR1                                            03540000
+DCBMRWRQ EQUOVR ,,b,DCBMACR1                                            03550000
+DCBMRCI  EQUOVR ,,b,DCBMACR1                                            03560000
+DCBMRMVG EQUOVR ,,b,DCBMACR1                                            03570000
+DCBMRRDK EQUOVR ,,b,DCBMACR1                                            03580000
+DCBMRLCG EQUOVR ,,b,DCBMACR1                                            03590000
+DCBMRRDI EQUOVR ,,b,DCBMACR1                                            03600000
+DCBMRABC EQUOVR ,,b,DCBMACR1                                            03610000
+DCBMRPT1 EQUOVR ,,b,DCBMACR1                                            03620000
+DCBMRSBG EQUOVR ,,b,DCBMACR1                                            03630000
+DCBMRDBF EQUOVR ,,b,DCBMACR1                                            03640000
+DCBPGFXA EQUOVR ,,b,DCBMACR1                                            03650000
+DCBMRCRL EQUOVR ,,b,DCBMACR1                                            03660000
+DCBMRCHK EQUOVR ,,b,DCBMACR1                                            03670000
+DCBMRRDX EQUOVR ,,b,DCBMACR1                                            03680000
+DCBMRDMG EQUOVR ,,b,DCBMACR1                                            03690000
+DCBMRCK  EQUOVR ,,b,DCBMACR1                                            03700000
+.*                                                                      03710000
+DCBMRSTL EQUOVR ,,b,DCBMACR2                                            03720000
+DCBMRPUT EQUOVR ,,b,DCBMACR2                                            03730000
+DCBMRGTQ EQUOVR ,,b,DCBMACR2                                            03740000
+DCBMRWRT EQUOVR ,,b,DCBMACR2                                            03750000
+DCBMRRDQ EQUOVR ,,b,DCBMACR2                                            03760000
+DCBMRMVP EQUOVR ,,b,DCBMACR2                                            03770000
+DCBMRWRK EQUOVR ,,b,DCBMACR2                                            03780000
+DCBMR5WD EQUOVR ,,b,DCBMACR2                                            03790000
+DCBMRLDM EQUOVR ,,b,DCBMACR2                                            03800000
+DCBMRLCP EQUOVR ,,b,DCBMACR2                                            03810000
+DCBMRIDW EQUOVR ,,b,DCBMACR2                                            03820000
+DCBMR4WD EQUOVR ,,b,DCBMACR2                                            03830000
+DCBMRPT2 EQUOVR ,,b,DCBMACR2                                            03840000
+DCBMRTMD EQUOVR ,,b,DCBMACR2                                            03850000
+DCBMRUIP EQUOVR ,,b,DCBMACR2                                            03860000
+DCBMR3WD EQUOVR ,,b,DCBMACR2                                            03870000
+DCBMRCTL EQUOVR ,,b,DCBMACR2                                            03880000
+DCBMRSTK EQUOVR ,,b,DCBMACR2                                            03890000
+DCBMRAWR EQUOVR ,,b,DCBMACR2                                            03900000
+DCBMR1WD EQUOVR ,,b,DCBMACR2                                            03910000
+DCBMRSWA EQUOVR ,,b,DCBMACR2                                            03920000
+DCBMRDMD EQUOVR ,,b,DCBMACR2                                            03930000
+DCBMRSTI EQUOVR ,,b,DCBMACR2                                            03940000
+.*                                                                      03950000
+.* DCBMACF1 - FIRST BYTE OF DCBMACRF                                    03960000
+DCBMFECP EQUOVR ,,b,DCBMACF1                                            03970000
+DCBMFFE  EQUOVR ,,b,DCBMACF1                                            03980000
+DCBMFGET EQUOVR ,,b,DCBMACF1                                            03990000
+DCBMFPTQ EQUOVR ,,b,DCBMACF1                                            04000000
+DCBMFAPG EQUOVR ,,b,DCBMACF1                                            04010000
+DCBMFRD  EQUOVR ,,b,DCBMACF1                                            04020000
+DCBMFWRQ EQUOVR ,,b,DCBMACF1                                            04030000
+DCBMFCI  EQUOVR ,,b,DCBMACF1                                            04040000
+DCBMFMVG EQUOVR ,,b,DCBMACF1                                            04050000
+DCBMFRDK EQUOVR ,,b,DCBMACF1                                            04060000
+DCBMFLCG EQUOVR ,,b,DCBMACF1                                            04070000
+DCBMFRDI EQUOVR ,,b,DCBMACF1                                            04080000
+DCBMFABC EQUOVR ,,b,DCBMACF1                                            04090000
+DCBMFPT1 EQUOVR ,,b,DCBMACF1                                            04100000
+DCBMFSBG EQUOVR ,,b,DCBMACF1                                            04110000
+DCBMFDBF EQUOVR ,,b,DCBMACF1                                            04120000
+DCBMFFXA EQUOVR ,,b,DCBMACF1                                            04130000
+DCBMFCRL EQUOVR ,,b,DCBMACF1                                            04140000
+DCBMFCHK EQUOVR ,,b,DCBMACF1                                            04150000
+DCBMFRDX EQUOVR ,,b,DCBMACF1                                            04160000
+DCBMFDMG EQUOVR ,,b,DCBMACF1                                            04170000
+DCBMFCK  EQUOVR ,,b,DCBMACF1                                            04180000
+.*                                                                      04190000
+.* DCBMACF2 - SECOND BYTE OF DCBMACRF                                   04200000
+DCBMFSTL EQUOVR ,,b,DCBMACF2                                            04210000
+DCBMFPUT EQUOVR ,,b,DCBMACF2                                            04220000
+DCBMFGTQ EQUOVR ,,b,DCBMACF2                                            04230000
+DCBMFWRT EQUOVR ,,b,DCBMACF2                                            04240000
+DCBMFRDQ EQUOVR ,,b,DCBMACF2                                            04250000
+DCBMFMVP EQUOVR ,,b,DCBMACF2                                            04260000
+DCBMFWRK EQUOVR ,,b,DCBMACF2                                            04270000
+DCBMF5WD EQUOVR ,,b,DCBMACF2                                            04280000
+DCBMFLDM EQUOVR ,,b,DCBMACF2                                            04290000
+DCBMFLCP EQUOVR ,,b,DCBMACF2                                            04300000
+DCBMFIDW EQUOVR ,,b,DCBMACF2                                            04310000
+DCBMF4WD EQUOVR ,,b,DCBMACF2                                            04320000
+DCBMFPT2 EQUOVR ,,b,DCBMACF2                                            04330000
+DCBMFTMD EQUOVR ,,b,DCBMACF2                                            04340000
+DCBMFUIP EQUOVR ,,b,DCBMACF2                                            04350000
+DCBMF3WD EQUOVR ,,b,DCBMACF2                                            04360000
+DCBMFCTL EQUOVR ,,b,DCBMACF2                                            04370000
+DCBMFSTK EQUOVR ,,b,DCBMACF2                                            04380000
+DCBMFAWR EQUOVR ,,b,DCBMACF2                                            04390000
+DCBMF1WD EQUOVR ,,b,DCBMACF2                                            04400000
+DCBMFSWA EQUOVR ,,b,DCBMACF2                                            04410000
+DCBMFDMD EQUOVR ,,b,DCBMACF2                                            04420000
+DCBMFSTI EQUOVR ,,b,DCBMACF2                                            04430000
+.*                                                                      04440000
+.* Declare IOS flags                                                    04450000
+DCBIFEC  EQUOVR ,,b,DCBIFLGS                                            04460000
+DCBIFPCT EQUOVR ,,b,DCBIFLGS                                            04470000
+DCBIFIOE EQUOVR ,,b,DCBIFLGS                                            04480000
+DCBIFLDT EQUOVR ,,b,DCBIFLGS                                            04490000
+.*                                                                      04500000
+.* Declare bits for communication interface type                        04510000
+DCBINVB1 EQUOVR ,,b,DCBINVCI                                            04520000
+DCBINVB2 EQUOVR ,,b,DCBINVCI                                            04530000
+.*                                                                      04540000
+.* Declare bits for ISAM option codes                                   04550000
+DCBOPTUF EQUOVR ,,b,DCBOPTCD                                            04560000
+DCBOPTM  EQUOVR ,,b,DCBOPTCD                                            04570000
+DCBOPTI  EQUOVR ,,b,DCBOPTCD                                            04580000
+DCBOPTY  EQUOVR ,,b,DCBOPTCD                                            04590000
+DCBOPTL  EQUOVR ,,b,DCBOPTCD                                            04600000
+DCBOPTR  EQUOVR ,,b,DCBOPTCD                                            04610000
+.*                                                                      04620000
+.* Declare bits for ISAM additional macro reference                     04630000
+DCBMACUR EQUOVR ,,b,DCBMAC                                              04640000
+DCBMACUW EQUOVR ,,b,DCBMAC                                              04650000
+DCBMACAW EQUOVR ,,b,DCBMAC                                              04660000
+DCBMACRE EQUOVR ,,b,DCBMAC                                              04670000
+.*                                                                      04680000
+.* Declare bits for exceptional condition codes                         04690000
+DCBEXNKY EQUOVR ,,b,DCBEXCD1                                            04700000
+DCBEXIDA EQUOVR ,,b,DCBEXCD1                                            04710000
+DCBEXNSP EQUOVR ,,b,DCBEXCD1                                            04720000
+DCBEXINV EQUOVR ,,b,DCBEXCD1                                            04730000
+DCBEXIER EQUOVR ,,b,DCBEXCD1                                            04740000
+DCBEXOER EQUOVR ,,b,DCBEXCD1                                            04750000
+DCBEXBLI EQUOVR ,,b,DCBEXCD1                                            04760000
+DCBEXBLU EQUOVR ,,b,DCBEXCD1                                            04770000
+.*                                                                      04780000
+DCBEXSEQ EQUOVR ,,b,DCBEXCD2                                            04790000
+DCBEXDUP EQUOVR ,,b,DCBEXCD2                                            04800000
+DCBEXCLD EQUOVR ,,b,DCBEXCD2                                            04810000
+DCBEXOFL EQUOVR ,,b,DCBEXCD2                                            04820000
+DCBEXLTH EQUOVR ,,b,DCBEXCD2                                            04830000
+DCBEXRDE EQUOVR ,,b,DCBEXCD2                                            04840000
+.*                                                                      04850000
+.* Declare code-values for '2301 or not'                                04860000
+DCBHMDRM EQUOVR ,,v,DCBHMASK                                            04870000
+DCBHMNDM EQUOVR ,,v,DCBHMASK                                            04880000
+.*                                                                      04890000
+.* Declare bits for ISAM status indicators                              04900000
+DCBSTSSM EQUOVR ,,b,DCBST                                               04910000
+DCBSTKSQ EQUOVR ,,b,DCBST                                               04920000
+DCBSTLOD EQUOVR ,,b,DCBST                                               04930000
+DCBSTNCY EQUOVR ,,b,DCBST                                               04940000
+DCBSTNMC EQUOVR ,,b,DCBST                                               04950000
+DCBSTLBF EQUOVR ,,b,DCBST                                               04960000
+DCBSTLTF EQUOVR ,,b,DCBST                                               04970000
+.*                                                                      04980000
+.* Declare code-values for overflow device                              04990000
+DCBDVI01 EQUOVR ,,v,DCBOVDEV                                            05000000
+DCBDVI03 EQUOVR ,,v,DCBOVDEV                                            05010000
+DCBDVI02 EQUOVR ,,v,DCBOVDEV                                            05020000
+DCBDVI05 EQUOVR ,,v,DCBOVDEV                                            05030000
+DCBDVI14 EQUOVR ,,v,DCBOVDEV                                            05040000
+DCBDVI30 EQUOVR ,,v,DCBOVDEV                                            05050000
+.*                                                                      05060000
+.* Declare bits for BDAM option codes                                   05070000
+DCBOPTTO EQUOVR ,,b,DCBOPTCD                                            05080000
+DCBOPTE  EQUOVR ,,b,DCBOPTCD                                            05090000
+DCBOPTF  EQUOVR ,,b,DCBOPTCD                                            05100000
+DCBOPTA  EQUOVR ,,b,DCBOPTCD                                            05110000
+DCBOPTDB EQUOVR ,,b,DCBOPTCD                                            05120000
+DCBOPTRE EQUOVR ,,b,DCBOPTCD                                            05130000
+DCBOPTRB EQUOVR ,,b,DCBOPTCD                                            05140000
+.*                                                                      05150000
+.* Declare bit-fields for QTAM adapter type                             05160000
+DCBCPWTT EQUOVR ,,b,DCBPLBYT                                            05170000
+.*                                                                      05180000
+.* Declare bits for TCAM option codes                                   05190000
+DCBOPTWP EQUOVR ,,b,DCBOPTCD                                            05200000
+DCBOPTUM EQUOVR ,,b,DCBOPTCD                                            05210000
+DCBOPTCB EQUOVR ,,b,DCBOPTCD                                            05220000
+DCBOPTCP EQUOVR ,,b,DCBOPTCD                                            05230000
+DCBOPTIM EQUOVR ,,b,DCBOPTCD                                            05240000
+DCBOPTRM EQUOVR ,,b,DCBOPTCD                                            05250000
+.*                                                                      05260000
+.* Declare ready queue indicators                                       05270000
+DCBRDYPO EQUOVR ,,b,DCBRDYI                                             05280000
+DCBRDYIQ EQUOVR ,,b,DCBRDYI                                             05290000
+DCBRDYIZ EQUOVR ,,b,DCBRDYI                                             05300000
+.*                                                                      05310000
+.* Declare bits for BSC transmission mode                               05320000
+DCBXMIBC EQUOVR ,,b,DCBXMODE                                            05330000
+DCBXMDA1 EQUOVR ,,b,DCBXMODE                                            05340000
+DCBXMDA2 EQUOVR ,,b,DCBXMODE                                            05350000
+.*                                                                      05360000
+.* Declare bits for BSC control flag                                    05370000
+DCBXCCSF EQUOVR ,,b,DCBXCODE                                            05380000
+DCBXCPTP EQUOVR ,,b,DCBXCODE                                            05390000
+DCBXCTR1 EQUOVR ,,b,DCBXCODE                                            05400000
+DCBXCAS1 EQUOVR ,,b,DCBXCODE                                            05410000
+DCBXCEBC EQUOVR ,,b,DCBXCODE                                            05420000
+DCBXCTR2 EQUOVR ,,b,DCBXCODE                                            05430000
+DCBXCAS2 EQUOVR ,,b,DCBXCODE                                            05440000
+.*                                                                      05450000
+.* Declare bits for SAM option codes                                    05460000
+DCBOPTW  EQUOVR ,,b,DCBOPTCD                                            05470000
+DCBOPTU  EQUOVR ,,b,DCBOPTCD                                            05480000
+DCBOPTC  EQUOVR ,,b,DCBOPTCD                                            05490000
+DCBOPTH  EQUOVR ,,b,DCBOPTCD                                            05500000
+DCBOPTO  EQUOVR ,,b,DCBOPTCD                                            05510000
+DCBBCKPT EQUOVR ,,b,DCBOPTCD                                            05520000
+DCBOPTQ  EQUOVR ,,b,DCBOPTCD                                            05530000
+DCBOPTZ  EQUOVR ,,b,DCBOPTCD                                            05540000
+DCBSRCHD EQUOVR ,,b,DCBOPTCD                                            05550000
+DCBOPTT  EQUOVR ,,b,DCBOPTCD                                            05560000
+DCBOPTJ  EQUOVR ,,b,DCBOPTCD                                            05570000
+.*                                                                      05580000
+.* Declare condition indicator bits                                     05590000
+DCBCNTOV EQUOVR ,,b,DCBCIND1                                            05600000
+DCBSTQCK EQUOVR ,,b,DCBCIND1                                            05610000
+DCBSTFLS EQUOVR ,,b,DCBCIND1                                            05620000
+DCBCNSRD EQUOVR ,,b,DCBCIND1                                            05630000
+DCBCNEVB EQUOVR ,,b,DCBCIND1                                            05640000
+DCBCNEVA EQUOVR ,,b,DCBCIND1                                            05650000
+DCBCNCI  EQUOVR ,,b,DCBCIND1                                            05660000
+DCBCNBRM EQUOVR ,,b,DCBCIND1                                            05670000
+DCBCBNDF EQUOVR ,,b,DCBCIND1                                            05680000
+DCBCNEXB EQUOVR ,,b,DCBCIND1                                            05690000
+.*                                                                      05700000
+DCBCNSTO EQUOVR ,,b,DCBCIND2                                            05710000
+DCBCNWR0 EQUOVR ,,b,DCBCIND2                                            05720000
+DCBCNCLO EQUOVR ,,b,DCBCIND2                                            05730000
+DCBCNIOE EQUOVR ,,b,DCBCIND2                                            05740000
+DCBCNBFP EQUOVR ,,b,DCBCIND2                                            05750000
+DCBCNCHS EQUOVR ,,b,DCBCIND2                                            05760000
+DCBCNFEO EQUOVR ,,b,DCBCIND2                                            05770000
+DCBCNQSM EQUOVR ,,b,DCBCIND2                                            05780000
+.*                                                                      05790000
+.* Declare bit-fields for flag byte                                     05800000
+DCBPOPEN EQUOVR ,,b,DCBQSWS                                             05810000
+.*                                                                      05820000
+.* Declare bit-fields for ascii tapes                                   05830000
+DCBBLBP  EQUOVR ,,b,DCBUSASI                                            05840000
+DCBQADFS EQUOVR ,,b,DCBUSASI                                            05850000
+DCBQADF1 EQUOVR ,,b,DCBUSASI                                            05860000
+DCBQADF2 EQUOVR ,,b,DCBUSASI                                            05870000
+DCBQADF3 EQUOVR ,,b,DCBUSASI                                            05880000
+DCB3525A EQUOVR ,,b,DCBUSASI                                            05890000
+DCBQSTRU EQUOVR ,,b,DCBUSASI                                            05900000
+.*                                                                      05910000
+.* Declare error option bits                                            05920000
+DCBERACC EQUOVR ,,b,DCBEROPT                                            05930000
+DCBERSKP EQUOVR ,,b,DCBEROPT                                            05940000
+DCBERABE EQUOVR ,,b,DCBEROPT                                            05950000
+DCBERBAM EQUOVR ,,b,DCBEROPT                                            05960000
+.*                                                                      05970000
+         MNOTE *,'Including DCBD mapping macro'                         05980000
+.*                                                                      05990000
+.* DSORG=GS excluded because DCBD then expands incomplete               06000000
+         DCBD  DSORG=(BS,BX,CX,DA,IS,LR,PO,PS,QS,QX,TQ,TR,TX,XA,XE),   *06010000
+               DEVD=(BS,DA,MR,OR,PC,PR,PT,RD,TA,WT)                     06020000
+.*                                                                      06030000
+.* Additional equates for DCBMACF1 - FIRST BYTE OF DCBMACRF             06040000
+DCBMFECP EQU   DCBMRECP                                                 06050000
+DCBMFFE  EQU   DCBMRFE                                                  06060000
+DCBMFGET EQU   DCBMRGET                                                 06070000
+DCBMFPTQ EQU   DCBMRPTQ                                                 06080000
+DCBMFAPG EQU   DCBMRAPG                                                 06090000
+DCBMFRD  EQU   DCBMRRD                                                  06100000
+DCBMFWRQ EQU   DCBMRWRQ                                                 06110000
+DCBMFCI  EQU   DCBMRCI                                                  06120000
+DCBMFMVG EQU   DCBMRMVG                                                 06130000
+DCBMFRDK EQU   DCBMRRDK                                                 06140000
+DCBMFLCG EQU   DCBMRLCG                                                 06150000
+DCBMFRDI EQU   DCBMRRDI                                                 06160000
+DCBMFABC EQU   DCBMRABC                                                 06170000
+DCBMFPT1 EQU   DCBMRPT1                                                 06180000
+DCBMFSBG EQU   DCBMRSBG                                                 06190000
+DCBMFDBF EQU   DCBMRDBF                                                 06200000
+DCBMFFXA EQU   DCBPGFXA                                                 06210000
+DCBMFCRL EQU   DCBMRCRL                                                 06220000
+DCBMFCHK EQU   DCBMRCHK                                                 06230000
+DCBMFRDX EQU   DCBMRRDX                                                 06240000
+DCBMFDMG EQU   DCBMRDMG                                                 06250000
+DCBMFCK  EQU   DCBMRCK                                                  06260000
+.*                                                                      06270000
+.* Additional equates for DCBMACF2 - SECOND BYTE OF DCBMACRF            06280000
+DCBMFSTL EQU   DCBMRSTL                                                 06290000
+DCBMFPUT EQU   DCBMRPUT                                                 06300000
+DCBMFGTQ EQU   DCBMRGTQ                                                 06310000
+DCBMFWRT EQU   DCBMRWRT                                                 06320000
+DCBMFRDQ EQU   DCBMRRDQ                                                 06330000
+DCBMFMVP EQU   DCBMRMVP                                                 06340000
+DCBMFWRK EQU   DCBMRWRK                                                 06350000
+DCBMF5WD EQU   DCBMR5WD                                                 06360000
+DCBMFLDM EQU   DCBMRLDM                                                 06370000
+DCBMFLCP EQU   DCBMRLCP                                                 06380000
+DCBMFIDW EQU   DCBMRIDW                                                 06390000
+DCBMF4WD EQU   DCBMR4WD                                                 06400000
+DCBMFPT2 EQU   DCBMRPT2                                                 06410000
+DCBMFTMD EQU   DCBMRTMD                                                 06420000
+DCBMFUIP EQU   DCBMRUIP                                                 06430000
+DCBMF3WD EQU   DCBMR3WD                                                 06440000
+DCBMFCTL EQU   DCBMRCTL                                                 06450000
+DCBMFSTK EQU   DCBMRSTK                                                 06460000
+DCBMFAWR EQU   DCBMRAWR                                                 06470000
+DCBMF1WD EQU   DCBMR1WD                                                 06480000
+DCBMFSWA EQU   DCBMRSWA                                                 06490000
+DCBMFDMD EQU   DCBMRDMD                                                 06500000
+DCBMFSTI EQU   DCBMRSTI                                                 06510000
+.*                                                                      06520000
+         DSOVR *END                                                     06530000
+         EQUOVR *END                                                    06540000
+.*                                                                      06550000
+.* For DSORG=GS, the definitions below were copied from DCBD            06560000
+         ORG   IHADCB                                                   06570000
+*********************************************************************** 06580000
+*                       GRAPHIC DEVICE INTERFACE                        06590000
+*********************************************************************** 06600000
+         DS    XL12           RESERVED                                  06610000
+DCBBRSA  DS    AL2            BUFFER RESTART ADDRESS.  BLANK BEFORE     06620000
+*                             EXECUTION OF SECOND I/O OPERATION         06630000
+DCBGTYPE DCL   *CODE,XL1,     TYPE OF BUFFER MANAGEMENT AND ATTENTION  *06640000
+               DCBGTEXP,      EXPRESS                       HANDLING   *06650000
+               DCBGTBAS,      BASIC                                    *06660000
+               DCBGTNBM       DEFAULT - NO BUFFER MANAGEMENT       uL2A 06670000
+         DS    X              RESERVED                                  06680000
+DCBBFRST DS    AL2            BLANK BEFORE EXECUTION OF OPEN ROUTINE.   06690000
+*                             STARTING ADDRESS FOR BUFFER AFTER         06700000
+*                             EXECUTION OF OPEN ROUTINE                 06710000
+DCBBFRSZ DS    H              BLANK BEFORE EXECUTION OF OPEN ROUTINE.   06720000
+*                             SIZE OF BUFFER AFTER EXECUTION OF OPEN    06730000
+*                             ROUTINE.                                  06740000
+*********************************************************************** 06750000
+*                       FOUNDATION EXTENSION                            06760000
+*********************************************************************** 06770000
+         ORG   IHADCB+32      Set to start of foundation extension      06780000
+DCBPOLST DS    0A             ADDRESS OF AREA WHERE A DCB LIST IS TO BE 06790000
+*                             CONSTRUCTED FOR POLLING PURPOSES          06800000
+DCBGNCP  DS    FL1            NUMBER OF I/O INSTRUCTIONS TO BE ISSUED   06810000
+*                             BEFORE A WAIT MACRO INSTRUCTION           06820000
+DCBPOLSA DS    AL3            SAME AS DCBPOLST ABOVE                    06830000
+*********************************************************************** 06840000
+*                       FOUNDATION BEFORE OPEN                          06850000
+*********************************************************************** 06860000
+DCBOFGRW EQUOVR ,,b,DCBOFLG                                             06870000
+DCBOFGRW EQU   DCBBIT0        IF ZERO, LAST I/O OPERATION WAS GREAD.    06880000
+*                             IF ONE, LAST I/O OPERATION WAS GWRITE.    06890000
+*********************************************************************** 06900000
+*                       FOUNDATION AFTER OPEN                           06910000
+*********************************************************************** 06920000
+         ORG   IHADCB+40                                                06930000
+         DS    XL8            Previously defined fields                 06940000
+DCBGIOCR DS    0A             ADDRESS OF GRAPHICS I/O CONTROL ROUTINE   06950000
+         DS    BL1            DCBOFLGS: SAME AS DCBOFLG BEFORE OPEN     06960000
+DCBGIOCA DS    AL3            ADDRESS OF GRAPHICS I/O CONTROL ROUTINE   06970000
+DCBLNGGS EQU   *-IHADCB       LENGTH OF DCB FOR GRAPHIC DEVICE     uL1A&06980000
+                              INTERFACE                            uL1A 06990000
+*********************************************************************** 07000000
+*              END of GRAPHIC DEVICE INTERFACE                          07010000
+*********************************************************************** 07020000
+         EQUOVR *END                                                    07030000
+*                                                                       07040000
+DCB      EQU   IHADCB                  * Name for USINGs                07050000
+         ORG                                                            07060000
+DCB_LEN  EQU   *-DCB                   * Length of DCB                  07070000
+*                                                                       07080000
+* Mapping for Block Descriptor Word                                     07090000
+BDW      DSECT                                                          07100000
+BDWBLKLN DS    H                       * Length of block                07110000
+BDWT00   DS    H                       * Trailing zeros                 07120000
+BDW_LEN  EQU   *-BDW                   * Length of BDW                  07130000
+*                                                                       07140000
+* Mapping for Record Descriptor Word                                    07150000
+RDW      DSECT ,                       *                                07160000
+RDWRECLN DS    H                       * Length of RDW + record         07170000
+RDWT00   DS    H                       * Trailing zeros                 07180000
+*                                                                       07190000
+* RDW for XLRI has a different format                                   07200000
+         ORG   RDW                     *                                07210000
+RDWL0    DS    X                       * Leading zeros                  07220000
+RDWXLRLN DS    XL3                     * Length of logical record       07230000
+*                                                                       07240000
+         ORG   ,                       *                                07250000
+RDW_LEN  EQU   *-RDW                   * Length of RDW                  07260000
+*                                                                       07270000
+* Mapping for Segment Descriptor Word                                   07280000
+SDW      DSECT ,                       *                                07290000
+SDWNULL  EQUOVR ,,b,SDWSEGLN           * SDWNULL is bit 0 of length     07300000
+SDWSEGLN DS    H                       * Length of segment              07310000
+SDWNULL  EQU   BIT0                    * Null segment indicator         07320000
+SDWSEGCC DCL   *CODE,B,                * Segment Control Code          *07330000
+               SDWSCOMP,               * Complete record               *07340000
+               SDWSFRST,               * First segment                 *07350000
+               SDWSLAST,               * Last segment                  *07360000
+               SDWSMIDL                * Middle segment                 07370000
+         DS    X                       * Always zero                    07380000
+SDW_LEN  EQU   *-SDW                   * Length of SDW                  07390000
+         EQUOVR *END                                                    07400000
+*                                                                       07410000
+* Mapping for Segment Control Word (ASCII)                              07420000
+SCW      DSECT ,                       *                                07430000
+SCWSPIND DCL   *CODE,C,                * Spanning indicator chararcter *07440000
+               (SCWSCOMP,C'0'),        * Complete record               *07450000
+               (SCWSFRST,C'1'),        * First segment                 *07460000
+               (SCWSLAST,C'2'),        * Last segment                  *07470000
+               (SCWSMIDL,C'3')         * Middle segment                 07480000
+SCWSEGLN DS    CL4                     * Length of segment              07490000
+SCW_LEN  EQU   *-SCW                   * Length of SCW                  07500000
+*                                                                       07510000
+.* Return to our original CSECT name                                    07520000
+&SYSECT  &SYSSTYP                                                       07530000
+.*                                                                      07540000
+.MEND    MEND                                                           07560002

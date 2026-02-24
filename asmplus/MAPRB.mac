@@ -1,0 +1,281 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps a Request Block                                      00180000
+.*                                                                      00190000
+&LABEL   MAPRB &DSECT=YES,             * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPRB                  * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPRB          * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'RB').EMBED                                    00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPRB).MEND                                    00460002
+&BXA_MAC_MAPRB SETB 1                                                   00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_RB                                               00490000
+&BXA_CB_RB SETC 'RB'                                                    00500000
+.*                                                                      00510000
+.* RBTMFLD - INDICATORS FOR TIMER ROUTINES.                             00520000
+RBTMQUE  EQUOVR ,,b,RBTMFLD                                             00530000
+RBTMTOD  EQUOVR ,,b,RBTMFLD                                             00540000
+RBRSV005 EQUOVR ,,b,RBTMFLD                                             00550000
+RBWLIM   EQUOVR ,,b,RBTMFLD                                             00560000
+RBTMCMP  EQUOVR ,,b,RBTMFLD                                             00570000
+RBTMIND2 EQUOVR ,,b,RBTMFLD                                             00580000
+RBTMIND3 EQUOVR ,,b,RBTMFLD                                             00590000
+RBTREQ   EQUOVR ,,v,RBTMFLD                                             00600000
+RBWREQ   EQUOVR ,,b,RBTMFLD                                             00610000
+RBRREQ   EQUOVR ,,b,RBTMFLD                                             00620000
+.*                                                                      00630000
+.* RBSTAB1 - FIRST BYTE OF STATUS AND ATTRIBUTE BITS                    00640000
+RBFTCKPT EQUOVR ,,b,RBSTAB1                                             00650000
+XRBCKPT  EQUOVR ,,b,RBSTAB1                                             00660000
+.*                                                                      00670000
+.* RBSTAB2 - SECOND BYTE OF STATUS AND ATTRIBUTE BITS                   00680000
+RBTCBNXT EQUOVR ,,b,RBSTAB2                                             00690000
+XRBTCBP  EQUOVR ,,b,RBSTAB2                                             00700000
+RBFACTV  EQUOVR ,,b,RBSTAB2                                             00710000
+XRBACTV  EQUOVR ,,b,RBSTAB2                                             00720000
+RBFDYN   EQUOVR ,,b,RBSTAB2                                             00730000
+XRBFRRB  EQUOVR ,,b,RBSTAB2                                             00740000
+RBECBWT  EQUOVR ,,b,RBSTAB2                                             00750000
+XRBWAIT  EQUOVR ,,b,RBSTAB2                                             00760000
+.*                                                                      00770000
+.* RBOPSWB1 - OLD PSW BYTE 1                                            00780000
+RBOPER   EQUOVR ,,b,RBOPSWB1                                            00790000
+.*                                                                      00800000
+.* RBOPSWB2 - OLD PSW BYTE 2  (MDC304)                                  00810000
+RBOPSWPS EQUOVR ,,b,RBOPSWB2                                            00820000
+.*                                                                      00830000
+.* RBOPSWA - OLD PSW BYTES 5-8 (ADDRESS)                                00840000
+RBOPSWM  EQUOVR ,,b,RBOPSWA                                             00850000
+.*                                                                      00860000
+.* RBRSV019 - RESERVED                                                  00870000
+RBRSV020 EQUOVR ,,b,RBRSV019                                            00880000
+RBRSV021 EQUOVR ,,b,RBRSV019                                            00890000
+RBRSV022 EQUOVR ,,b,RBRSV019                                            00900000
+RBRSV023 EQUOVR ,,b,RBRSV019                                            00910000
+RBRSV024 EQUOVR ,,b,RBRSV019                                            00920000
+RBRSV025 EQUOVR ,,b,RBRSV019                                            00930000
+RBRSV026 EQUOVR ,,b,RBRSV019                                            00940000
+RBRSV027 EQUOVR ,,b,RBRSV019                                            00950000
+.*                                                                      00960000
+.* RBRSV028 - RESERVED                                                  00970000
+RBRSV029 EQUOVR ,,b,RBRSV028                                            00980000
+RBRSV030 EQUOVR ,,b,RBRSV028                                            00990000
+RBRSV031 EQUOVR ,,b,RBRSV028                                            01000000
+RBRSV032 EQUOVR ,,b,RBRSV028                                            01010000
+RBRSV033 EQUOVR ,,b,RBRSV028                                            01020000
+RBRSV034 EQUOVR ,,b,RBRSV028                                            01030000
+RBRSV035 EQUOVR ,,b,RBRSV028                                            01040000
+RBRSV036 EQUOVR ,,b,RBRSV028                                            01050000
+.*                                                                      01060000
+.* RBRSV041 - RESERVED                                                  01070000
+RBRSV042 EQUOVR ,,b,RBRSV041                                            01080000
+RBRSV043 EQUOVR ,,b,RBRSV041                                            01090000
+RBRSV044 EQUOVR ,,b,RBRSV041                                            01100000
+RBRSV045 EQUOVR ,,b,RBRSV041                                            01110000
+RBRSV046 EQUOVR ,,b,RBRSV041                                            01120000
+RBRSV047 EQUOVR ,,b,RBRSV041                                            01130000
+RBRSV048 EQUOVR ,,b,RBRSV041                                            01140000
+RBRSV049 EQUOVR ,,b,RBRSV041                                            01150000
+.*                                                                      01160000
+.* RBKEYSTA - THE KEY AND STATE OF THE IRB ROUTINE                      01170000
+RBKEY    EQUOVR ,,b,RBKEYSTA                                            01180000
+RBCIRB   EQUOVR ,,b,RBKEYSTA                                            01190000
+RBSTATE  EQUOVR ,,b,RBKEYSTA                                            01200000
+.*                                                                      01210000
+.* RBFLAGS2 - SECOND FLAG BYTE                                          01220000
+RBXWAITA EQUOVR ,,b,RBFLAGS2                                            01230000
+RBRSV056 EQUOVR ,,b,RBFLAGS2                                            01240000
+RBRSV057 EQUOVR ,,b,RBFLAGS2                                            01250000
+RBRSV058 EQUOVR ,,b,RBFLAGS2                                            01260000
+RBRSV059 EQUOVR ,,b,RBFLAGS2                                            01270000
+RBRSV060 EQUOVR ,,b,RBFLAGS2                                            01280000
+RBRSV061 EQUOVR ,,b,RBFLAGS2                                            01290000
+RBRSV062 EQUOVR ,,b,RBFLAGS2                                            01300000
+.*                                                                      01310000
+.* RBFLAGS1 - FLAG BYTE                                                 01320000
+RBSLOCK  EQUOVR ,,b,RBFLAGS1                                            01330000
+RBXWAIT  EQUOVR ,,b,RBFLAGS1                                            01340000
+RBABEND  EQUOVR ,,b,RBFLAGS1                                            01350000
+RBXWPRM  EQUOVR ,,b,RBFLAGS1                                            01360000
+RBASIR   EQUOVR ,,b,RBFLAGS1                                            01370000
+RBLONGWT EQUOVR ,,b,RBFLAGS1                                            01380000
+RBSCB    EQUOVR ,,b,RBFLAGS1                                            01390000
+RBSSSYN  EQUOVR ,,b,RBFLAGS1                                            01400000
+.*                                                                      01410000
+.* RBFLAGS3 - FLAG BYTE. SERIALIZATION:LOCAL LOCK                       01420000
+RBWTECB  EQUOVR ,,b,RBFLAGS3                                            01430000
+.*                                                                      01440000
+.* RBSTAB1 - FIRST BYTE OF STATUS AND ATTRIBUTE BITS                    01450000
+RBFTP    EQUOVR ,,b,RBSTAB1                                             01460000
+RBFTPRB  EQUOVR ,,v,RBSTAB1                                             01470000
+RBFTTIRB EQUOVR ,,b,RBSTAB1                                             01480000
+RBFTIRB  EQUOVR ,,b,RBSTAB1                                             01490000
+RBFTSIRB EQUOVR ,,b,RBSTAB1                                             01500000
+RBFTSVRB EQUOVR ,,b,RBSTAB1                                             01510000
+RBTRSVRB EQUOVR ,,b,RBSTAB1                                             01520000
+RBFNSVRB EQUOVR ,,b,RBSTAB1                                             01530000
+RBWAITP  EQUOVR ,,b,RBSTAB1                                             01540000
+RBATNXIT EQUOVR ,,b,RBSTAB1                                             01550000
+RBPMSVRB EQUOVR ,,b,RBSTAB1                                             01560000
+.*                                                                      01570000
+.* RBSTAB2 - SECOND BYTE OF STATUS AND ATTRIBUTE BITS                   01580000
+RBATTN   EQUOVR ,,b,RBSTAB2                                             01590000
+RBETXR   EQUOVR ,,b,RBSTAB2                                             01600000
+RBUSIQE  EQUOVR ,,b,RBSTAB2                                             01610000
+RBIQETP  EQUOVR ,,b,RBSTAB2                                             01620000
+RBRQENR  EQUOVR ,,v,RBSTAB2                                             01630000
+RBIRBAER EQUOVR ,,b,RBSTAB2                                             01640000
+RBIQENR  EQUOVR ,,b,RBSTAB2                                             01650000
+RBIRBAIQ EQUOVR ,,b,RBSTAB2                                             01660000
+.*                                                                      01670000
+.* RBEP - ENTRY POINT ADDRESS OF ASYNCHRONOUSLY EXECUTED ROUTINE        01680000
+RBEPM    EQUOVR ,,b,RBEP                                                01690000
+.*                                                                      01700000
+.* RBEPLBYT - BITS 0-6 = BITS 24-30 OF EP ADDR         *                01710000
+RBEPPD   EQUOVR ,,b,RBEPLBYT                                            01720000
+.*                                                                      01730000
+.* RBRSV138 - RESERVED                                                  01740000
+RBRSV139 EQUOVR ,,b,RBRSV138                                            01750000
+RBRSV140 EQUOVR ,,b,RBRSV138                                            01760000
+RBRSV141 EQUOVR ,,b,RBRSV138                                            01770000
+RBRSV142 EQUOVR ,,b,RBRSV138                                            01780000
+RBRSV143 EQUOVR ,,b,RBRSV138                                            01790000
+RBRSV144 EQUOVR ,,b,RBRSV138                                            01800000
+RBRSV145 EQUOVR ,,b,RBRSV138                                            01810000
+RBRSV146 EQUOVR ,,b,RBRSV138                                            01820000
+.*                                                                      01830000
+.* RBSFLGS1 - FIRST FLAG BYTE                                           01840000
+RBSSTAI  EQUOVR ,,b,RBSFLGS1                                            01850000
+RBSSTAR  EQUOVR ,,b,RBSFLGS1                                            01860000
+RBSDUMMY EQUOVR ,,b,RBSFLGS1                                            01870000
+RBSESTAE EQUOVR ,,b,RBSFLGS1                                            01880000
+RBRSV162 EQUOVR ,,b,RBSFLGS1                                            01890000
+RBSASYNC EQUOVR ,,b,RBSFLGS1                                            01900000
+RBSIOPRC EQUOVR ,,b,RBSFLGS1                                            01910000
+RBSNOIOP EQUOVR ,,b,RBSFLGS1                                            01920000
+RBSHALT  EQUOVR ,,b,RBSFLGS1                                            01930000
+.*                                                                      01940000
+.* RBSFLGS2 - SECOND FLAG BYTE                                          01950000
+RBSAMODE EQUOVR ,,b,RBSFLGS2                                            01960000
+RBSXCTL2 EQUOVR ,,b,RBSFLGS2                                            01970000
+RBRSV164 EQUOVR ,,b,RBSFLGS2                                            01980000
+RBSINUSE EQUOVR ,,b,RBSFLGS2                                            01990000
+RBRSV165 EQUOVR ,,b,RBSFLGS2                                            02000000
+RBRSV166 EQUOVR ,,b,RBSFLGS2                                            02010000
+RBSKEY0  EQUOVR ,,b,RBSFLGS2                                            02020000
+RBSSUPER EQUOVR ,,b,RBSFLGS2                                            02030000
+.*                                                                      02040000
+.* RBSFLG3 - OPTION FLAGS                                               02050000
+RBRSV167 EQUOVR ,,b,RBSFLG3                                             02060000
+RBSTERMI EQUOVR ,,b,RBSFLG3                                             02070000
+RBSRECRD EQUOVR ,,b,RBSFLG3                                             02080000
+RBSCNCEL EQUOVR ,,b,RBSFLG3                                             02090000
+RBSPRNTR EQUOVR ,,b,RBSFLG3                                             02100000
+RBSBRNTR EQUOVR ,,b,RBSFLG3                                             02110000
+RBSTERMO EQUOVR ,,b,RBSFLG3                                             02120000
+RBRSV168 EQUOVR ,,b,RBSFLG3                                             02130000
+.*                                                                      02140000
+.* RBCDFLGS - CONTROL FLAGS                                             02150000
+RBNOCELL EQUOVR ,,b,RBCDFLGS                                            02160000
+RBRSV009 EQUOVR ,,b,RBCDFLGS                                            02170000
+RBCDATCH EQUOVR ,,b,RBCDFLGS                                            02180000
+RBCDSAVE EQUOVR ,,b,RBCDFLGS                                            02190000
+RBCDNODE EQUOVR ,,b,RBCDFLGS                                            02200000
+RBCDSYNC EQUOVR ,,b,RBCDFLGS                                            02210000
+RBCDXCTL EQUOVR ,,b,RBCDFLGS                                            02220000
+RBCDLOAD EQUOVR ,,b,RBCDFLGS                                            02230000
+.*                                                                      02240000
+         MNOTE *,'Including IHARB mapping macro'                        02250000
+         IHARB DSECT=YES,              * Generate RB                   *02260000
+               LIST=YES                * with unchanged PRINT option    02270000
+         EQUOVR *END                                                    02280000
+*                                                                       02290000
+RBPRFX   DSECT ,                       * Reset to RB DSECT              02300000
+         ORG                                                            02310000
+RBPRFX_LEN EQU RBBASIC-RBPRFX          * Length of RB prefix area       02320000
+RB_LEN   EQU   *-RBBASIC               * Length of RB                   02330000
+.*                                                                      02340000
+.* Return to our original CSECT name                                    02350000
+&SYSECT  &SYSSTYP                                                       02360000
+.*                                                                      02370000
+.MEND    MEND                                                           02390002

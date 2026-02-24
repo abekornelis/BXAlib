@@ -1,0 +1,22 @@
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+======================================================================= 00160000
+The following control blocks are available for DCL                      00170000
+                                                                        00180000
+Control block name Mapmacro Description                                 00190000
+------------------ -------- ------------------------------------------- 00200000
+COPY               MAP$COPY BXACOPY private workarea                    00210000
+UNLD               MAP$UNLD BXAUNLD private workarea                    00220000

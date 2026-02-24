@@ -1,0 +1,214 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Partitioned DataSet directory entry              00180000
+.*                                                                      00190000
+&LABEL   MAPPDS &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPPDS                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPPDS         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'PDS').EMBED                                   00360000
+         AIF   ('&CB' EQ 'TTRN').EMBED                                  00370000
+         AIF   ('&CB' EQ 'TTRX').EMBED                                  00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPPDS).MEND                                   00480002
+&BXA_MAC_MAPPDS SETB 1                                                  00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_PDS                                              00510000
+         GBLC  &BXA_CB_TTRN                                             00520000
+         GBLC  &BXA_CB_TTRX                                             00530000
+&BXA_CB_PDS SETC 'PDS'                                                  00540000
+&BXA_CB_TTRN SETC 'PDS'                                                 00550000
+&BXA_CB_TTRX SETC 'PDS'                                                 00560000
+.*                                                                      00570000
+.* PDS2LIBF - LIBRARY FLAG FIELD                                        00580000
+PDS2LNRM EQUOVR ,,v,PDS2LIBF                                            00590000
+PDS2LLNK EQUOVR ,,v,PDS2LIBF                                            00600000
+PDS2LJOB EQUOVR ,,v,PDS2LIBF                                            00610000
+.*                                                                      00620000
+.* PDS2INDC - INDICATOR BYTE                                            00630000
+PDS2ALIS EQUOVR ,,b,PDS2INDC                                            00640000
+DEALIAS  EQUOVR ,,b,PDS2INDC                                            00650000
+.*                                                                      00660000
+.* PDS2ATR1 - FIRST BYTE OF PROGRAM ATTRIBUTE FIELD                     00670000
+PDS2RENT EQUOVR ,,b,PDS2ATR1                                            00680000
+DEREEN   EQUOVR ,,b,PDS2ATR1                                            00690000
+PDS2REUS EQUOVR ,,b,PDS2ATR1                                            00700000
+PDS2OVLY EQUOVR ,,b,PDS2ATR1                                            00710000
+DEOVLY   EQUOVR ,,b,PDS2ATR1                                            00720000
+PDS2TEST EQUOVR ,,b,PDS2ATR1                                            00730000
+PDS2LOAD EQUOVR ,,b,PDS2ATR1                                            00740000
+DELODY   EQUOVR ,,b,PDS2ATR1                                            00750000
+PDS2SCTR EQUOVR ,,b,PDS2ATR1                                            00760000
+DESCAT   EQUOVR ,,b,PDS2ATR1                                            00770000
+PDS2EXEC EQUOVR ,,b,PDS2ATR1                                            00780000
+DEXCUT   EQUOVR ,,b,PDS2ATR1                                            00790000
+PDS21BLK EQUOVR ,,b,PDS2ATR1                                            00800000
+.*                                                                      00810000
+.* PDS2ATR2 - SECOND BYTE OF PROGRAM ATTRIBUTE FIELD                    00820000
+PDS2FLVL EQUOVR ,,b,PDS2ATR1                                            00830000
+PDS2ORG0 EQUOVR ,,b,PDS2ATR1                                            00840000
+PDS2EP0  EQUOVR ,,b,PDS2ATR1                                            00850000
+PDS2NRLD EQUOVR ,,b,PDS2ATR1                                            00860000
+PDS2NREP EQUOVR ,,b,PDS2ATR1                                            00870000
+PDS2TSTN EQUOVR ,,b,PDS2ATR1                                            00880000
+PDS2LEF  EQUOVR ,,b,PDS2ATR1                                            00890000
+PDS2REFR EQUOVR ,,b,PDS2ATR1                                            00900000
+.*                                                                      00910000
+.* PDS2FTB1 - BYTE 1 OF PDS2FTBO                                        00920000
+PDSAOSLE EQUOVR ,,b,PDS2FTB1                                            00930000
+PDS2BIG  EQUOVR ,,b,PDS2FTB1                                            00940000
+PDS2PAGA EQUOVR ,,b,PDS2FTB1                                            00950000
+PDS2SSI  EQUOVR ,,b,PDS2FTB1                                            00960000
+PDSAPFLG EQUOVR ,,b,PDS2FTB1                                            00970000
+PDS2PGMO EQUOVR ,,b,PDS2FTB1                                            00980000
+.*                                                                      00990000
+.* PDS2FTB2 - BYTE 2 OF PDS2FTBO                                        01000000
+PDS2ALTP EQUOVR ,,b,PDS2FTB2                                            01010000
+PDSLRMOD EQUOVR ,,b,PDS2FTB2                                            01020000
+PDSAAMOD EQUOVR ,,b,PDS2FTB2                                            01030000
+PDSMAMOD EQUOVR ,,b,PDS2FTB2                                            01040000
+.*                                                                      01050000
+.* PDS2FTB3 - BYTE 3 OF PDS2FTBO                                        01060000
+PDS2NMIG EQUOVR ,,b,PDS2FTB3                                            01070000
+PDS2PRIM EQUOVR ,,b,PDS2FTB3                                            01080000
+PDS2PACK EQUOVR ,,b,PDS2FTB3                                            01090000
+.*                                                                      01100000
+.* PDSSSIFB - SSI FLAG BYTE                                             01110000
+PDSFORCE EQUOVR ,,b,PDSSSIFB                                            01120000
+PDSUSRCH EQUOVR ,,b,PDSSSIFB                                            01130000
+PDSEMFIX EQUOVR ,,b,PDSSSIFB                                            01140000
+PDSDEPCH EQUOVR ,,b,PDSSSIFB                                            01150000
+PDSSYSGN EQUOVR ,,b,PDSSSIFB                                            01160000
+PDSNOSGN EQUOVR ,,v,PDSSSIFB                                            01170000
+PDSCMSGN EQUOVR ,,b,PDSSSIFB                                            01180000
+PDSPTSGN EQUOVR ,,b,PDSSSIFB                                            01190000
+PDSIBMMB EQUOVR ,,b,PDSSSIFB                                            01200000
+.*                                                                      01210000
+         MNOTE *,'Including IHAPDS mapping macro'                       01220000
+         IHAPDS ,                      *                                01230000
+         EQUOVR *END                                                    01240000
+.*                                                                      01250000
+PDS2     DSECT ,                       * Resume PDS Direntry            01260000
+         ORG                                                            01270000
+PDS2_LEN EQU   *-PDS2                  * Length of PDS2                 01280000
+.*                                                                      01290000
+.* TTRN mapping                                                         01300000
+.*                                                                      01310000
+TTRN     DSECT ,                       *                                01320000
+TTRNTTR  DS    0XL3                    * TTR of member                  01330000
+TTRNTT   DS    XL2                     * Relative track adress          01340000
+TTRNR    DS    XL1                     * Record number (Block address)  01350000
+TTRNINDC DS    XL1                     * Indicator byte                 01360000
+TTRNALIA EQUOVR ,,b,TTRNINDC           *                                01370000
+TTRNALIA EQU   BIT0                    * On if name is an alias         01380000
+TTRNCNT  EQU   BIT1+BIT2               * Nr of user TTRNs in entry      01390000
+TTRNUSLN EQU   BIT3+BIT4+BIT5+BIT6+BIT7 * Length of user data in Hwords 01400000
+.*                                                                      01410000
+         ORG                                                            01420000
+TTRN_LEN EQU   *-TTRN                  * Length of TTRN                 01430000
+         EQUOVR *END                   *                                01440000
+.*                                                                      01450000
+.* TTRX mapping                                                         01460000
+.*                                                                      01470000
+TTRX     DSECT ,                       *                                01480000
+TTRXTTR  DS    0XL3                    * TTR of member                  01490000
+TTRXTT   DS    XL2                     * Relative track adress          01500000
+TTRXR    DS    XL1                     * Record number (Block address)  01510000
+TTRXFILL DS    XL1                     * Available for any use          01520000
+.*                                                                      01530000
+         ORG                                                            01540000
+TTRX_LEN EQU   *-TTRX                  * Length of TTRX                 01550000
+.*                                                                      01560000
+.* PDS directory entry as it exists in the PDS                          01570000
+.*                                                                      01580000
+PDS      DSECT ,                       *                                01590000
+PDSNAME  DS    CL8                     * Member name 8X'FF' for EOD     01600000
+PDSTTRN  DCL   TTRN                    * TTRN of member 4X'00' for EOD  01610000
+.*                                                                      01620000
+PDSDIRBS EQU   256                     * Size of directory block        01630000
+.*                                                                      01640000
+         ORG                                                            01650000
+PDS_LEN  EQU   *-PDS                   * Length of PDS                  01660000
+.*                                                                      01670000
+.* Return to our original CSECT name                                    01680000
+&SYSECT  &SYSSTYP                                                       01690000
+.*                                                                      01700000
+.MEND    MEND                                                           01720002

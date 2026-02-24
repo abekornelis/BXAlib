@@ -1,0 +1,185 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro handles the stack of DS modifications for use by the      00180000
+.* DS macro, which replaces the assembler's DS instruction              00190000
+.*                                                                      00200000
+&LABEL   DSOVR &OPT,                   * Parameters are in &SYSLIST    *00210000
+               &NEWNAM                 * New name for *NEWNAME option   00220000
+.*                                                                      00230000
+.* &LABEL mandatory, except when &OPT=*END                              00240000
+.*        To specify an override for an unlabeled DS, specify the label 00250000
+.*        of the last preceding labeled DS and the relative number of   00260000
+.*        the unlabeled statement to be overridden. E.g.: LABEG+3,      00270000
+.*        would  mean the third unlabeled DS after the DS with label    00280000
+.*        LABEG.                                                        00290000
+.* &OPT   specifies one of the following:                               00300000
+.*        *END cancels all outstanding DSOVR requests                   00310000
+.*        *SUPPRESS suppresses the definition of &LABEL                 00320000
+.*        *NEWNAME changes the DS for &LABEL into one for &NEWNAM,      00330000
+.*              i.e. Specify *NEWNAME,newname,parmstring                00340000
+.*        Other values override the DS-operand string                   00350000
+.* &NEWNAM Specifies the new name, if &OPT=*NEWNAME                     00360000
+.*        &NEWNAM may optionally be followed by a parameter string      00370000
+.*        If &NEWNAM specifies *NONAME the DS will become unlabeled     00380000
+.* &SYSLIST Specifies an operand string, which replaces the complete    00390000
+.*        operand string of the original DS statement.                  00400000
+.*                                                                      00410000
+.********************************************************************** 00411001
+.*                                                                      00412001
+.*       IMPORTANT NOTICE                                               00413001
+.*       ========= ======                                               00414001
+.*                                                                      00415001
+.* Code below checks whether 'USER' accepted the terms and conditions   00416001
+.* of the license for the BXA macro library. This code is to be treated 00417001
+.* as part of the Copyright Notice and therefore may not be changed     00418001
+.* or disabled in any way.                                              00419001
+.*                                                                      00419101
+.********************************************************************** 00419201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00419301
+         CHKLIC DSOVR                  * Check license acceptance       00419401
+         AIF   (&BXA_RC NE 0).MEND                                      00419502
+.********************************************************************** 00419601
+.*                                                                      00419701
+.* End of special code that is part of the Copyright Notice             00419801
+.*                                                                      00419901
+.********************************************************************** 00420001
+.*                                                                      00420101
+.* Declare variables                                                    00421000
+         GBLA  &BXA_DSOVR              * Ptr to last valid              00430000
+         GBLC  &BXA_DSOVR_LAB(50)      * Labels                         00440000
+         GBLC  &BXA_DSOVR_PRM(50)      * Parm strings                   00450000
+         GBLC  &BXA_DSOVR_NAM(50)      * New names                      00460000
+         LCLA  &I                      * Index                          00470000
+         LCLC  &PRMS                   * Parameter string               00480000
+.*                                                                      00490000
+.* Check LABEL parameter                                                00500000
+         AIF   (K'&LABEL GT 0).NOERR1                                   00510000
+         AIF   ('&OPT' EQ '*END').NOERR1                                00520000
+.ERR1    MNOTE 8,'Missing label parameter'                              00530000
+         MEXIT                                                          00540000
+.NOERR1  ANOP                                                           00550000
+.*                                                                      00560000
+.* Check the OPT parameter                                              00570000
+         AIF   (K'&OPT NE 0).NOERR2                                     00580000
+.ERR2A   MNOTE 8,'Missing parameter(s)'                                 00590000
+         MEXIT                                                          00600000
+.NOERR2  ANOP  ,                                                        00610000
+.*                                                                      00620000
+.* Check the NEWNAME parameter (must be present if &OPT = *NEWNAME)     00630000
+         AIF   ('&OPT' EQ '*NEWNAME' AND K'&NEWNAM EQ 0).ERR3A          00640000
+         AGO   .NOERR3                                                  00650000
+.ERR3A   MNOTE 8,'New name not specified with option *NEWNAME'          00660000
+         MEXIT                                                          00670000
+.NOERR3  ANOP                                                           00680000
+.*                                                                      00690000
+.* Check number of parameters                                           00700000
+         AIF   ('&OPT' EQ '*END' AND N'&SYSLIST GT 1).ERR4A             00710000
+         AIF   ('&OPT' EQ '*END').NOERR4                                00720000
+         AIF   ('&OPT' EQ '*SUPPRESS' AND N'&SYSLIST GT 1).ERR4A        00730000
+         AIF   ('&OPT' EQ '*SUPPRESS').NOERR4                           00740000
+         AGO   .NOERR4                                                  00750000
+.ERR4A   MNOTE 4,'More than 1 argument: remainder ignored'              00760000
+.NOERR4  ANOP                                                           00770000
+.*                                                                      00780000
+.* Which option requested?                                              00790000
+         AIF   ('&OPT' EQ '*END').END                                   00800000
+         AIF   ('&OPT' EQ '*SUPPRESS').SUPPRESS                         00810000
+         AIF   ('&OPT' EQ '*NEWNAME').NEWNAME                           00820000
+.*                                                                      00830000
+.* Normal: add entries to tables                                        00840000
+&I       SETA  0                       * SYSLIST(1) ff into PRMS        00850000
+         AGO   .BLDPRMS                                                 00860000
+.*                                                                      00870000
+.* Suppress option                                                      00880000
+.SUPPRESS ANOP ,                                                        00890000
+&PRMS    SETC  '&OPT'                  * Set to *SUPPRESS               00900000
+         AGO   .ADDNTRY                                                 00910000
+.*                                                                      00920000
+.* Newname option                                                       00930000
+.NEWNAME ANOP  ,                                                        00940000
+&I       SETA  2                       * SYSLIST(3) ff into PRMS        00950000
+         AGO   .BLDPRMS                                                 00960000
+.*                                                                      00970000
+.* Build parameter string from SYSLIST entries                          00980000
+.BLDPRMS ANOP  ,                                                        00990000
+&I       SETA  &I+1                    * Point next SYSLIST entry       01000000
+         AIF   (&I GT N'&SYSLIST).PRMSOK                                01010000
+&PRMS    SETC  '&PRMS'.','.'&SYSLIST(&I)'                               01020000
+         AGO   .BLDPRMS                                                 01030000
+.PRMSOK  ANOP  ,                                                        01040000
+         AIF   (K'&PRMS EQ 0).ADDNTRY                                   01050000
+&PRMS    SETC  '&PRMS'(2,*)            * Remove leading comma           01060000
+.*                                                                      01070000
+.* Add entry to tables                                                  01080000
+.ADDNTRY ANOP  ,                                                        01090000
+&I       SETA  &BXA_DSOVR+1            * Next free entry                01100000
+&BXA_DSOVR_LAB(&I) SETC '&LABEL'       * Insert label,                  01110000
+&BXA_DSOVR_PRM(&I) SETC '&PRMS'        *   and parameters               01120000
+&BXA_DSOVR_NAM(&I) SETC ''             *   into tables                  01130000
+         AIF   ('&OPT' NE '*NEWNAME').NAMOK                             01140000
+&BXA_DSOVR_NAM(&I) SETC '&NEWNAM'      *                                01150000
+.NAMOK   ANOP  ,                                                        01160000
+&BXA_DSOVR SETA &I                     * And update ptr to last valid   01170000
+.*                                                                      01180000
+.* Replace DS-instruction by our DS-macro on the first override         01190000
+         AIF   (&BXA_DSOVR GT 1).MEND                                   01200002
+         OPSYNS DS                     * Replace DS by _DS              01210000
+         MEXIT                                                          01220000
+.*                                                                      01230000
+.* Ending current DSOVR requests. Issue a message for any unused        01240000
+.* entries in BXA_DSOVR tables.                                         01250000
+.END     ANOP                                                           01260000
+         AIF   (&BXA_DSOVR EQ 0).MEND * No entries remain               01270002
+&I       SETA  0                       * I indexes BXA_DSOVR_xxx        01280000
+.LOOP1   ANOP  ,                       * For all current entries        01290000
+&I       SETA  &I+1                    * Point next entry               01300000
+         AIF   (&I GT &BXA_DSOVR).LOOP1OK * At end: quit loop           01310000
+         MNOTE 4,'DSOVR for &BXA_DSOVR_LAB(&I) discarded'               01320000
+         AGO   .LOOP1                                                   01330000
+.LOOP1OK ANOP                                                           01340000
+&BXA_DSOVR SETA 0                      * Reset valid counter to 0       01350000
+.*                                                                      01360000
+.* Disable our DS-macro by replacing _DS by original DS-instruction     01370000
+         OPSYNS _DS                    * Reset DS-instruction           01380000
+.*                                                                      01390000
+.MEND    MEND                                                           01410002

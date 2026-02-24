@@ -1,0 +1,67 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00002600
+.*                                                                      00002700
+.* Bixoft eXtended Assembly language                                    00002800
+.* Licensed material - Property of B.V. Bixoft                          00002900
+.*                                                                      00003000
+.* This macro can be licensed or used on an as-is basis.                00004000
+.* No warranty, neither implicit nor explicit, is given.                00005000
+.* It remains your own responsibility to ensure the correct             00006000
+.* working of any program using this macro.                             00007000
+.*                                                                      00008000
+.* Suggestions for improvement are always welcome at                    00009000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00010000
+.*                                                                      00020000
+.* (C) Copyright B.V. Bixoft, 2004                                      00030000
+.********************************************************************** 00040000
+         MACRO                                                          00050000
+.*                                                                      00060000
+.* Branch on Low or Equal                                               00070000
+.*                                                                      00080000
+&LABEL   BLE   &ADR                    * Branch address                 00090000
+.********************************************************************** 00100000
+.*                                                                      00110000
+.*       IMPORTANT NOTICE                                               00120000
+.*       ========= ======                                               00130000
+.*                                                                      00140000
+.* Code below checks whether 'USER' accepted the terms and conditions   00150000
+.* of the license for the BXA macro library. This code is to be treated 00160000
+.* as part of the Copyright Notice and therefore may not be changed     00170000
+.* or disabled in any way.                                              00180000
+.*                                                                      00190000
+.********************************************************************** 00200000
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00210000
+         CHKLIC BASE                   * Check license acceptance       00220000
+         AIF   (&BXA_RC NE 0).MEND                                      00230000
+.********************************************************************** 00231000
+.*                                                                      00232000
+.* End of special code that is part of the Copyright Notice             00233000
+.*                                                                      00234000
+.********************************************************************** 00235000
+&LABEL   BC    B'1100',&ADR            * B on Low or Equal condition    00236000
+.*                                                                      00237000
+.MEND    MEND                                                           00238000

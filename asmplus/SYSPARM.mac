@@ -1,0 +1,225 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* The assembler program accepts as a JCL-parameter a specification     00180000
+.* for the variable SYSPARM. The value entered in the JCL will be       00190000
+.* passed to a global set symbol named &SYSPARM. The value specified    00200000
+.* in the JCL is passed as a single string. This macro decomposes the   00210000
+.* string into separate parameters. Then the parameters are checked     00220000
+.* and handled. 7 different keywords are allowed:                       00230002
+.* - DBG     : Generate debugging code (DBG-macro expansion)            00240000
+.* - NODBG   : Do not generate debugging code                           00250000
+.* - NOSRLIST: Do not generate a list of subroutines                    00260000
+.* - SRLIST  : Generate a list of subroutines                           00270000
+.* - SRXREF  : Generate a cross reference of subroutines                00280000
+.* - SHOWALL : Do not suppress any statement, report EJECT statements   00290000
+.* - OPT     : Optimize generated code                                  00300000
+.* - NOOPT   : Do not optimize generated code                           00310000
+.* - LICENSE=...... Name and version of the license for this software   00320003
+.* - LICSTAT=IAGREE If you agree to the license terms                   00321003
+.*                                                                      00322002
+.* The default is: NODBG,SRXREF,NOOPT,LICENSE(NONE),LICSTAT(NOTOK)      00330002
+.* If conflicting options are entered, the last one specified will      00340000
+.* take precedence.                                                     00350000
+.*                                                                      00360000
+         SYSPARM                                                        00370000
+.*                                                                      00380000
+.* Declare variables                                                    00390000
+.*                                                                      00400000
+         GBLB  &SP_DBG                 * On for DBG                     00410000
+         GBLB  &SP_OPT                 * On for OPT                     00420000
+         GBLB  &SP_SRLIST              * On for SRLIST or SRXREF        00430000
+         GBLB  &SP_SRXREF              * On for SRXREF                  00440000
+         GBLB  &SP_SHOWALL             * On for SHOWALL                 00450000
+         GBLB  &SP_LICOK               * On if valid license accepted   00450104
+         GBLC  &SP_LICENSE             * License name / version         00451001
+         GBLC  &SP_LICSTAT             * License status                 00452002
+         LCLC  &P(5)                   * Array to contain parms         00460000
+         LCLA  &I                      * Character index for &SYSPARM   00470000
+         LCLA  &J                      * Character index for &PARM      00471003
+         LCLA  &N                      * Next character to extract      00480000
+         LCLA  &X                      * Index into array &P            00490000
+         LCLC  &PARM                   * Current entry from array &P    00491003
+         LCLC  &NAME                   * Name contained in &PARM        00492003
+         LCLC  &VALUE                  * Value contained in &PARM       00493003
+.*                                                                      00500000
+.* Set defaults                                                         00510000
+.*                                                                      00520000
+&SP_DBG  SETB  0                       * Default: no debugging code     00530000
+&SP_OPT  SETB  0                       * Default: no optimization       00540000
+&SP_SRLIST SETB 1                      * Default: produces subroutine   00550000
+&SP_SRXREF SETB 1                      *          cross reference       00560004
+&SP_LICOK  SETB 0                      * Default: license not ok        00560104
+&SP_LICENSE SETC 'NONE'                * Default license name           00561002
+&SP_LICSTAT SETC 'NOTOK'               * Default license status         00562002
+         AIF   (K'&SYSPARM EQ 0).MEND                                   00570012
+.*                                                                      00580000
+.* First the sysparm string is to be split into substrings              00590000
+.*                                                                      00600000
+&I       SETA  0                       * Initialize for                 00610000
+&N       SETA  1                       *   extraction of parameters     00620000
+&X       SETA  1                       *   from &SYSPARM                00630000
+.LOOP1   ANOP                                                           00640000
+&I       SETA  &I+1                    * Increment character index      00650000
+         AIF   (&I GT K'&SYSPARM).LOOP1OK * end of string               00660000
+         AIF   ('&SYSPARM'(&I,1) NE ',').LOOP1 * end of substring       00670000
+&P(&X)   SETC  '&SYSPARM'(&N,&I-&N)    * Extract substring              00680000
+&N       SETA  &I+1                    * Point to next substring        00690000
+&X       SETA  &X+1                    * Increment substring counter    00700000
+         AGO   .LOOP1                  * Go check next character        00710000
+.LOOP1OK ANOP                                                           00720000
+&P(&X)   SETC  '&SYSPARM'(&N,&I-&N)    * Extract last substring         00730000
+.*                                                                      00740000
+.* Now check that keywords are valid                                    00750000
+.* &X now is count of parms to check                                    00760000
+&I       SETA  0                       * Index into array &P            00770000
+.LOOP2   ANOP                                                           00780000
+&I       SETA  &I+1                    * Point to next parameter        00790000
+         AIF   (&I GT &X).LOOP2OK      * End of loop                    00800000
+&PARM    SETC  '&P(&I)'                * Copy current entry             00801003
+         AIF   ('&PARM' EQ '').LOOP2   * Skip empty parameter           00810003
+         AIF   ('&PARM' EQ 'DBG').DBG  * Set debug mode on              00820003
+         AIF   ('&PARM' EQ 'NODBG').NODBG * Turn debug mode off         00830003
+         AIF   ('&PARM' EQ 'OPT').OPT  * Set optimization on            00840003
+         AIF   ('&PARM' EQ 'NOOPT').NOOPT * Turn optimization off       00850003
+         AIF   ('&PARM' EQ 'SHOWALL').SHOWALL * Set SHOWALL mode on     00860003
+         AIF   ('&PARM' EQ 'SRLIST').SRLIST * Set SRLIST mode on        00870003
+         AIF   ('&PARM' EQ 'SRXREF').SRXREF * Set SRXREF mode on        00880003
+         AIF   ('&PARM' EQ 'NOSRLIST').NOSRLIST * Turn SRLIST off       00890003
+.* Check to see if parameter can be split into name=value pair          00891003
+&J       SETA  ('&PARM' FIND '=')      * Contains =sign?                00892003
+         AIF   (&J EQ 0).LOOP2ER       * No =sign: signal error         00893003
+&NAME    SETC  '&PARM'(1,&J-1)         * Extract parameter name         00894003
+&VALUE   SETC  '&PARM'(&J+1,*)         * Extract parameter value        00895003
+         AIF   ('&NAME' EQ 'LICENSE').LICENSE * Select license id       00896003
+         AIF   ('&NAME' EQ 'LICSTAT').LICSTAT * Register license status 00897003
+.LOOP2ER MNOTE 8,'Invalid sysparm operand: &PARM'                       00900003
+         AGO   .LOOP2                  * Go try next parameter          00910000
+.*                                                                      00920000
+.DBG     ANOP                                                           00930000
+&SP_DBG  SETB  1                       * Enable debugging               00940000
+         AGO   .LOOP2                                                   00950000
+.*                                                                      00960000
+.NODBG   ANOP                                                           00970000
+&SP_DBG  SETB  0                       * Disable debugging              00980000
+         AGO   .LOOP2                                                   00990000
+.*                                                                      01000000
+.OPT     ANOP                                                           01010000
+&SP_OPT  SETB  1                       * Enable optimization            01020000
+         AGO   .LOOP2                                                   01030000
+.*                                                                      01040000
+.NOOPT   ANOP                                                           01050000
+&SP_OPT  SETB  0                       * Disable optimization           01060000
+         AGO   .LOOP2                                                   01070000
+.*                                                                      01080000
+.SHOWALL ANOP                                                           01090000
+&SP_SHOWALL SETB 1                     * Do not suppress any statement  01100000
+         AGO   .LOOP2                                                   01110000
+.*                                                                      01120000
+.SRLIST  ANOP                                                           01130000
+&SP_SRLIST SETB 1                      * Create a list of subroutines   01140000
+&SP_SRXREF SETB 0                      * But no cross reference         01150000
+         AGO   .LOOP2                                                   01160000
+.*                                                                      01170000
+.SRXREF  ANOP                                                           01180000
+&SP_SRLIST SETB 1                      * Create a list of subroutines   01190000
+&SP_SRXREF SETB 1                      * And a cross reference          01200000
+         AGO   .LOOP2                                                   01210000
+.*                                                                      01220000
+.NOSRLIST ANOP                                                          01230000
+&SP_SRLIST SETB 0                      * Create no list of subroutines  01240000
+&SP_SRXREF SETB 0                      * And no cross reference         01250000
+         AGO   .LOOP2                                                   01260000
+.*                                                                      01270000
+.LICENSE ANOP                                                           01271003
+&SP_LICENSE SETC '&VALUE'              * Register license name          01272006
+         AGO   .LOOP2                                                   01274003
+.*                                                                      01275003
+.LICSTAT ANOP                                                           01276003
+&SP_LICSTAT SETC '&VALUE'              * Register license status        01277006
+         AGO   .LOOP2                                                   01278003
+.LOOP2OK ANOP  ,                                                        01278105
+.********************************************************************** 01279005
+.*                                                                      01279105
+.*       IMPORTANT NOTICE                                               01279205
+.*       ========= ======                                               01279305
+.*                                                                      01279405
+.* Code below checks whether 'USER' accepted the terms and conditions   01279505
+.* of the license for the BXA macro library. This code is to be treated 01279605
+.* as part of the Copyright Notice and therefore may not be changed     01279705
+.* or disabled in any way.                                              01279805
+.*                                                                      01279905
+.********************************************************************** 01280005
+.*                                                                      01280105
+.* Check that a valid license id was entered                            01281004
+         AIF   ('&SP_LICENSE' EQ 'BXAPL1.0').LICOK                      01282005
+         AIF   ('&SP_LICENSE' EQ 'GPL2.0').LICOK                        01282105
+         MNOTE 4,'License id &SP_LICENSE entered: not valid, BXA macros*01282204
+                are disabled'                                           01282407
+         AGO   .MEND                                                    01282512
+.LICOK   ANOP  ,                                                        01282605
+.*                                                                      01282705
+.* Check whether the license was accepted                               01282805
+         AIF   ('&SP_LICSTAT' EQ 'IAGREE').LICSOK                       01282905
+         MNOTE 4,'License status &SP_LICSTAT entered: you did not agree*01283008
+                to the terms in license &SP_LICENSE, BXA macros are dis*01283108
+               abled'                                                   01283208
+         AGO   .MEND                                                    01283312
+.LICSOK  ANOP  ,                                                        01283405
+         MNOTE 1,'For usage of the BXA macros you have agreed to the te*01283509
+               rms of license &SP_LICENSE'                              01283610
+*********************************************************************** 01283709
+**                                                                      01283809
+** For the terms and conditions of the license you have selected        01283909
+** please check the text of the license, which should be in the         01284011
+** macro library. Alternatively, you can find a copy on our site:       01284111
+** GPL2.0   - http://www.hlasm.com/english/gpl                          01284209
+** BXAPL1.0 - http://www.hlasm.com/english/license                      01284309
+**                                                                      01284409
+*********************************************************************** 01284509
+&SP_LICOK  SETB 1                      * License was accepted           01284609
+.********************************************************************** 01284709
+.*                                                                      01284809
+.* End of special code that is part of the Copyright Notice             01284909
+.*                                                                      01285009
+.********************************************************************** 01286009
+.MEND    MEND                                                           01310012

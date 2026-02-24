@@ -1,0 +1,219 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the RTM1 Work Area                                   00180000
+.*                                                                      00190000
+&LABEL   MAPRT1W &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPRT1W                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPRT1W        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'RTMW').EMBED                                  00360000
+         AIF   ('&CB' EQ 'RT1TRACK').EMBED                              00370000
+         AIF   ('&CB' EQ 'RT1TRECC').EMBED                              00380000
+         AIF   ('&CB' EQ 'RT1W').EMBED                                  00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded definition                                         00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPRT1W).MEND                                  00490002
+&BXA_MAC_MAPRT1W SETB 1                                                 00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_RTMW                                             00520000
+         GBLC  &BXA_CB_RT1TRACK                                         00530000
+         GBLC  &BXA_CB_RT1TRECC                                         00540000
+         GBLC  &BXA_CB_RT1W                                             00550000
+&BXA_CB_RTMW SETC 'RT1W'                                                00560000
+&BXA_CB_RT1TRACK SETC 'RT1W'                                            00570000
+&BXA_CB_RT1TRECC SETC 'RT1W'                                            00580000
+&BXA_CB_RT1W SETC 'RT1W'                                                00590000
+.*                                                                      00600000
+.* RT1WCOVR - PRESERVED CARRY OVER INFORMATION ON VALID RECURSIONS      00610000
+RT1WRCDR EQUOVR ,,b,RT1WCOVR                                            00620000
+RT1WRTM  EQUOVR ,,b,RT1WCOVR                                            00630000
+RT1WFAIL EQUOVR ,,b,RT1WCOVR                                            00640000
+RT1WRMGR EQUOVR ,,b,RT1WCOVR                                            00650000
+RT1WEREX EQUOVR ,,b,RT1WCOVR                                            00660000
+RT1WGFAI EQUOVR ,,b,RT1WCOVR                                            00670000
+RT1WRCRD EQUOVR ,,b,RT1WCOVR                                            00680000
+.*                                                                      00690000
+.* RT1WCOV2 - PRESERVED CARRY OVER INFORMATION ON VALID RECURSIONS      00700000
+RT1NODMP EQUOVR ,,b,RT1WCOV2                                            00710000
+RT1WNOSP EQUOVR ,,b,RT1WCOV2                                            00720000
+RT1WNOSV EQUOVR ,,b,RT1WCOV2                                            00730000
+RT1WNOSA EQUOVR ,,b,RT1WCOV2                                            00740000
+RT1WNOSM EQUOVR ,,b,RT1WCOV2                                            00750000
+RT1WNOSU EQUOVR ,,b,RT1WCOV2                                            00760000
+.*                                                                      00770000
+.* RT1WCOV3 - FLAGS                                                     00780000
+RT1WSKIP EQUOVR ,,b,RT1WCOV3                                            00790000
+RT1WSLST EQUOVR ,,b,RT1WCOV3                                            00800000
+RT1WCPOB EQUOVR ,,b,RT1WCOV3                                            00810000
+.*                                                                      00820000
+.* RT1WCOV4 - FLAGS                                                     00830000
+RT1WRSTW EQUOVR ,,b,RT1WCOV4                                            00840000
+RT1WNCNL EQUOVR ,,b,RT1WCOV4                                            00850000
+RT1WCLUP EQUOVR ,,b,RT1WCOV4                                            00860000
+.*                                                                      00870000
+.* RT1WCMPF - FLAG BITS IN COMPLETION CODE.                             00880000
+RT1WREQ  EQUOVR ,,b,RT1WCMPF                                            00890000
+RT1WSTEP EQUOVR ,,b,RT1WCMPF                                            00900000
+RT1WRCF  EQUOVR ,,b,RT1WCMPF                                            00910000
+.*                                                                      00920000
+.* RT1TACQR - RESOURCES ACQUIRED BY RTM1                                00930000
+RT1TDISP EQUOVR ,,b,RT1TACQR                                            00940000
+RT1TLLCK EQUOVR ,,b,RT1TACQR                                            00950000
+RT1TRETY EQUOVR ,,b,RT1TACQR                                            00960000
+RT1TCINV EQUOVR ,,b,RT1TACQR                                            00970000
+RT1TSERP EQUOVR ,,b,RT1TACQR                                            00980000
+RT1TTRTS EQUOVR ,,b,RT1TACQR                                            00990000
+RT1TNSS  EQUOVR ,,b,RT1TACQR                                            01000000
+RT1TBINV EQUOVR ,,b,RT1TACQR                                            01010000
+.*                                                                      01020000
+.* LOGICAL PHASE NUMBERS USED WITH THE RT1TLPN FIELD.                   01030000
+VALIDREC EQUOVR ,,v,RT1TLPN                                             01040000
+FRRRECUR EQUOVR ,,v,RT1TLPN                                             01050000
+RMGRCML  EQUOVR ,,v,RT1TLPN                                             01060000
+RCRDREC  EQUOVR ,,v,RT1TLPN                                             01070000
+RT1MGRLO EQUOVR ,,v,RT1TLPN                                             01080000
+MGRINIT  EQUOVR ,,v,RT1TLPN                                             01090000
+POSTRTS  EQUOVR ,,v,RT1TLPN                                             01100000
+NORTS    EQUOVR ,,v,RT1TLPN                                             01110000
+CPURSTRT EQUOVR ,,v,RT1TLPN                                             01120000
+NORSTRT  EQUOVR ,,v,RT1TLPN                                             01130000
+RT1MGRHI EQUOVR ,,v,RT1TLPN                                             01140000
+RT1MCHLO EQUOVR ,,v,RT1TLPN                                             01150000
+RTHEEDS  EQUOVR ,,v,RT1TLPN                                             01160000
+RTHTIMER EQUOVR ,,v,RT1TLPN                                             01170000
+RTHSTRG1 EQUOVR ,,v,RT1TLPN                                             01180000
+RTHPARMS EQUOVR ,,v,RT1TLPN                                             01190000
+RTHSTRG2 EQUOVR ,,v,RT1TLPN                                             01200000
+RTHRECRD EQUOVR ,,v,RT1TLPN                                             01210000
+RTHSOFTW EQUOVR ,,v,RT1TLPN                                             01220000
+RTHEXIT  EQUOVR ,,v,RT1TLPN                                             01230000
+RT1MCHHI EQUOVR ,,v,RT1TLPN                                             01240000
+RT1SRMLO EQUOVR ,,v,RT1TLPN                                             01250000
+RT1SRMHI EQUOVR ,,v,RT1TLPN                                             01260000
+RT1RESLO EQUOVR ,,v,RT1TLPN                                             01270000
+RESRTYLO EQUOVR ,,v,RT1TLPN                                             01280000
+SRBEED   EQUOVR ,,v,RT1TLPN                                             01290000
+XMEEDS   EQUOVR ,,v,RT1TLPN                                             01300000
+RT2EEDS  EQUOVR ,,v,RT1TLPN                                             01310000
+RT1EEDS  EQUOVR ,,v,RT1TLPN                                             01320000
+RETRYRS1 EQUOVR ,,v,RT1TLPN                                             01330000
+RESRTYHI EQUOVR ,,v,RT1TLPN                                             01340000
+RESCHED  EQUOVR ,,v,RT1TLPN                                             01350000
+FREESRB  EQUOVR ,,v,RT1TLPN                                             01360000
+SRBCOMP  EQUOVR ,,v,RT1TLPN                                             01370000
+RESRTM2  EQUOVR ,,v,RT1TLPN                                             01380000
+TCBTERM  EQUOVR ,,v,RT1TLPN                                             01390000
+RESRTM1  EQUOVR ,,v,RT1TLPN                                             01400000
+MEMTERM  EQUOVR ,,v,RT1TLPN                                             01410000
+MEMTCOMP EQUOVR ,,v,RT1TLPN                                             01420000
+RT1RESHI EQUOVR ,,v,RT1TLPN                                             01430000
+RT1EXTLO EQUOVR ,,v,RT1TLPN                                             01440000
+EEDFREE  EQUOVR ,,v,RT1TLPN                                             01450000
+FREERTCA EQUOVR ,,v,RT1TLPN                                             01460000
+EEDFREE2 EQUOVR ,,v,RT1TLPN                                             01470000
+EEDFREE3 EQUOVR ,,v,RT1TLPN                                             01480000
+EEDFREE4 EQUOVR ,,v,RT1TLPN                                             01490000
+MEMSLIP  EQUOVR ,,v,RT1TLPN                                             01500000
+RT1EXTHI EQUOVR ,,v,RT1TLPN                                             01510000
+.*                                                                      01520000
+         MNOTE *,'Including IHART1W mapping macro'                      01530000
+         IHART1W ,                     *                                01540000
+         EQUOVR *END                                                    01550000
+*                                                                       01560000
+RT1W     DSECT ,                       * Restart RT1W DSECT             01570000
+         ORG   ,                       *                                01580000
+RT1W_LEN EQU   *-RT1W                  * Length of RT1W                 01590000
+*                                                                       01600000
+RT1TRECC DSECT ,                       * Restart recursion control data 01610000
+         ORG   ,                       *                          area  01620000
+RT1TRECC_LEN EQU *-RT1TRECC            * Length of RT1TRECC             01630000
+*                                                                       01640000
+RT1TRACK DSECT ,                       * Restart Tracking area          01650000
+         ORG   ,                       *                                01660000
+RT1TRACK_LEN EQU *-RT1TRACK            * Length of RT1TRACK             01670000
+*                                                                       01680000
+RTMW     DSECT ,                       * Restart RTM save/work area     01690000
+         ORG   ,                       *                                01700000
+RTMW_LEN EQU   *-RTMW                  * Length of RTMW                 01710000
+.*                                                                      01720000
+.* Return to our original CSECT name                                    01730000
+&SYSECT  &SYSSTYP                                                       01740000
+.*                                                                      01750000
+.MEND    MEND                                                           01770002

@@ -1,0 +1,182 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro replaces the assembler's DROP statement                   00180000
+.*                                                                      00190000
+         DROP  ,                       * Reg(s) and/or label(s)         00200000
+.*                                                                      00210000
+.* &SYSLIST specifies the labels and/or registers to drop.              00220000
+.*          if empty all registers will be dropped.                     00230000
+.*                                                                      00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC DROP                   * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251001
+.* Declare variables                                                    00260000
+         GBLB  &BXA_USED_REGS(16)      * Use status of regs R0-R15      00270000
+         GBLB  &SP_SHOWALL             * SHOWALL option                 00280000
+         GBLC  &BXA_USELBL(50)         * Used labels ...                00290000
+         GBLA  &BXA_USEREG(50)         *   and associated registers     00300000
+         GBLC  &BXA_USEFLD(50)         *   and base field names         00310000
+         GBLA  &BXA_USENDX0(5)         * Low valid pointers             00320000
+         GBLA  &BXA_USENDX1(5)         * High valid pointers            00330000
+         GBLA  &BXA_USENDX             * Pointer for USENDX0/USENDX1    00340000
+         LCLA  &N                      * Pointer for BXA_USE...         00350000
+         LCLA  &REG                    * Register number                00360000
+         LCLC  &ARG                    * 1 argument from SYSLIST        00370000
+         LCLC  &ARGS                   * Arguments from SYSLIST         00380000
+         LCLA  &I                      * Index into &SYSLIST            00390000
+         LCLA  &J                      * Nr of non-empty arguments      00400000
+         LCLA  &R                      * Index into &BXA_USED_REGS      00410000
+         LCLC  &USEDREGS               * Used regs on labeled USING     00420000
+         LCLC  &USEDREG                * 1 index from USEDREGS          00430000
+.*                                                                      00440000
+.* Include DROP_REG on first invocation                                 00450000
+         DROP0                                                          00460000
+.*                                                                      00470000
+.* Check base registers to be dropped (if any)                          00480000
+         AIF   (N'&SYSLIST EQ 0).DROPALL * Drop for all USINGs?         00490000
+.*                                                                      00500000
+.* Check all arguments in SYSLIST, add validated ones to &ARGS          00510000
+&I       SETA  0                       * Check SYSLIST arguments        00520000
+.LOOP1   ANOP  ,                       * For all remaining arguments    00530000
+&I       SETA  &I+1                    * Point next argument            00540000
+         AIF   (&I GT N'&SYSLIST).NOERR1 * At end: all args checked ok  00550000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract argument from SYSLIST  00560000
+         AIF   (K'&ARG EQ 0).LOOP1     * Skip omitted argument          00570000
+&J       SETA  &J+1                    * Increment nr of args checked   00580000
+         CHKREG &ARG                   * A register was specified?      00590000
+         AIF   (&BXA_RC EQ 8).LOOP1LBL * No: check for known labels     00600000
+         AIF   (&BXA_RC EQ 0).LOOP1REG * Ok: defined register           00610000
+.*                                                                      00620000
+.* &BXA_RC = 4: a literal number 0-15 was specified                     00630000
+&REG     SETA  &ARG                    * Extract register number        00640000
+&R       SETA  &REG+1                  * Add 1 to obtain index          00650000
+         DROP_REG ,&R                  * Remove from USE... tables      00660000
+         AIF   (&BXA_RC EQ 4).LOOP1    * Register USE: omit from ARGS   00670000
+&ARGS    SETC  '&ARGS'.','.'&ARG'      * Add entry to ARGS              00680000
+         AGO   .LOOP1                  * and go check next argument     00690000
+.*                                                                      00700000
+.* NUMVAL = 0: a defined register was specified                         00710000
+.LOOP1REG ANOP  ,                      * Check EQUated register         00720000
+         GBLC  &(BXA_REGT_&ARG)        * Declare type field for reg     00730000
+         GBLA  &(BXA_REGN_&ARG)        * Declare number field for reg   00740000
+&REG     SETA  &(BXA_REGN_&ARG)        * Extract register number        00750000
+         AIF   ('&(BXA_REGT_&ARG)' NE 'g').ERR1A * Invalid reg type     00760000
+&R       SETA  &REG+1                  * Increment to obtain index      00770000
+         DROP_REG ,&R                  * Remove from USE... tables      00780000
+         AIF   (&BXA_RC EQ 4).LOOP1    * Register USE: omit from ARGS   00790000
+&ARGS    SETC  '&ARGS'.','.'&ARG'      * Add entry to ARGS              00800000
+         AGO   .LOOP1                                                   00810000
+.*                                                                      00820000
+.* RC = 8: a label must have been specified, cannot be a register USE   00830000
+.LOOP1LBL ANOP                                                          00840000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX) * Search tables for entries    00850000
+.LOOP2   ANOP  ,                       *    with the specified label    00860000
+&N       SETA  &N+1                    *    to mark the regs available. 00870000
+.LOOP2NI ANOP  ,                       * Loop with No Increment         00880000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP2OK * At end: done 00890000
+         AIF   ('&BXA_USELBL(&N)' NE '&ARG').LOOP2 * Skip mismatch      00900000
+&R       SETA  &BXA_USEREG(&N)         * Obtain index                   00910000
+         DROP_REG &ARG,&R,&N           * Remove this entry from tables  00920000
+         AGO   .LOOP2NI                * Loop, no increment: last entry*00930000
+                                       *   moved here by DROP_REG       00940000
+.LOOP2OK ANOP  ,                                                        00950000
+&ARGS    SETC  '&ARGS'.','.'&ARG'      * Add entry to ARGS              00960000
+         AGO   .LOOP1                  * Process next SYSLIST entry     00970000
+.*                                                                      00980000
+.ERR1A   MNOTE 8,'Specified argument &SYSLIST(&I) is not a general purp*00990000
+               ose register'                                            01000000
+         AGO   .LOOP1                                                   01010000
+.NOERR1  ANOP                                                           01020000
+.*                                                                      01030000
+.* Remove leading comma from ARGS                                       01040000
+         AIF   (&J EQ 0).DROPALL       * Only commas supplied?          01050000
+         AIF   (K'&ARGS EQ 0).ARGSOK   * Any non-register USEs?         01060000
+&ARGS    SETC  '&ARGS'(2,*)            * Remove leading comma           01070000
+.ARGSOK  ANOP                                                           01080000
+.*                                                                      01090000
+.* Rebuild BXA_USED_REGS from BXA_USEREG table                          01100000
+.* Skip any USING for PSA,R0                                            01110000
+&BXA_USED_REGS(1) SETB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0                  01120000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX) * Search tables to mark        01130000
+.LOOP3   ANOP  ,                       *    all used registers          01140000
+&N       SETA  &N+1                    *    unavailable.                01150000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP3OK * At end: done 01160000
+&R       SETA  &BXA_USEREG(&N)         * Obtain index                   01170000
+         AIF   (&R EQ 1 AND '&BXA_USEFLD(&N)' EQ 'PSA').LOOP3           01180000
+&BXA_USED_REGS(&R) SETB 1              * Set designated register in use 01190000
+         AGO   .LOOP3                  *                                01200000
+.LOOP3OK ANOP  ,                       *                                01210000
+.*                                                                      01220000
+.* Generate _DROP statement, unless only register USEs were specified   01230000
+         AIF   (K'&ARGS EQ 0).REPORT                                    01240000
+         _DROP &ARGS                                                    01250000
+         AGO   .REPORT                                                  01260000
+.*                                                                      01270000
+.* Generate _DROP statement (no arguments)                              01280000
+.DROPALL ANOP  ,   reg 0 1 2 3 4 5 6 7 8 9 A B C D E F dropped          01290000
+&BXA_USED_REGS(1) SETB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0                  01300000
+&BXA_USENDX1(&BXA_USENDX) SETA &BXA_USENDX0(&BXA_USENDX)                01310000
+         _DROP                                                          01320000
+.*                                                                      01330000
+.REPORT  ANOP  ,                       * Report using status            01340000
+         AIF   (NOT &SP_SHOWALL).MEND * Only if SHOWALL requested       01350002
+         USEDREGS                                                       01360000
+.*                                                                      01370000
+.MEND    MEND                                                           01390002

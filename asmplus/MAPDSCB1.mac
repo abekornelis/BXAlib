@@ -1,0 +1,191 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Data Set Control Block formats 1                 00180000
+.* The DSCB-formats are documented in DFSMSdfp Advanced Services        00190000
+.*                                    Topic 1.1.1 ff                    00200000
+.*                                                                      00210000
+&LABEL   MAPDSCB1 &DSECT=YES,          * YES or NO                     *00220000
+               &CB=,                   * Control block to generate     *00230000
+               &PRFX=                  * Prefix to use                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC MAPDSCB1               * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         GBLB  &BXA_MAC_MAPDSCB1       * DSCB1 already expanded?        00270000
+.*                                                                      00290000
+.* Check parameters                                                     00300000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00310000
+               CB=&CB,                 *                               *00320000
+               PRFX=&PRFX              *                                00330000
+         AIF   (&BXA_RC GT 4).MEND                                      00340002
+.*                                                                      00350000
+.* Check the CB parameter                                               00360000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00370000
+         AIF   ('&CB' EQ 'DSCB1').EMBED                                 00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPDSCB1).MEND                                 00480002
+&BXA_MAC_MAPDSCB1 SETB 1                                                00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_DSCB1                                            00510000
+&BXA_CB_DSCB1 SETC 'DSCB1'                                              00520000
+.*                                                                      00530000
+.* DS1FLAG1 - FLAG 1                                                    00540000
+DS1COMPR EQUOVR ,,b,DS1FLAG1                                            00550000
+DS1CPOIT EQUOVR ,,b,DS1FLAG1                                            00560000
+.*                                                                      00570000
+.* DS1SMSFG - SYSTEM MANAGED STORAGE INDICATORS                         00580000
+DS1SMSDS EQUOVR ,,b,DS1SMSFG                                            00590000
+DS1SMSUC EQUOVR ,,b,DS1SMSFG                                            00600000
+DS1REBLK EQUOVR ,,b,DS1SMSFG                                            00610000
+DS1CRSDB EQUOVR ,,b,DS1SMSFG                                            00620000
+DS1PDSE  EQUOVR ,,b,DS1SMSFG                                            00630000
+DS1STRP  EQUOVR ,,b,DS1SMSFG                                            00640000
+DS1PDSEX EQUOVR ,,b,DS1SMSFG                                            00650000
+DS1DSAE  EQUOVR ,,b,DS1SMSFG                                            00660000
+.*                                                                      00670000
+.* DS1SCXTF - SECONDARY SPACE EXTENSION FLAG                            00680000
+DS1SCAVB EQUOVR ,,b,DS1SCXTF                                            00690000
+DS1SCMB  EQUOVR ,,b,DS1SCXTF                                            00700000
+DS1SCKB  EQUOVR ,,b,DS1SCXTF                                            00710000
+DS1SCUB  EQUOVR ,,b,DS1SCXTF                                            00720000
+DS1SCCP1 EQUOVR ,,b,DS1SCXTF                                            00730000
+DS1SCCP2 EQUOVR ,,b,DS1SCXTF                                            00740000
+.*                                                                      00750000
+.* DS1DSORG - DATA SET ORGANIZATION                                     00760000
+DS1DSGIS EQUOVR ,,b,DS1DSORG                                            00770000
+DS1DSGPS EQUOVR ,,b,DS1DSORG                                            00780000
+DS1DSGDA EQUOVR ,,b,DS1DSORG                                            00790000
+DS1DSGCX EQUOVR ,,b,DS1DSORG                                            00800000
+DS1DSGPO EQUOVR ,,b,DS1DSORG                                            00810000
+DS1DSGU  EQUOVR ,,b,DS1DSORG                                            00820000
+.*                                                                      00830000
+DS1DSGGS EQUOVR ,,b,DS1DSORG+1                                          00840000
+DS1DSGTX EQUOVR ,,b,DS1DSORG+1                                          00850000
+DS1DSGTQ EQUOVR ,,b,DS1DSORG+1                                          00860000
+DS1ACBM  EQUOVR ,,b,DS1DSORG+1                                          00870000
+DS1ORGAM EQUOVR ,,b,DS1DSORG+1                                          00880000
+DS1DSGTR EQUOVR ,,b,DS1DSORG+1                                          00890000
+.*                                                                      00900000
+.* DS1RECFM - RECORD FORMAT                                             00910000
+DS1RECFF EQUOVR ,,b,DS1RECFM                                            00920000
+DS1RECFV EQUOVR ,,b,DS1RECFM                                            00930000
+DS1RECFU EQUOVR ,,b,DS1RECFM                                            00940000
+DS1RECFT EQUOVR ,,b,DS1RECFM                                            00950000
+DS1RECFB EQUOVR ,,b,DS1RECFM                                            00960000
+DS1RECFS EQUOVR ,,b,DS1RECFM                                            00970000
+DS1RECFA EQUOVR ,,b,DS1RECFM                                            00980000
+DS1RECMC EQUOVR ,,b,DS1RECFM                                            00990000
+.*                                                                      01000000
+.* DS1OPTCD - OPTION CODES                                              01010000
+DS1OPTIC EQUOVR ,,b,DS1OPTCD                                            01020000
+DS1OPTBC EQUOVR ,,b,DS1OPTCD                                            01030000
+.*                                                                      01040000
+.* DS1DSIND - DATA SET INDICATORS                                       01050000
+DS1IND80 EQUOVR ,,b,DS1DSIND                                            01060000
+DS1IND40 EQUOVR ,,b,DS1DSIND                                            01070000
+DS1RACDF EQUOVR ,,b,DS1DSIND                                            01080000
+DS1IND20 EQUOVR ,,b,DS1DSIND                                            01090000
+DS1IND10 EQUOVR ,,b,DS1DSIND                                            01100000
+DS1SECTY EQUOVR ,,b,DS1DSIND                                            01110000
+DS1IND08 EQUOVR ,,b,DS1DSIND                                            01120000
+DS1IND04 EQUOVR ,,b,DS1DSIND                                            01130000
+DS1WRSEC EQUOVR ,,b,DS1DSIND                                            01140000
+DS1IND02 EQUOVR ,,b,DS1DSIND                                            01150000
+DS1DSCHA EQUOVR ,,b,DS1DSIND                                            01160000
+DS1IND01 EQUOVR ,,b,DS1DSIND                                            01170000
+DS1CHKPT EQUOVR ,,b,DS1DSIND                                            01180000
+.*                                                                      01190000
+.* DS1SCAL1 - SPACE PARAMETERS                                          01200000
+DS1DSPAC EQUOVR ,,b,DS1SCAL1                                            01210000
+DS1CYL   EQUOVR ,,b,DS1SCAL1                                            01220000
+DS1TRK   EQUOVR ,,b,DS1SCAL1                                            01230000
+DS1AVR   EQUOVR ,,b,DS1SCAL1                                            01240000
+DS1AVRND EQUOVR ,,b,DS1SCAL1                                            01250000
+DS1MSGP  EQUOVR ,,b,DS1SCAL1                                            01260000
+DS1EXT   EQUOVR ,,b,DS1SCAL1                                            01270000
+DS1CONTG EQUOVR ,,b,DS1SCAL1                                            01280000
+DS1MXIG  EQUOVR ,,b,DS1SCAL1                                            01290000
+DS1ALX   EQUOVR ,,b,DS1SCAL1                                            01300000
+DS1DSABS EQUOVR ,,v,DS1SCAL1                                            01310000
+.*                                                                      01320000
+         MNOTE *,'Including IECSDSL1 mapping macro'                     01330000
+.*                                                                      01340000
+.* IECSDSL does not generate a DSECT-statement                          01350000
+DSCB1    DSECT ,                       * Start of Format-1 DSECT        01360000
+         IECSDSL1 1                    *                                01370000
+         EQUOVR *END                                                    01380000
+.*                                                                      01390000
+DS1DATA  EQU   DS1FMTID                * Start of data portion          01400000
+         ORG   ,                       *                                01410000
+DSCB1_LEN EQU  *-DSCB1                 * Length of Format-1             01420000
+*                                                                       01430000
+.*                                                                      01440000
+.* Return to our original CSECT name                                    01450000
+&SYSECT  &SYSSTYP                                                       01460000
+.*                                                                      01470000
+.MEND    MEND                                                           01490002

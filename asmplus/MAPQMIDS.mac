@@ -1,0 +1,113 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro with equates for SWAREQ                                00180000
+.*                                                                      00190000
+         MAPQMIDS                                                       00200000
+.********************************************************************** 00201001
+.*                                                                      00202001
+.*       IMPORTANT NOTICE                                               00203001
+.*       ========= ======                                               00204001
+.*                                                                      00205001
+.* Code below checks whether 'USER' accepted the terms and conditions   00206001
+.* of the license for the BXA macro library. This code is to be treated 00207001
+.* as part of the Copyright Notice and therefore may not be changed     00208001
+.* or disabled in any way.                                              00209001
+.*                                                                      00209101
+.********************************************************************** 00209201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00209301
+         CHKLIC MAPQMIDS               * Check license acceptance       00209401
+         AIF   (&BXA_RC NE 0).MEND                                      00209502
+.********************************************************************** 00209601
+.*                                                                      00209701
+.* End of special code that is part of the Copyright Notice             00209801
+.*                                                                      00209901
+.********************************************************************** 00210001
+.*                                                                      00211000
+.* &BXA_QMIDS is used to indicate MAPQMIDS has been expanded            00220000
+         GBLB  &BXA_MAC_MAPQMIDS                                        00230000
+         AIF   (&BXA_MAC_MAPQMIDS).MEND                                 00240002
+&BXA_MAC_MAPQMIDS SETB 1                                                00250000
+.*                                                                      00260000
+         GENMAPS (EPAL)                * EPAL contains related fields   00270000
+.*                                                                      00280000
+         MNOTE *,'Including IEFQMIDS mapping macro'                     00290000
+.*                                                                      00300000
+.* Declare Block id's for use with EPAL/EPAX                            00310000
+SWJCTID  EQUOVR ,,v,SWBLKID                                             00320000
+SWACTID  EQUOVR ,,v,SWBLKID                                             00330000
+SWSCTID  EQUOVR ,,v,SWBLKID                                             00340000
+SWSIOTID EQUOVR ,,v,SWBLKID                                             00350000
+SWDSNTID EQUOVR ,,v,SWBLKID                                             00360000
+SWPOTID  EQUOVR ,,v,SWBLKID                                             00370000
+SWSCTXID EQUOVR ,,v,SWBLKID                                             00380000
+SWDSENID EQUOVR ,,v,SWBLKID                                             00390000
+SWJMRID  EQUOVR ,,v,SWBLKID                                             00400000
+SWJFCBID EQUOVR ,,v,SWBLKID                                             00410000
+SWJFCXID EQUOVR ,,v,SWBLKID                                             00420000
+SWPDIDID EQUOVR ,,v,SWBLKID                                             00430000
+SWPDIBID EQUOVR ,,v,SWBLKID                                             00440000
+SWPDIQID EQUOVR ,,v,SWBLKID                                             00450000
+SWGDGNID EQUOVR ,,v,SWBLKID                                             00460000
+SWIWABID EQUOVR ,,v,SWBLKID                                             00470000
+SWVUTID  EQUOVR ,,v,SWBLKID                                             00480000
+SWDDNTID EQUOVR ,,v,SWBLKID                                             00490000
+SWAMPXID EQUOVR ,,v,SWBLKID                                             00500000
+SWJFCEID EQUOVR ,,v,SWBLKID                                             00510000
+SWJCTXID EQUOVR ,,v,SWBLKID                                             00520000
+SWSSWAID EQUOVR ,,v,SWBLKID                                             00530000
+SWSWBID  EQUOVR ,,v,SWBLKID                                             00540000
+SWSIOTBL EQUOVR ,,v,SWBLKID                                             00550000
+SWJFCBBL EQUOVR ,,v,SWBLKID                                             00560000
+SWJFCEBL EQUOVR ,,v,SWBLKID                                             00570000
+SWIFBID  EQUOVR ,,v,SWBLKID                                             00580000
+.*                                                                      00590000
+.* Put equates in a DSECT to prevent warning messages in ASM listing    00600000
+ZB505    DSECT                                                          00610000
+         IEFQMIDS                                                       00620000
+         EQUOVR *END                                                    00630000
+*                                                                       00640000
+.*                                                                      00650000
+.* Return to our original CSECT name                                    00660000
+&SYSECT  &SYSSTYP                                                       00670000
+.*                                                                      00680000
+.MEND    MEND                                                           00700002

@@ -1,0 +1,447 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Delete a name/token pair                                             00180000
+.*                                                                      00190000
+&LABEL   NTDL  &PAR1,                  * Parameter 1                   *00200000
+               &PAR2,                  * Parameter 2                   *00210000
+               &PAR3,                  * Parameter 3                   *00220000
+               &LVL=,                  * Value for level parameter     *00230000
+               &NAME=,                 * Value for token name          *00240000
+               &MF=                    * MF=L or MF=(E,list_addr)      *00250000
+                                       *      or MF=(G,list_addr)       00260000
+.*                                                                      00270000
+.* &PAR1 (reg) or name of a fullword, containing the level              00280000
+.*       if omitted LVL= must be specified.                             00290000
+.* &PAR2 (reg) or name of a 16-byte area, containing the token name     00300000
+.*       if omitted NAME= must be specified.                            00310000
+.* &PAR3 (reg) or name of a fullword, where the returncode will go      00320000
+.*       must not be omitted.                                           00330000
+.*                                                                      00340000
+.* &LVL     Literal, constant, or (reg). If specified, will be moved    00350000
+.*          into the level parameter fullword.                          00360000
+.* &NAME    Literal, constant, or (reg). If specified, will be moved    00370000
+.*          into the token name parameter 16-byte area.                 00380000
+.* &MF      L or (L) for the list-form                                  00390000
+.*          (E,list_addr) for the execute form                          00400000
+.*          (G,list_addr) for the generate form                         00410000
+.*                                                                      00420000
+.********************************************************************** 00421001
+.*                                                                      00422001
+.*       IMPORTANT NOTICE                                               00423001
+.*       ========= ======                                               00424001
+.*                                                                      00425001
+.* Code below checks whether 'USER' accepted the terms and conditions   00426001
+.* of the license for the BXA macro library. This code is to be treated 00427001
+.* as part of the Copyright Notice and therefore may not be changed     00428001
+.* or disabled in any way.                                              00429001
+.*                                                                      00429101
+.********************************************************************** 00429201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00429301
+         CHKLIC NTDL                   * Check license acceptance       00429401
+         AIF   (&BXA_RC NE 0).MEND                                      00429502
+.********************************************************************** 00429601
+.*                                                                      00429701
+.* End of special code that is part of the Copyright Notice             00429801
+.*                                                                      00429901
+.********************************************************************** 00430001
+.*                                                                      00430101
+.* Declare variables                                                    00431000
+         GBLC  &BXA_AMODE              * Current amode                  00440000
+         LCLC  &_LABEL                 *                                00450000
+         LCLC  &_MF1                   * 1st MF-subparm: L or E         00460000
+         LCLC  &_MF2                   * 2nd MF-subparm: plist_address  00470000
+         LCLB  &_MFL                   * On if MF=L                     00480000
+         LCLB  &_MFE                   * On if MF=E                     00490000
+         LCLB  &_MFG                   * On if MF=G                     00500000
+         LCLB  &APPEND                 * On if fields appended to plist 00510000
+         LCLA  &CTR                    * Counter for allocating fields  00520000
+         LCLC  &_PAR1                  * &PAR1 or default               00530000
+         LCLC  &_PAR2                  * &PAR2 or default               00540000
+         LCLC  &_PAR3                  * &PAR3 or default               00550000
+         LCLC  &_NAME                  * &NAME as unquoted string       00560000
+         LCLA  &I                      * Index into substrings          00570000
+         LCLC  &BREG                   * Base register for plist        00580000
+         LCLC  &PREG                   * Pointer register               00590000
+         LCLC  &VREG                   * Value register                 00600000
+         LCLC  &UNAM                   * USING name                     00610000
+.*                                                                      00620000
+.* Check positional parameters                                          00630000
+         AIF   (N'&SYSLIST LE 3).NOERR1                                 00640000
+         MNOTE 4,'Too many positional parameters: ignored'              00650000
+.NOERR1  ANOP                                                           00660000
+.*                                                                      00670000
+.* Check the MF parameter                                               00680000
+         AIF   (K'&MF EQ 0).ERR2A                                       00690000
+&_MF1    SETC  '&MF'                   * Copy MF-value                  00700000
+         AIF   ('&MF' EQ 'L').SETMFL   * MF=L: ok                       00710000
+         AIF   ('&MF'(1,1) NE '(').ERR2B * MF=E must be in sublist      00720000
+         AIF   (N'&MF EQ 0).ERR2B      *                                00730000
+&_MF1    SETC  '&MF(1)'                * Copy MF-value                  00740000
+         AIF   ('&_MF1' EQ 'L' AND N'&MF NE 1).ERR2B                    00750000
+         AIF   ('&_MF1' EQ 'L').SETMFL * MF=(L): ok                     00760000
+         AIF   (N'&MF NE 2).ERR2B      * Must have two sub-operands     00770000
+&_MF2    SETC  '&MF(2)'                * Copy plist_address             00780000
+         AIF   ('&_MF1' EQ 'E').SETMFE                                  00790000
+         AIF   ('&_MF1' EQ 'G').SETMFG                                  00800000
+         AGO   .ERR2B                                                   00810000
+.SETMFG  ANOP                                                           00820000
+&_MFG    SETB  1                       * Signal MF=G                    00830000
+         AGO   .NOERR2                                                  00840000
+.SETMFE  ANOP                                                           00850000
+&_MFE    SETB  1                       * Signal MF=E                    00860000
+         AGO   .NOERR2                                                  00870000
+.SETMFL  ANOP                                                           00880000
+&_MFL    SETB  1                       * Signal MF=E                    00890000
+         AGO   .NOERR2                                                  00900000
+.ERR2A   MNOTE 8,'Required parameter MF omitted'                        00910000
+         AGO   .NOERR2                                                  00920000
+.ERR2B   MNOTE 8,'Parameter MF must be L, (L), (E,plist_addr) or (G,pli*00930000
+               st_addr)'                                                00940000
+.NOERR2  ANOP                                                           00950000
+.*                                                                      00960000
+.* Check PAR1 (level field)                                             00970000
+         AIF   (&_MFE).NOERR3                                           00980000
+         AIF   (&_MFG AND K'&PAR1 NE 0 AND K'&LVL NE 0).NOERR3A         00990000
+         AIF   (K'&PAR1 EQ 0 AND K'&LVL EQ 0).ERR3A                     01000000
+         AIF   (K'&PAR1 NE 0 AND K'&LVL NE 0).ERR3A                     01010000
+         AGO   .NOERR3A                                                 01020000
+.ERR3A   MNOTE 8,'Either the first positional parameter or the LVL-para*01030000
+               meter must be specified'                                 01040000
+.NOERR3A ANOP                                                           01050000
+         AIF   (K'&PAR1 EQ 0).NOERR3B                                   01060000
+         AIF   (&_MFG).NOERR3B                                          01070000
+         AIF   ('&PAR1'(1,1) EQ '(').ERR3B                              01080000
+         AGO   .NOERR3B                                                 01090000
+.ERR3B   MNOTE 8,'Positional parameter 1 must not specify (reg) with MF*01100000
+               =L'                                                      01110000
+.NOERR3B ANOP                                                           01120000
+.NOERR3  ANOP                                                           01130000
+.*                                                                      01140000
+.* Check PAR2 (name field)                                              01150000
+         AIF   (&_MFE).NOERR4                                           01160000
+         AIF   (&_MFG AND K'&PAR2 NE 0 AND K'&NAME NE 0).NOERR4A        01170000
+         AIF   (K'&PAR2 EQ 0 AND K'&NAME EQ 0).ERR4A                    01180000
+         AIF   (K'&PAR2 NE 0 AND K'&NAME NE 0).ERR4A                    01190000
+         AGO   .NOERR4A                                                 01200000
+.ERR4A   MNOTE 8,'Either the second positional parameter or the NAME-pa*01210000
+               rameter must be specified'                               01220000
+.NOERR4A ANOP                                                           01230000
+         AIF   (K'&PAR2 EQ 0).NOERR4B                                   01240000
+         AIF   (&_MFG).NOERR4B                                          01250000
+         AIF   ('&PAR2'(1,1) EQ '(').ERR4B                              01260000
+         AGO   .NOERR4B                                                 01270000
+.ERR4B   MNOTE 8,'Positional parameter 2 must not specify (reg) with MF*01280000
+               =L'                                                      01290000
+.NOERR4B ANOP                                                           01300000
+.NOERR4  ANOP                                                           01310000
+.*                                                                      01320000
+.* Check PAR3 (returncode field)                                        01330000
+         AIF   (&_MFE).NOERR6                                           01340000
+         AIF   (K'&PAR3 EQ 0).ERR6A                                     01350000
+         AGO   .NOERR6A                                                 01360000
+.ERR6A   MNOTE 8,'The third positional parameter must be specified'     01370000
+.NOERR6A ANOP                                                           01380000
+         AIF   (K'&PAR3 EQ 0).NOERR6B                                   01390000
+         AIF   (&_MFG).NOERR6B                                          01400000
+         AIF   ('&PAR3'(1,1) EQ '(').ERR6B                              01410000
+         AGO   .NOERR6B                                                 01420000
+.ERR6B   MNOTE 8,'Positional parameter 3 must not specify (reg) with MF*01430000
+               =L'                                                      01440000
+.NOERR6B ANOP                                                           01450000
+.NOERR6  ANOP                                                           01460000
+.*                                                                      01470000
+.* Check the LVL parameter                                              01480000
+         AIF   (K'&LVL EQ 0).NOERR8                                     01490000
+         AIF   (&_MFL AND '&LVL'(1,1) EQ '(').ERR8A                     01500000
+         AGO   .NOERR8                                                  01510000
+.ERR8A   MNOTE 8,'LVL-parameter must not specify (reg) when MF=L'       01520000
+.NOERR8  ANOP                                                           01530000
+.*                                                                      01540000
+.* Check the NAME parameter                                             01550000
+         AIF   (K'&NAME EQ 0).NOERR9                                    01560000
+         AIF   (&_MFL AND '&NAME'(1,1) EQ '(').ERR9A                    01570000
+         AGO   .NOERR9A                                                 01580000
+.ERR9A   MNOTE 8,'NAME-parameter must not specify (reg) when MF=L'      01590000
+.NOERR9A ANOP                                                           01600000
+         AIF   ('&NAME'(1,1) EQ '(').NOERR9 * (reg): no literal check   01610000
+&_NAME   SETC  '&NAME'                 * Assume name correct            01620000
+&I       SETA  K'&NAME                 *                                01630000
+         AIF   ('&NAME'(&I,1) NE '''').NOERR9 * Unquoted string ok      01640000
+         AIF   ('&NAME'(1,1) NE 'C').NAMNOTC                            01650000
+&_NAME   SETC  '&_NAME'(2,&I-1)        * Remove leading C               01660000
+&I       SETA  &I-1                    *                                01670000
+.NAMNOTC ANOP                                                           01680000
+         AIF   ('&NAME'(1,1) NE '''').ERR9B                             01690000
+&_NAME   SETC  '&_NAME'(2,&I-2)        * Remove lead/trail quotes       01700000
+         AGO   .NOERR9                                                  01710000
+.ERR9B   MNOTE 8,'Name must be specified as (un)quoted string or C-type*01720000
+                constant without L-modifier'                            01730000
+.NOERR9  ANOP                                                           01740000
+.*                                                                      01750000
+.* Check the current amode                                              01760000
+         AIF   ('&BXA_AMODE' EQ '31').NOERR12                           01770000
+.ERR12   MNOTE 8,'NTDL-macro cannot be issued when in Amode 24'         01780000
+.NOERR12 ANOP                                                           01790000
+.*                                                                      01800000
+.* Include mapping macro for plist                                      01810000
+         GENMAPS IEANT                 * Map unless already mapped      01820000
+         AIF   (&_MFE).MFE                                              01830000
+.********************************************************************** 01840000
+.*                                                                      01850000
+.* Generate code for MF=L                                               01860000
+.* First part also used for MF=G                                        01870000
+.*                                                                      01880000
+.********************************************************************** 01890000
+.*                                                                      01900000
+.* All fields not specified on the positional parameter by default      01910000
+.* will be appended to the Plist proper                                 01920000
+         AIF   (K'&PAR1 EQ 0 OR K'&PAR2 EQ 0 OR K'&PAR3 EQ 0).APPEND    01930000
+         AGO   .NOAPPEND                                                01940000
+.APPEND  ANOP                                                           01950000
+&APPEND  SETB  1                                                        01960000
+.NOAPPEND ANOP                                                          01970000
+.*                                                                      01980000
+.* For defaulted fields a label is required                             01990000
+         AIF   (NOT &_MFG).LABEL       * MF=L? normal label processing  02000000
+         AIF   ('&_MF2'(1,1) EQ '(').GLBLREG * MF=(G,(reg)): register!  02010000
+&_LABEL  SETC  'DLPL.NTDLPL'                                            02020000
+         AGO   .LABELOK                                                 02030000
+.GLBLREG ANOP  ,                       * Plist addressed with register  02040000
+&_BREG   SETC  '&MF(2,1)'              * Extract pointer register       02050000
+&_LABEL  SETC  '(&_BREG)'              * Points to plist                02060000
+         AGO   .LABELOK                                                 02070000
+.LABEL   ANOP                                                           02080000
+&_LABEL  SETC  '&LABEL'                                                 02090000
+         AIF   (NOT &APPEND).LABELOK                                    02100000
+         AIF   (K'&LABEL NE 0).LABELOK                                  02110000
+&_LABEL  SETC  '_NTDL&SYSNDX'                                           02120000
+.LABELOK ANOP                                                           02130000
+&CTR     SETA  12                      * Plist length                   02140000
+.*                                                                      02150000
+.* Determine defaulted positions for unspecified fields                 02160000
+.* PAR1: level field (fullword)                                         02170000
+&_PAR1   SETC  '&PAR1'                 * Copy specified field location  02180000
+         AIF   (K'&PAR1 NE 0).LPAR1OK  * If not specified               02190000
+&_PAR1   SETC  '&_LABEL.+&CTR'         *  append field to plist         02200000
+         AIF   ('&_LABEL'(1,1) NE '(').LPAR1AD * Unless (reg)           02210000
+&_PAR1   SETC  '&CTR.&_LABEL'          *  append field to plist         02220000
+.LPAR1AD ANOP                                                           02230000
+&CTR     SETA  &CTR+4                  * Advance to next free position  02240000
+.LPAR1OK ANOP                                                           02250000
+.*                                                                      02260000
+.* PAR2: name field (16 characters)                                     02270000
+&_PAR2   SETC  '&PAR2'                 * Copy specified field location  02280000
+         AIF   (K'&PAR2 NE 0).LPAR2OK  * If not specified               02290000
+&_PAR2   SETC  '&_LABEL.+&CTR'         *  append field to plist         02300000
+         AIF   ('&_LABEL'(1,1) NE '(').LPAR2AD * Unless (reg)           02310000
+&_PAR2   SETC  '&CTR.&_LABEL'          *  append field to plist         02320000
+.LPAR2AD ANOP                                                           02330000
+&CTR     SETA  &CTR+16                 * Advance to next free position  02340000
+.LPAR2OK ANOP                                                           02350000
+.*                                                                      02360000
+.* PAR3: return field (fullword)                                        02370000
+&_PAR3   SETC  '&PAR3'                 * Copy specified field location  02380000
+         AIF   (K'&PAR3 NE 0).LPAR3OK  * If not specified               02390000
+&_PAR3   SETC  '&_LABEL.+&CTR'         *  append field to plist         02400000
+         AIF   ('&_LABEL'(1,1) NE '(').LPAR3AD * Unless (reg)           02410000
+&_PAR3   SETC  '&CTR.&_LABEL'          *  append field to plist         02420000
+.LPAR3AD ANOP                                                           02430000
+&CTR     SETA  &CTR+4                  * Advance to next free position  02440000
+.LPAR3OK ANOP                                                           02450000
+.*                                                                      02460000
+.* Plist generation for MF=G follows rules of MF=E                      02470000
+.* If there are any defaulted positional parameters: reinvoke NTCR      02480000
+         AIF   (&_MFL).MFL                                              02490000
+         AIF   (NOT &APPEND).MFE                                        02500000
+&LABEL   NTDL  &_PAR1,&_PAR2,&_PAR3,   *                               *02510000
+               LVL=&LVL,               *                               *02520000
+               NAME=&NAME,             *                               *02530000
+               MF=(G,&_MF2)            *                                02540000
+         AGO   .LWARN                                                   02550000
+.*                                                                      02560000
+.MFL     ANOP                                                           02570000
+.*                                                                      02580000
+.* Generate code for MF=L                                               02590000
+         DS    0F                      * Align on fullword              02600000
+&_LABEL  EQU   *,&CTR                  *                                02610000
+         DC    AL4(&_PAR1)             * Level pointer                  02620000
+         DC    AL4(&_PAR2)             * Name pointer                   02630000
+         DC    AL4(&_PAR3)             * Returncode pointer             02640000
+.*                                                                      02650000
+.* Generate defaulted level field                                       02660000
+         AIF   ('&_PAR1' EQ '&PAR1').LNOPAR1                            02670000
+         DC    AL4(&LVL)                                                02680000
+.LNOPAR1 ANOP                                                           02690000
+.*                                                                      02700000
+.* Generate defaulted name field                                        02710000
+         AIF   ('&_PAR2' EQ '&PAR2').LNOPAR2                            02720000
+         DC    CL16'&_NAME'                                             02730000
+.LNOPAR2 ANOP                                                           02740000
+.*                                                                      02750000
+.* Generate defaulted return code field (violates reentrancy)           02760000
+         AIF   ('&_PAR3' EQ '&PAR3').LNOPAR3                            02770000
+         DC    AL4(0)                                                   02780000
+.LNOPAR3 ANOP                                                           02790000
+.*                                                                      02800000
+.* Generate warning with length of plist                                02810000
+.LWARN   ANOP                                                           02820000
+         AIF   (NOT &APPEND).MEND                                       02830000
+         MNOTE *,'Generated Plist and areas for NTDL: &CTR bytes'       02840000
+         AGO   .MEND                                                    02850002
+.*********************************************************************  02860000
+.*                                                                      02870000
+.* Generate coding for MF=E                                             02880000
+.*                                                                      02890000
+.*********************************************************************  02900000
+.MFE     ANOP                                                           02910000
+&LABEL   LABEL ,                       *                                02920000
+.*                                                                      02930000
+.* If no overriding parameters are specified: skip plist modification   02940000
+         AIF   (K'&PAR1 NE 0).EMODPL                                    02950000
+         AIF   (K'&PAR2 NE 0 OR K'&LVL NE 0).EMODPL                     02960000
+         AIF   (K'&PAR3 NE 0 OR K'&NAME NE 0).EMODPL                    02970000
+         AGO   .ENOMOD                                                  02980000
+.*                                                                      02990000
+.* Make parmlist addressable                                            03000000
+.EMODPL  ANOP  ,                       * Modify Plist before call       03010000
+         AIF   ('&_MF2'(1,1) EQ '(').EREG                               03020000
+DLPL     USE   NTDLPL,&_MF2            * Set plist addressable          03030000
+&UNAM    SETC  'DLPL.'                                                  03040000
+         AGO   .EUSEOK                                                  03050000
+.EREG    ANOP                                                           03060000
+&BREG    SETC  '&MF(2,1)'              * Extract register number        03070000
+         USE   NTDLPL,&BREG            * And set plist addressable      03080000
+.EUSEOK  ANOP                                                           03090000
+.*                                                                      03100000
+.* If PAR1 specified insert address of level field into plist           03110000
+&PREG    SETC  'R15'                   * Set register to use as pointer 03120000
+&VREG    SETC  'R0'                    * Set register to use for value  03130000
+         AIF   (K'&PAR1 EQ 0).ENOPAR1                                   03140000
+         AIF   ('&PAR1'(1,1) EQ '(').EPAR1R * Register specified?       03150000
+         LA    &PREG,&PAR1             * Point to level field           03160000
+         AGO   .EPAR1OK                                                 03170000
+.EPAR1R  ANOP  ,                       * Specified as (reg)             03180000
+&PREG    SETC  '&PAR1(1)'              * Extract level field pointer    03190000
+.EPAR1OK ANOP                                                           03200000
+         ST    &PREG,&UNAM.NTDLLVL     * Put pointer into plist         03210000
+.ENOPAR1 ANOP                                                           03220000
+.*                                                                      03230000
+.* If LVL specified insert value into field                             03240000
+         AIF   (K'&LVL EQ 0).ENOLVL                                     03250000
+         AIF   (K'&PAR1 NE 0).EPTR1OK  * Pointer already loaded?        03260000
+         L     &PREG,NTDLLVL           * Point to level field           03270000
+.EPTR1OK ANOP                                                           03280000
+         AIF   ('&LVL'(1,1) EQ '(').ELVLR * Register specified?         03290000
+         LA    &VREG,&LVL              * Load level value               03300000
+         AGO   .ELVLOK                                                  03310000
+.ELVLR   ANOP  ,                       * Specified as (reg)             03320000
+&VREG    SETC  '&LVL(1)'               * Extract level value register   03330000
+.ELVLOK  ANOP                                                           03340000
+         ST    &VREG,0(,&PREG)         * And put into level field       03350000
+.ENOLVL  ANOP                                                           03360000
+.*                                                                      03370000
+.* If PAR2 specified insert address of name field into plist            03380000
+&PREG    SETC  'R15'                   * Set register to use as pointer 03390000
+&VREG    SETC  'R0'                    * Set register to use for value  03400000
+         AIF   (K'&PAR2 EQ 0).ENOPAR2                                   03410000
+         AIF   ('&PAR2'(1,1) EQ '(').EPAR2R * Register specified?       03420000
+         LA    &PREG,&PAR2             * Point to name field            03430000
+         AGO   .EPAR2OK                                                 03440000
+.EPAR2R  ANOP  ,                       * Specified as (reg)             03450000
+&PREG    SETC  '&PAR2(1)'              * Extract name field pointer     03460000
+.EPAR2OK ANOP                                                           03470000
+         ST    &PREG,&UNAM.NTDLNAM     * Put pointer into plist         03480000
+.ENOPAR2 ANOP                                                           03490000
+.*                                                                      03500000
+.* If NAME specified insert value into field                            03510000
+         AIF   (K'&NAME EQ 0).ENONAM                                    03520000
+         AIF   (K'&PAR2 NE 0).EPTR2OK  * Pointer already loaded?        03530000
+         L     &PREG,NTDLNAM           * Point to name field            03540000
+.EPTR2OK ANOP                                                           03550000
+         AIF   ('&NAME'(1,1) EQ '(').ENAMR * Register specified?        03560000
+         MVC   0(16,&PREG),=CL16'&_NAME' * Move name into field         03570000
+         AGO   .ENONAM                                                  03580000
+.ENAMR   ANOP  ,                       * Specified as (reg)             03590000
+&VREG    SETC  '&NAME(1)'              * Extract name value register    03600000
+         MVC   0(16,&PREG),0(&VREG)    * Move name into field           03610000
+.ENONAM  ANOP                                                           03620000
+.*                                                                      03630000
+.* If PAR3 specified insert address of returncode field into plist      03640000
+&PREG    SETC  'R15'                   * Set register to use as pointer 03650000
+&VREG    SETC  'R0'                    * Set register to use for value  03660000
+         AIF   (K'&PAR3 EQ 0).ENOPAR3                                   03670000
+         AIF   ('&PAR3'(1,1) EQ '(').EPAR3R * Register specified?       03680000
+         LA    &PREG,&PAR3             * Point to retcode field         03690000
+         AGO   .EPAR3OK                                                 03700000
+.EPAR3R  ANOP  ,                       * Specified as (reg)             03710000
+&PREG    SETC  '&PAR3(1)'              * Extract retcode pointer        03720000
+.EPAR3OK ANOP                                                           03730000
+         ST    &PREG,&UNAM.NTDLRCD     * Put pointer into plist         03740000
+.ENOPAR3 ANOP                                                           03750000
+.*                                                                      03760000
+.* Plist is now complete                                                03770000
+         AIF   ('&_MF2'(1,1) EQ '(').EDROPR                             03780000
+         DROP  DLPL                    * NTDLPL                         03790000
+         AGO   .EDROPOK                                                 03800000
+.EDROPR  DROP  &BREG                   * NTDLPL                         03810000
+.EDROPOK ANOP                                                           03820000
+.ENOMOD  ANOP  ,                       * No modifications to plist      03830000
+.*                                                                      03840000
+.* For MF=G we're done                                                  03850000
+         AIF   (&_MFG).MEND                                             03860002
+.*                                                                      03870000
+.* Invoke Name/Token service IEANTDL                                    03880000
+         AIF   (K'&BREG EQ 0).ELAR1                                     03890000
+         LR    R1,&BREG                * R1 must point to plist         03900000
+         AGO   .ER1OK                                                   03910000
+.ELAR1   ANOP                                                           03920000
+         LA    R1,&_MF2                * R1 must point to plist         03930000
+.ER1OK   ANOP                                                           03940000
+.*                                                                      03950000
+         L     R15,X'010'              * Retrieve                       03960000
+         L     R15,X'220'(,R15)        *  address                       03970000
+         L     R15,X'014'(,R15)        *   of                           03980000
+         L     R15,X'00C'(,R15)        *    IEANTDL                     03990000
+         BASR  R14,R15                 * And call it                    04000000
+.*                                                                      04010000
+.MEND    MEND                                                           04030002

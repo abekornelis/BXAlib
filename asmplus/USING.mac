@@ -1,0 +1,256 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro replaces the assembler's USING statement                  00180000
+.*                                                                      00190000
+&LABEL   USING &DSECT,                 * Control block name            *00200000
+               &BASE                   * Register (or field) for using  00210000
+.*                                                                      00220000
+.* &LABEL optional USING label                                          00230000
+.* &DSECT specifies the control block to be set addressable.            00240000
+.* &BASE  specifies either a register that points to &DSECT or a field  00250000
+.*        that contains a &DSECT as a label. If specified as a register 00260000
+.*        other registers may follow.                                   00270000
+.*                                                                      00280000
+.********************************************************************** 00281001
+.*                                                                      00282001
+.*       IMPORTANT NOTICE                                               00283001
+.*       ========= ======                                               00284001
+.*                                                                      00285001
+.* Code below checks whether 'USER' accepted the terms and conditions   00286001
+.* of the license for the BXA macro library. This code is to be treated 00287001
+.* as part of the Copyright Notice and therefore may not be changed     00288001
+.* or disabled in any way.                                              00289001
+.*                                                                      00289101
+.********************************************************************** 00289201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00289301
+         CHKLIC USING                  * Check license acceptance       00289401
+         AIF   (&BXA_RC NE 0).MEND                                      00289502
+.********************************************************************** 00289601
+.*                                                                      00289701
+.* End of special code that is part of the Copyright Notice             00289801
+.*                                                                      00289901
+.********************************************************************** 00290001
+.*                                                                      00291001
+.* Declare variables                                                    00300000
+         GBLB  &BXA_USED_REGS(16)      * Use status of regs R0-R15      00310000
+         GBLB  &SP_SHOWALL             * SHOWALL option                 00320000
+         GBLC  &BXA_USELBL(50)         * Using labels ...               00330000
+         GBLA  &BXA_USEREG(50)         *   and their register indexes   00340000
+         GBLC  &BXA_USEFLD(50)         *   and associated base fields   00350000
+         GBLA  &BXA_USENDX0(5)         * Index into &BXA_USELBL/USEREG  00360000
+         GBLA  &BXA_USENDX1(5)         * Index into &BXA_USELBL/USEREG  00370000
+         GBLA  &BXA_USENDX             * Index into &BXA_USENDX1        00380000
+         LCLA  &N                      * Index for BXA_USE...           00390000
+         LCLA  &REG                    * Register number                00400000
+         LCLC  &ARG                    * 1 argument from SYSLIST        00410000
+         LCLC  &ARGS                   * Arguments from SYSLIST         00420000
+         LCLA  &I                      * Index into &SYSLIST            00430000
+         LCLA  &O                      * Offset for 2nd 3d.. base regs  00440000
+         LCLA  &R                      * Index into &BXA_USED_REGS      00450000
+         LCLB  &BASREG                 * Basing on a register           00460000
+.*                                                                      00470000
+.* Check the LABEL parameter                                            00480000
+.* If an existing label is specified, that label must be dropped        00490000
+         AIF   (K'&LABEL EQ 0).NOERR0                                   00500000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX)                                00510000
+.LOOP0   ANOP                                                           00520000
+&N       SETA  &N+1                                                     00530000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP0OK                00540000
+         AIF   ('&BXA_USELBL(&N)' NE '&LABEL').LOOP0                    00550000
+.* Match found: issue message, unless within a macro                    00560000
+         AIF   (&NESTLVL GT 1).NOERR0A                                  00570000
+.ERR0A   MNOTE 1,'Label &LABEL currently in use: issuing DROP for you'  00580000
+.NOERR0A ANOP                                                           00590000
+         DROP  &LABEL                                                   00600000
+.LOOP0OK ANOP                                                           00610000
+.NOERR0  ANOP                                                           00620000
+.*                                                                      00630000
+.* Check the DSECT parameter                                            00640000
+         AIF   (K'&DSECT EQ 0).ERR1A   * Must not be empty              00650000
+         CHKREG &DSECT                 * A register specified?          00660000
+         AIF   (&BXA_RC EQ 0).ERR1B    * Yes: issue error               00670000
+         AGO   .NOERR1                 * A register was specified!      00680000
+.ERR1A   MNOTE 8,'First operand missing (control block name)'           00690000
+         MEXIT                                                          00700000
+.ERR1B   MNOTE 8,'You specified a register for a DSECT name'            00710000
+         MEXIT                                                          00720000
+.NOERR1  ANOP                                                           00730000
+.*                                                                      00740000
+.* Check the BASE parameter                                             00750000
+         AIF   (K'&BASE EQ 0).ERR2A    * Must not be empty              00760000
+         CHKREG &BASE                  * A register was specified?      00770000
+         AIF   (&BXA_RC EQ 8).NOERR2   * Not a reg: dependent USING     00780000
+         AIF   (&BXA_RC EQ 0).EQUREG   * Ok: USE a defined reg          00790000
+.* NUMVAL = 4: a literal number 0-15 was specified                      00800000
+&REG     SETA  &BASE                   * Extract register number        00810000
+         AGO   .USEREG                                                  00820000
+.*                                                                      00830000
+.* &BASE is a known register: check its type                            00840000
+.EQUREG  ANOP  ,                       * Check EQUated register         00850000
+         GBLC  &(BXA_REGT_&BASE)       * Declare type field for reg     00860000
+         GBLA  &(BXA_REGN_&BASE)       * Declare number field for reg   00870000
+&REG     SETA  &(BXA_REGN_&BASE)       * Extract register number        00880000
+         AIF   ('&(BXA_REGT_&BASE)' NE 'g').ERR2C * Invalid reg type    00890000
+.*                                                                      00900000
+.* Set specified register 'in use' and add label/reg to tables          00910000
+.USEREG  ANOP  ,                       * Second operand valid register  00920000
+&BASREG  SETB  1                       * Indicate basing on a reg       00930000
+&R       SETA  &REG+1                  * Increment reg to obtain index  00940000
+         AIF   (NOT &BXA_USED_REGS(&R)).NOERR2B                         00950000
+.* If unlabeled USING overriding a prior unlabeled USING: drop prior    00960000
+         AIF   (K'&LABEL NE 0).ERR2B   * Not unlabeled                  00970000
+         AIF   (K'&SYSLIST(3) NE 0).ERR2B * More than 1 register        00980000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX)                                00990000
+.LOOP4   ANOP                                                           01000000
+&N       SETA  &N+1                                                     01010000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).ERR2B * Not found      01020000
+         AIF   ('&BXA_USELBL(&N)' NE '').LOOP4 * Skip mismatch          01030000
+         AIF   (&BXA_USEREG(&N) NE &R).LOOP4 * Skip mismatch            01040000
+.ERR2E   ANOP                                                           01050000
+         AIF   (&SYSNEST GT 1).GENDROP                                  01060000
+&ARG     SETC  (DOUBLE '&BASE')                                         01070000
+         MNOTE 1,'Register &ARG currently in use: issuing DROP for you' 01080000
+.GENDROP ANOP                                                           01090000
+         DROP  &BASE                                                    01100000
+         AGO   .NOERR2B                                                 01110000
+.ERR2B   ANOP                                                           01120000
+&ARG     SETC  (DOUBLE '&BASE')                                         01130000
+         MNOTE 4,'Register &ARG currently not available for USING'      01140000
+.NOERR2B ANOP                                                           01150000
+.*                                                                      01160000
+.* Set register in use excpt for USING PSA,R0                           01170000
+         AIF   (&R EQ 1 AND '&DSECT' EQ 'PSA').NOSET                    01180000
+&BXA_USED_REGS(&R) SETB 1              * Indicate register is in use    01190000
+.NOSET   ANOP  ,                       *                                01200000
+&N       SETA  &BXA_USENDX1(&BXA_USENDX)+1 * Get pointer to free entry  01210000
+&BXA_USELBL(&N) SETC '&LABEL'          * Save label in table            01220000
+&BXA_USEREG(&N) SETA &R                * and register index value       01230000
+&BXA_USEFLD(&N) SETC '&DSECT'          * and base field name            01240000
+&BXA_USENDX1(&BXA_USENDX) SETA &N      * And update high valid ptr      01250000
+.*                                                                      01260000
+.CHKR0   ANOP  ,                       * R0 can be used for PSA only    01270000
+         AIF   (&REG NE 0).NOERR2      * Using Register 0?              01280000
+         AIF   ('&DSECT' EQ 'PSA').NOERR2 * Yes. For PSA?               01290000
+         AGO   .ERR2D                  * No: error                      01300000
+.*                                                                      01310000
+.ERR2A   ANOP                                                           01320000
+         AIF   (&DOTLOC GT 0).NOERR2                                    01330000
+         MNOTE 8,'Second operand missing (register or location)'        01340000
+         MEXIT                                                          01350000
+.ERR2C   ANOP                                                           01360000
+&ARG     SETC  (DOUBLE '&BASE')                                         01370000
+         MNOTE 8,'Register &ARG is not a general purpose register'      01380000
+         MEXIT                                                          01390000
+.ERR2D   MNOTE 8,'With register 0 you cannot address &DSECT'            01400000
+.NOERR2  ANOP                                                           01410000
+.*                                                                      01420000
+.* Check extra base registers (if any)                                  01430000
+         AIF   (NOT &BASREG).NOERR3    * Not basing on a register!      01440000
+&I       SETA  2                       * SYSLIST 1 & 2 checked ok       01450000
+.LOOP3   ANOP  ,                       * For all remaining arguments    01460000
+&I       SETA  &I+1                    * Point next argument            01470000
+         AIF   (&I GT N'&SYSLIST).LOOP3OK * At end: all args checked ok 01480000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract argument from SYSLIST  01490000
+         AIF   (K'&ARG EQ 0).ERR3A     * Omitted register               01500000
+         CHKREG &ARG                   * A register was specified?      01510000
+         AIF   (&BXA_RC EQ 8).ERR3B    * Not a register                 01520000
+         AIF   (&BXA_RC EQ 0).LOOP3RG  * Ok: defined register           01530000
+.* NUMVAL = 4: a literal number 0-15 was specified                      01540000
+&REG     SETA  &ARG                    * Extract register number        01550000
+         AGO   .LOOP3AD                * and go add to tables           01560000
+.LOOP3RG ANOP  ,                       * Check EQUated register         01570000
+         GBLC  &(BXA_REGT_&ARG)        * Declare type field for reg     01580000
+         GBLA  &(BXA_REGN_&ARG)        * Declare number field for reg   01590000
+&REG     SETA  &(BXA_REGN_&ARG)        * Extract register number        01600000
+         AIF   ('&(BXA_REGT_&ARG)' NE 'g').ERR3B * Invalid reg type     01610000
+.*                                                                      01620000
+.LOOP3AD ANOP  ,                       * Valid reg. Add to tables       01630000
+&R       SETA  &REG+1                  * Increment reg, to obtain index 01640000
+         AIF   (NOT &BXA_USED_REGS(&R)).NOERR3D                         01650000
+&ARG     SETC  (DOUBLE '&ARG')                                          01660000
+.ERR3D   MNOTE 4,'Register &ARG currently not available for USING'      01670000
+.NOERR3D ANOP                                                           01680000
+&O       SETA  &I-2                    * Ordinal-1 of this base reg.    01690000
+&O       SETA  4096*&O                 * Determine offset from &DSECT   01700000
+&BXA_USED_REGS(&R) SETB 1              * Indicate register is in use    01710000
+&N       SETA  &BXA_USENDX1(&BXA_USENDX)+1 * Get pointer to free entry  01720000
+&BXA_USELBL(&N) SETC '&LABEL'          * Save label in table            01730000
+&BXA_USEREG(&N) SETA &R                * and register index value       01740000
+&BXA_USEFLD(&N) SETC '&DSECT+&O'       * and base location              01750000
+&BXA_USENDX1(&BXA_USENDX) SETA &N      * And update high valid ptr      01760000
+.*                                                                      01770000
+.LOOP3R0 ANOP  ,                       * Check for using R0             01780000
+         AIF   (&REG EQ 0).ERR3C       * Cannot use register 0          01790000
+         AGO   .LOOP3                                                   01800000
+.*                                                                      01810000
+.ERR3A   MNOTE 8,'Missing argument in list of registers'                01820000
+         AGO   .LOOP3                                                   01830000
+.ERR3B   ANOP                                                           01840000
+&ARG     SETC  (DOUBLE '&ARG')                                          01850000
+         MNOTE 8,'Specified argument &ARG is not a general purpose regi*01860000
+               ster'                                                    01870000
+         AGO   .LOOP3                                                   01880000
+.ERR3C   MNOTE 8,'You cannot use register 0 to address the specified ar*01890000
+               ea of storage'                                           01900000
+         AGO   .LOOP3                                                   01910000
+.LOOP3OK ANOP                                                           01920000
+.NOERR3  ANOP                                                           01930000
+.*                                                                      01940000
+.* Build &ARGS from &SYSLIST                                            01950000
+&I       SETA  0                       * I indexes &SYSLIST             01960000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     01970000
+&I       SETA  &I+1                    * Point next entry               01980000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           01990000
+&ARGS    SETC  '&ARGS'.','.'&SYSLIST(&I)' * Add entry to ARGS           02000000
+         AGO   .LOOP1                  * And go process next entry      02010000
+.LOOP1OK ANOP                                                           02020000
+&ARGS    SETC  '&ARGS'(2,*)            * Remove leading comma           02030000
+.*                                                                      02040000
+.* Generate _USING statement                                            02050000
+&LABEL   _USING &ARGS                                                   02060000
+.*                                                                      02070000
+.* Report current USING status                                          02080000
+         AIF   (NOT &SP_SHOWALL).MEND * Only if SHOWALL requested       02090002
+         USEDREGS                                                       02100000
+.*                                                                      02110000
+.MEND    MEND                                                           02130002

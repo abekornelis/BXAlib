@@ -1,0 +1,7 @@
+*                                                                       00010000
+* This load module has no specific requirements                         00020000
+*                                                                       00030000
+ SETOPT     PARM(REUS=REFR)                                             00040000
+ INCLUDE OBJECTS(BXAUNLD)                                               00050000
+ ENTRY           BXAUNLD                                                00060000
+ NAME            BXAUNLD(R)                                             00070000

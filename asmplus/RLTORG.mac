@@ -1,0 +1,380 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Create a literal pool. This macro replaces the normal LTORG          00180000
+.* instruction. The required OPSYN is issued by the PGM macro.          00190000
+.*                                                                      00200000
+&LABEL   RLTORG                                                         00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC RLTORG                 * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLC  &BXA_SUBR               * Current subroutine             00240000
+         GBLC  &BXA_RD_LAB(50)         * Labels for remote data         00250000
+         GBLC  &BXA_RD_OPC(50)         * Opcodes for remote data        00260000
+         GBLC  &BXA_RD_ARG(50)         * Pos Arguments for remote data  00270000
+         GBLC  &BXA_RD_ALG(50)         * Alignment for remote data      00280000
+         LCLA  &I                      * Index for BXA_RD_xxx           00290000
+.*                                                                      00300000
+.**!!    GBLA  &BXA_RD_NDX(50)         * Indexes for keywords           00310000
+.**!!    GBLC  &BXA_RD_KEY(50)         * Keyword names                  00320000
+.**!!    GBLC  &BXA_RD_VAL(50)         * Keyword values                 00330000
+.*       LCLA  &I                      * Index for BXA_RD_LAB/OPC/ARG   00340000
+.**!!    LCLA  &J                      * Index for BXA_RD_NDX/KEY/VAL   00350000
+         LCLC  &LAB                    * Entry from BXA_RD_LAB          00360000
+         LCLC  &OPC                    * Entry from BXA_RD_OPC          00370000
+         LCLC  &ARG                    * Entry from BXA_RD_ARG          00380000
+         LCLC  &ALG                    * Entry from BXA_RD_ALG          00390000
+.**!!    LCLC  &KEY                    * Entry from BXA_RD_KEY          00400000
+.**!!    LCLC  &VAL                    * Entry from BXA_RD_VAL          00410000
+.**!!    LCLC  &K1                     * First character from &KEY      00420000
+.*                                                                      00430000
+.* Define DCB-parameters                                                00440000
+.**!!    LCLC  &BFALN,&BFTEK,&BLKSIZE,&BUFCB,&BUFOFF,&BUFL,&BUFNO,     *00450000
+               &CYLOFL,&DCBE,&DDNAME,&DEVD,&DSORG,&EODAD,&EROPT,&EXLST,*00460000
+               &KEYLEN,&LIMCT,&LRECL,&MACRF,&MSHI,&MSWA,&NCP,&NTM,     *00470000
+               &OPTCD,&RECFM,&RKP,&SMSI,&SMSW,&SYNAD                    00480000
+.*                                                                      00490000
+.* Check that we're not in the midst of a subroutine                    00500000
+         AIF   ('&BXA_SUBR' EQ '*MAIN').NOERR1                          00510000
+.ERR1    MNOTE 8,'Missing ENDSR statement'                              00520000
+.NOERR1  ANOP                                                           00530000
+.*                                                                      00540000
+.* Generate code                                                        00550000
+&LABEL   LABEL H                       * Align on halfword              00560000
+.*                                                                      00570000
+.* Insert remote data                                                   00580000
+         AIF   (N'&BXA_RD_LAB EQ 0).LOOP2OK * Skip RDATA loop           00590000
+**********************************************************************  00600000
+*                                                                       00610000
+* Remote data definitions                                               00620000
+*                                                                       00630000
+**********************************************************************  00640000
+.* Generate remote data definitions from tables                         00650000
+&I       SETA  0                       * &I indexes BXA_RD_LAB/OPC/ARG  00660000
+&J       SETA  1                       * &J indexes BXA_RD_NDX/KEY/VAL  00670000
+.LOOP2   ANOP                                                           00680000
+&I       SETA  &I+1                    * Point next entry               00690000
+         AIF   (&I GT N'&BXA_RD_LAB).LOOP2OK * End of loop              00700000
+&LAB     SETC  '&BXA_RD_LAB(&I)'       * Extract Label for remote data  00710000
+&OPC     SETC  '&BXA_RD_OPC(&I)'       * Extract Remote opcode          00720000
+&ARG     SETC  '&BXA_RD_ARG(&I)'       * Extract Remote data operands   00730000
+&ALG     SETC  '&BXA_RD_ALG(&I)'       * Extract Remote data alignment  00740000
+.*                                                                      00750000
+         AIF   (K'&ALG EQ 0).LOOP2GO   * No alignment                   00760000
+         DS    0&ALG                   * Align                          00770000
+.LOOP2GO ANOP                                                           00780000
+.**!!    AIF   ('&OPC' EQ 'DCB').KEY   * Go process macro with keywords 00790000
+         AIF   ('&OPC' EQ 'CLOSE').LOOP2MFL * Go process macro, MF=L    00800000
+         AIF   ('&OPC' EQ 'MGCRE').LOOP2MFL * Go process macro, MF=L    00810000
+         AIF   ('&OPC' EQ 'OPEN').LOOP2MFL * Go process macro with MF=L 00820000
+         AIF   ('&OPC' EQ 'WTO').LOOP2MFL * Go process macro with MF=L  00830000
+&LAB     &OPC  &ARG                                                     00840000
+         AGO   .LOOP2                  * Go process next entry          00850000
+.LOOP2MFL ANOP                                                          00860000
+&LAB     &OPC  &ARG,MF=L                                                00870000
+         AGO   .LOOP2                  * Go process next entry          00880000
+.LOOP2OK ANOP                                                           00890000
+         AGO   .MEND                                                    00900002
+.*                                                                      00910000
+.* KEYwords section: extract keyword parameters from tables             00920000
+.* - Select all entries from BXA_RD_NDX/KEY/VAL with an index value     00930000
+.*   equal to the current index for BXA_RD_LAB/OPC/ARG. These entries   00940000
+.*   specify the keywords for this macro expansion.                     00950000
+.*   All entries are copied to locals, which are ultimately used        00960000
+.*   to generate the macro specified in BXA_RD_OPC.                     00970000
+.*                                                                      00980000
+.KEY     ANOP  ,                       * Init: Wipe all keywords        00990000
+&BFALN   SETC  ''                                                       01000000
+&BFTEK   SETC  ''                                                       01010000
+&BLKSIZE SETC ''                                                        01020000
+&BUFCB   SETC  ''                                                       01030000
+&BUFOFF  SETC  ''                                                       01040000
+&BUFL    SETC  ''                                                       01050000
+&BUFNO   SETC  ''                                                       01060000
+&CYLOFL  SETC  ''                                                       01070000
+&DCBE    SETC  ''                                                       01080000
+&DDNAME  SETC  ''                                                       01090000
+&DEVD    SETC  ''                                                       01100000
+&DSORG   SETC  ''                                                       01110000
+&EODAD   SETC  ''                                                       01120000
+&EROPT   SETC  ''                                                       01130000
+&EXLST   SETC  ''                                                       01140000
+&KEYLEN  SETC  ''                                                       01150000
+&LIMCT   SETC  ''                                                       01160000
+&LRECL   SETC  ''                                                       01170000
+&MACRF   SETC  ''                                                       01180000
+&MSHI    SETC  ''                                                       01190000
+&MSWA    SETC  ''                                                       01200000
+&NCP     SETC  ''                                                       01210000
+&NTM     SETC  ''                                                       01220000
+&OPTCD   SETC  ''                                                       01230000
+&RECFM   SETC  ''                                                       01240000
+&RKP     SETC  ''                                                       01250000
+&SMSI    SETC  ''                                                       01260000
+&SMSW    SETC  ''                                                       01270000
+&SYNAD   SETC  ''                                                       01280000
+.*                                                                      01290000
+.LOOP3   ANOP                                                           01300000
+         AIF   (&J GT N'&BXA_RD_NDX).LOOP3OK * End of table             01310000
+         AIF   (&BXA_RD_NDX(&J) NE &I).LOOP3OK * End of loop            01320000
+.* Valid entry: extract values from tables                              01330000
+&VAL     SETC  '&BXA_RD_VAL(&J)'       * Extract keyword value          01340000
+&KEY     SETC  '&BXA_RD_KEY(&J)'       * Extract keyword name           01350000
+&KEY     SETC  (UPPER '&KEY')          * Convert to upper case          01360000
+&K1      SETC  '&KEY'(1,1)             * Extract first character        01370000
+         AIF   ('&K1' EQ 'B').LOOP3B                                    01380000
+         AIF   ('&K1' EQ 'C').LOOP3C                                    01390000
+         AIF   ('&K1' EQ 'D').LOOP3D                                    01400000
+         AIF   ('&K1' EQ 'E').LOOP3E                                    01410000
+         AIF   ('&K1' EQ 'K').LOOP3K                                    01420000
+         AIF   ('&K1' EQ 'L').LOOP3L                                    01430000
+         AIF   ('&K1' EQ 'M').LOOP3M                                    01440000
+         AIF   ('&K1' EQ 'N').LOOP3N                                    01450000
+         AIF   ('&K1' EQ 'O').LOOP3O                                    01460000
+         AIF   ('&K1' EQ 'R').LOOP3R                                    01470000
+         AIF   ('&K1' EQ 'S').LOOP3S                                    01480000
+.LOOP3ERR ANOP                                                          01490000
+&KEY     SETC  (DOUBLE '&KEY')         * Double embedded quotes         01500000
+         MNOTE 8,'RDATA &OPC specified unknown keyword: &KEY'           01510000
+         AGO   .LOOP3                                                   01520000
+.*                                                                      01530000
+.LOOP3B  ANOP                                                           01540000
+         AIF   ('&KEY' EQ 'BFALN').BFALN                                01550000
+         AIF   ('&KEY' EQ 'BFTEK').BFTEK                                01560000
+         AIF   ('&KEY' EQ 'BLKSIZE').BLKSIZE                            01570000
+         AIF   ('&KEY' EQ 'BUFCB').BUFCB                                01580000
+         AIF   ('&KEY' EQ 'BUFOFF').BUFOFF                              01590000
+         AIF   ('&KEY' EQ 'BUFL').BUFL                                  01600000
+         AIF   ('&KEY' EQ 'BUFNO').BUFNO                                01610000
+         AGO   .LOOP3ERR                                                01620000
+.*                                                                      01630000
+.LOOP3C  ANOP                                                           01640000
+         AIF   ('&KEY' EQ 'CYLOFL').CYLOFL                              01650000
+         AGO   .LOOP3ERR                                                01660000
+.*                                                                      01670000
+.LOOP3D  ANOP                                                           01680000
+         AIF   ('&KEY' EQ 'DCBE').DCBE                                  01690000
+         AIF   ('&KEY' EQ 'DDNAME').DDNAME                              01700000
+         AIF   ('&KEY' EQ 'DEVD').DEVD                                  01710000
+         AIF   ('&KEY' EQ 'DSORG').DSORG                                01720000
+         AGO   .LOOP3ERR                                                01730000
+.*                                                                      01740000
+.LOOP3E  ANOP                                                           01750000
+         AIF   ('&KEY' EQ 'EODAD').EODAD                                01760000
+         AIF   ('&KEY' EQ 'EROPT').EROPT                                01770000
+         AIF   ('&KEY' EQ 'EXLST').EXLST                                01780000
+         AGO   .LOOP3ERR                                                01790000
+.*                                                                      01800000
+.LOOP3K  ANOP                                                           01810000
+         AIF   ('&KEY' EQ 'KEYLEN').KEYLEN                              01820000
+         AGO   .LOOP3ERR                                                01830000
+.*                                                                      01840000
+.LOOP3L  ANOP                                                           01850000
+         AIF   ('&KEY' EQ 'LIMCT').LIMCT                                01860000
+         AIF   ('&KEY' EQ 'LRECL').LRECL                                01870000
+         AGO   .LOOP3ERR                                                01880000
+.*                                                                      01890000
+.LOOP3M  ANOP                                                           01900000
+         AIF   ('&KEY' EQ 'MACRF').MACRF                                01910000
+         AIF   ('&KEY' EQ 'MSHI').MSHI                                  01920000
+         AIF   ('&KEY' EQ 'MSWA').MSWA                                  01930000
+         AGO   .LOOP3ERR                                                01940000
+.*                                                                      01950000
+.LOOP3N  ANOP                                                           01960000
+         AIF   ('&KEY' EQ 'NCP').NCP                                    01970000
+         AIF   ('&KEY' EQ 'NTM').NTM                                    01980000
+         AGO   .LOOP3ERR                                                01990000
+.*                                                                      02000000
+.LOOP3O  ANOP                                                           02010000
+         AIF   ('&KEY' EQ 'OPTCD').OPTCD                                02020000
+         AGO   .LOOP3ERR                                                02030000
+.*                                                                      02040000
+.LOOP3R  ANOP                                                           02050000
+         AIF   ('&KEY' EQ 'RECFM').RECFM                                02060000
+         AIF   ('&KEY' EQ 'RKP').RKP                                    02070000
+         AGO   .LOOP3ERR                                                02080000
+.*                                                                      02090000
+.LOOP3S  ANOP                                                           02100000
+         AIF   ('&KEY' EQ 'SMSI').SMSI                                  02110000
+         AIF   ('&KEY' EQ 'SMSW').SMSW                                  02120000
+         AIF   ('&KEY' EQ 'SYNAD').SYNAD                                02130000
+         AGO   .LOOP3ERR                                                02140000
+.*                                                                      02150000
+.BFALN   ANOP                                                           02160000
+&BFALN   SETC  '&VAL'                                                   02170000
+         AGO   .LOOP3NX                                                 02180000
+.BFTEK   ANOP                                                           02190000
+&BFTEK   SETC  '&VAL'                                                   02200000
+         AGO   .LOOP3NX                                                 02210000
+.BLKSIZE ANOP                                                           02220000
+&BLKSIZE SETC  '&VAL'                                                   02230000
+         AGO   .LOOP3NX                                                 02240000
+.BUFCB   ANOP                                                           02250000
+&BUFCB   SETC  '&VAL'                                                   02260000
+         AGO   .LOOP3NX                                                 02270000
+.BUFOFF  ANOP                                                           02280000
+&BUFOFF  SETC  '&VAL'                                                   02290000
+         AGO   .LOOP3NX                                                 02300000
+.BUFL    ANOP                                                           02310000
+&BUFL    SETC  '&VAL'                                                   02320000
+         AGO   .LOOP3NX                                                 02330000
+.BUFNO   ANOP                                                           02340000
+&BUFNO   SETC  '&VAL'                                                   02350000
+         AGO   .LOOP3NX                                                 02360000
+.*                                                                      02370000
+.CYLOFL  ANOP                                                           02380000
+&CYLOFL  SETC  '&VAL'                                                   02390000
+         AGO   .LOOP3NX                                                 02400000
+.*                                                                      02410000
+.DCBE    ANOP                                                           02420000
+&DCBE    SETC  '&VAL'                                                   02430000
+         AGO   .LOOP3NX                                                 02440000
+.DDNAME  ANOP                                                           02450000
+&DDNAME  SETC  '&VAL'                                                   02460000
+         AGO   .LOOP3NX                                                 02470000
+.DEVD    ANOP                                                           02480000
+&DEVD    SETC  '&VAL'                                                   02490000
+         AGO   .LOOP3NX                                                 02500000
+.DSORG   ANOP                                                           02510000
+&DSORG   SETC  '&VAL'                                                   02520000
+         AGO   .LOOP3NX                                                 02530000
+.*                                                                      02540000
+.EODAD   ANOP                                                           02550000
+&EODAD   SETC  '&VAL'                                                   02560000
+         AGO   .LOOP3NX                                                 02570000
+.EROPT   ANOP                                                           02580000
+&EROPT   SETC  '&VAL'                                                   02590000
+         AGO   .LOOP3NX                                                 02600000
+.EXLST   ANOP                                                           02610000
+&EXLST   SETC  '&VAL'                                                   02620000
+         AGO   .LOOP3NX                                                 02630000
+.*                                                                      02640000
+.KEYLEN  ANOP                                                           02650000
+&KEYLEN  SETC  '&VAL'                                                   02660000
+         AGO   .LOOP3NX                                                 02670000
+.*                                                                      02680000
+.LIMCT   ANOP                                                           02690000
+&LIMCT   SETC  '&VAL'                                                   02700000
+         AGO   .LOOP3NX                                                 02710000
+.LRECL   ANOP                                                           02720000
+&LRECL   SETC  '&VAL'                                                   02730000
+         AGO   .LOOP3NX                                                 02740000
+.*                                                                      02750000
+.MACRF   ANOP                                                           02760000
+&MACRF   SETC  '&VAL'                                                   02770000
+         AGO   .LOOP3NX                                                 02780000
+.MSHI    ANOP                                                           02790000
+&MSHI    SETC  '&VAL'                                                   02800000
+         AGO   .LOOP3NX                                                 02810000
+.MSWA    ANOP                                                           02820000
+&MSWA    SETC  '&VAL'                                                   02830000
+         AGO   .LOOP3NX                                                 02840000
+.*                                                                      02850000
+.NCP     ANOP                                                           02860000
+&NCP     SETC  '&VAL'                                                   02870000
+         AGO   .LOOP3NX                                                 02880000
+.NTM     ANOP                                                           02890000
+&NTM     SETC  '&VAL'                                                   02900000
+         AGO   .LOOP3NX                                                 02910000
+.*                                                                      02920000
+.OPTCD   ANOP                                                           02930000
+&OPTCD   SETC  '&VAL'                                                   02940000
+         AGO   .LOOP3NX                                                 02950000
+.*                                                                      02960000
+.RECFM   ANOP                                                           02970000
+&RECFM   SETC  '&VAL'                                                   02980000
+         AGO   .LOOP3NX                                                 02990000
+.RKP     ANOP                                                           03000000
+&RKP     SETC  '&VAL'                                                   03010000
+         AGO   .LOOP3NX                                                 03020000
+.*                                                                      03030000
+.SMSI    ANOP                                                           03040000
+&SMSI    SETC  '&VAL'                                                   03050000
+         AGO   .LOOP3NX                                                 03060000
+.SMSW    ANOP                                                           03070000
+&SMSW    SETC  '&VAL'                                                   03080000
+         AGO   .LOOP3NX                                                 03090000
+.SYNAD   ANOP                                                           03100000
+&SYNAD   SETC  '&VAL'                                                   03110000
+         AGO   .LOOP3NX                                                 03120000
+.*                                                                      03130000
+.* Go process next entry                                                03140000
+.LOOP3NX ANOP                                                           03150000
+&J       SETA  &J+1                    * point next entry               03160000
+         AGO   .LOOP3                                                   03170000
+.*                                                                      03180000
+.* Select macro to expand                                               03190000
+.LOOP3OK ANOP                                                           03200000
+         AIF   ('&OPC' EQ 'DCB').DCB                                    03210000
+         MNOTE 8,'RDATA &OPC not supported'                             03220000
+         AGO   .LOOP2                                                   03230000
+.*                                                                      03240000
+.DCB     ANOP                                                           03250000
+&LAB     DCB   BFALN=&BFALN,BFTEK=&BFTEK,BLKSIZE=&BLKSIZE,             *03260000
+               BUFCB=&BUFCB,BUFOFF=&BUFOFF,BUFL=&BUFL,BUFNO=&BUFNO,    *03270000
+               CYLOFL=&CYLOFL,DCBE=&DCBE,DDNAME=&DDNAME,DEVD=&DEVD,    *03280000
+               DSORG=&DSORG,EODAD=&EODAD,EROPT=&EROPT,EXLST=&EXLST,    *03290000
+               KEYLEN=&KEYLEN,LIMCT=&LIMCT,LRECL=&LRECL,               *03300000
+               MACRF=&MACRF,MSHI=&MSHI,MSWA=&MSWA,NCP=&NCP,            *03310000
+               NTM=&NTM,OPTCD=&OPTCD,RECFM=&RECFM,RKP=&RKP,            *03320000
+               SMSI=&SMSI,SMSW=&SMSW,SYNAD=&SYNAD                       03330000
+         AGO   .LOOP2                                                   03340000
+.*                                                                      03350000
+.MEND    MEND                                                           03370002

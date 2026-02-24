@@ -1,0 +1,132 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Create a literal pool. This macro replaces the normal LTORG          00180000
+.* instruction. The required OPSYN is issued by the PGM macro.          00190000
+.*                                                                      00200000
+&LABEL   LTORG                                                          00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC LTORG                  * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLC  &BXA_EXQ_I(50)          * Instructions used by EXQ       00240000
+         GBLC  &BXA_EXQ_OPS(50)        * Operands for the instructions  00250000
+         GBLA  &BXA_EXQ_LAST           * Pointer to last expanded       00260000
+         GBLC  &BXA_SUBR               * Current subroutine             00270000
+         GBLB  &SP_SHOWALL             * Print option from PGM macro    00280000
+         LCLC  &_PRINT                 * Print option for PRINT         00290000
+         LCLC  &_PROPT                 * Print option for PUSH/POP      00300000
+         LCLA  &I                      * Index for BXA_EXQ_I / _OPS     00310000
+         LCLC  &EXQI                   * Entry from BXA_EXQ_I           00320000
+         LCLC  &EXQOPS                 * Entry from BXA_EXQ_OPS         00330000
+.*                                                                      00340000
+.* Check that we're not in the midst of a subroutine                    00350000
+         AIF   ('&BXA_SUBR' EQ '*MAIN').NOERR1                          00360000
+.ERR1    MNOTE 8,'Missing ENDSR statement'                              00370000
+.NOERR1  ANOP                                                           00380000
+.*                                                                      00390000
+.* Check the number of arguments                                        00400000
+         AIF   (N'&SYSLIST EQ 0).NOERR2                                 00410000
+&I       SETA  0                                                        00420000
+.LOOP0   ANOP                                                           00430000
+&I       SETA  &I+1                                                     00440000
+         AIF   (&I GT N'&SYSLIST).LOOP0OK                               00450000
+         AIF   (K'&SYSLIST(&I) EQ 0).LOOP0                              00460000
+.ERR2A   MNOTE 4,'No operands allowed on LTORG: ignored'                00470000
+.LOOP0OK ANOP                                                           00480000
+.NOERR2  ANOP                                                           00490000
+.*                                                                      00500000
+.* Generate code                                                        00510000
+&LABEL   LABEL H                       * Align on halfword              00520000
+.*                                                                      00530000
+.* Create all EXQ-instructions with their labels                        00540000
+         AIF   (N'&BXA_EXQ_I LE &BXA_EXQ_LAST).NOLOOP1 * Nothing new?   00550000
+**********************************************************************  00560000
+*                                                                       00570000
+* Instructions for use with EXexute                                     00580000
+*                                                                       00590000
+**********************************************************************  00600000
+&I       SETA  &BXA_EXQ_LAST           * I indexes BXA_EXQ              00610000
+.LOOP1   ANOP  ,                       *                                00620000
+&I       SETA  &I+1                    * Point to next entry            00630000
+         AIF   (&I GT N'&BXA_EXQ_I).LOOP1OK * End of loop               00640000
+&EXQI    SETC  '&BXA_EXQ_I(&I)'        * Extract opcode                 00650000
+&EXQOPS  SETC  '&BXA_EXQ_OPS(&I)'      * Extract operands               00660000
+_EXQ&I   &EXQI &EXQOPS                 * EXecutable instruction         00670000
+         AGO   .LOOP1                  * Go process next one            00680000
+.LOOP1OK ANOP  ,                       *                                00690000
+&BXA_EXQ_LAST  SETA &I-1               * Set ptr to last expanded       00700000
+.NOLOOP1 ANOP  ,                       *                                00710000
+.*                                                                      00720000
+.* Set listing options                                                  00730000
+&_PRINT  SETC  'ON'                    * SHOWALL: show PRINT lines      00740000
+         AIF   (&SP_SHOWALL).PRINTOK   * SHOWALL: show PUSH/POP lines   00750000
+&_PRINT  SETC  'OFF,NOPRINT'           * Not ALL: omit PRINT lines      00760000
+&_PROPT  SETC  ',NOPRINT'              * Not ALL: omit PUSH/POP lines   00770000
+.PRINTOK ANOP                                                           00780000
+.*                                                                      00790000
+.* Insert real literal pool                                             00800000
+**********************************************************************  00810000
+*                                                                       00820000
+* Literals                                                              00830000
+*                                                                       00840000
+**********************************************************************  00850000
+         _LTORG                                                         00860000
+.*                                                                      00870000
+.MEND    MEND                                                           00880002

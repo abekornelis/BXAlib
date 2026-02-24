@@ -1,0 +1,170 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Define internal macro for EXSR                                       00180000
+.*                                                                      00190000
+         EXSR0  ,                      *                                00200000
+.*                                                                      00210000
+.* Define variables                                                     00220000
+         GBLB  &BXA_EXSR               * EXSR expanded before?          00230000
+.*                                                                      00240000
+.* Define internal macro on the first invocation.                       00250000
+         AIF   (&BXA_EXSR).MEND                                         00260001
+&BXA_EXSR SETB 1                                                        00270000
+         PUSH  PRINT,NOPRINT                                            00280000
+         PRINT OFF,NOPRINT                                              00290000
+.*                                                                      00300000
+         MACRO                                                          00310000
+         EXSR_ADD_ENTRY &NAME,&TYPE    * Name and type of subroutine    00320000
+         GBLC  &BXA_SRUNAM(50)         * Used subroutine names          00330000
+         GBLA  &BXA_SRUCT(50)          * Subroutine invocation count    00340000
+         GBLC  &BXA_SRUASC(50)         * Used subroutine ASC-modes      00350000
+         GBLB  &BXA_SRUSVC(50)         * Used subroutine SVC-modes      00360000
+         GBLC  &BXA_SRDNAM(50)         * Defined subroutine names       00370000
+         GBLC  &BXA_SRDTYP(50)         * Defined subroutine types       00380000
+         GBLA  &BXA_SRNAML             * Max subr name length           00390000
+         GBLC  &BXA_SR_CALLER(50)      * Calling macro-names            00400000
+         GBLC  &BXA_SR_CALLED(50)      * Called macro-names             00410000
+         GBLC  &BXA_SUBR               * Current subr name or *MAIN     00420000
+         GBLC  &BXA_USEC_ROUT(50)      * Routines for SCOPE=CALLED      00430000
+         GBLC  &BXA_USEC_ARGL(50)      * Labels for SCOPE=CALLED        00440000
+         GBLC  &BXA_USEC_ARG1(50)      * DSECTs for SCOPE=CALLED        00450000
+         GBLC  &BXA_USEC_ARG2(50)      * Bases for SCOPE=CALLED         00460000
+         GBLB  &BXA_SVCMODE            * Current SVC-mode               00470000
+         GBLC  &SYSASCE                * Current ASC-mode               00480000
+         LCLA  &I,&J                   * Index into BXA_SRUNAM/SRUCT    00490000
+.*                                                                      00500000
+.* Update subroutine usage count                                        00510000
+&I       SETA  0                       * Init loop                      00520000
+.LOOP1   ANOP                                                           00530000
+&I       SETA  &I+1                    * Point to next entry            00540000
+         AIF   (&I GT N'&BXA_SRUNAM).LOOP1AD * End of array: add entry  00550000
+         AIF   ('&BXA_SRUNAM(&I)' EQ '&NAME').LOOP1IN * Increment use   00560000
+         AGO   .LOOP1                  * Go process next entry          00570000
+.LOOP1AD ANOP  ,                       * Add entry to UNAM              00580000
+&BXA_SRUCT(&I) SETA 1                  * Use count is now 1             00590000
+&BXA_SRUSVC(&I) SETB (&BXA_SVCMODE)    * Copy current SVC-mode          00600000
+&BXA_SRUASC(&I) SETC '&SYSASCE'        * Copy current ASC-mode          00610000
+&BXA_SRUNAM(&I) SETC '&NAME'           * Name into empty entry          00620000
+         AIF   (K'&NAME LE &BXA_SRNAML).LOOP1OK * Check name length     00630000
+&BXA_SRNAML SETA K'&NAME               * Increase max name length       00640000
+         AIF   (K'&NAME GE 5).LOOP1OK  * Max name length must at least  00650000
+&BXA_SRNAML SETA 5                     *   equal 5 (*MAIN)              00660000
+         AGO   .LOOP1OK                * And we're done                 00670000
+.* Entry found: update count and check interface                        00680000
+.LOOP1IN ANOP  ,                       * Increment use count            00690000
+&BXA_SRUCT(&I) SETA &BXA_SRUCT(&I)+1   *           by one               00700000
+.*                                                                      00710000
+         AIF   (&BXA_SRUSVC(&I) EQ &BXA_SVCMODE).NOERR0A                00720000
+.ERR0A   MNOTE 8,'Interface error: &NAME called both in SVC and in prob*00730000
+               lem mode'                                                00740000
+.NOERR0A ANOP                                                           00750000
+         AIF   ('&BXA_SRUASC(&I)' EQ '&SYSASCE').NOERR0B                00760000
+         AIF   ('&TYPE' EQ 'EXT').NOERR0B * EXT always called in prim.  00770000
+.ERR0B   MNOTE 8,'Interface error: &NAME called both in Access Register*00780000
+                and in Primary mode'                                    00790000
+.NOERR0B ANOP                                                           00800000
+.LOOP1OK ANOP                                                           00810000
+.*                                                                      00820000
+.* Add entry to subroutine call cross-reference tables                  00830000
+&I       SETA  1+N'&BXA_SR_CALLED                                       00840000
+&BXA_SR_CALLER(&I) SETC '&BXA_SUBR'                                     00850000
+&BXA_SR_CALLED(&I) SETC '&NAME'                                         00860000
+.*                                                                      00870000
+.* If the called subroutine is defined, it must be an INT or EXT subr   00880000
+&I       SETA  0                       * I indexes into BXA_SRDNAM      00890000
+.LOOP2   ANOP  ,                       * Loop thru BXA_SRDNAM           00900000
+&I       SETA  &I+1                    * Point to next entry            00910000
+         AIF   (&I GT N'&BXA_SRDNAM).LOOP2NF * Not found: skip          00920000
+         AIF   ('&NAME' NE '&BXA_SRDNAM(&I)').LOOP2 * Continue search   00930000
+.* Called subr is defined: check its type                               00940000
+         AIF   ('&BXA_SRDTYP(&I)' EQ 'INT').LOOP2OK                     00950000
+         AIF   ('&BXA_SRDTYP(&I)' EQ 'EXT').LOOP2OK                     00960000
+.ERR1A   MNOTE 8,'You cannot EXSR to a subroutine of type &BXA_SRDTYP(&*00970000
+               I)'                                                      00980000
+         AGO   .LOOP2OK                                                 00990000
+.LOOP2NF ANOP  ,                       * If external subr: add entry    01000000
+         AIF   ('&TYPE' NE 'EXT').LOOP2OK                               01010000
+.*                                                                      01020000
+.* External subroutine name not found: add entry to arrays              01030000
+&I       SETA  1+N'&BXA_SRDNAM         * Point to first free entry      01040000
+&BXA_SRDNAM(&I) SETC '&NAME'           * Add subroutine name            01050000
+&BXA_SRDTYP(&I) SETC 'EXT'             *   and subroutine type          01060000
+&BXA_SRDDUP(&I) SETB 0                 * External subr never a dup!     01070000
+         AIF   (K'&NAME LE &BXA_SRNAML).LOOP2OK * Check name length     01080000
+&BXA_SRNAML SETA K'&NAME               * Increase max. name length      01090000
+         AIF   (K'&NAME GE 5).LOOP2OK  * Max. name length must at least 01100000
+&BXA_SRNAML SETA 5                     *   equal 5 (for *MaIN)          01110000
+.LOOP2OK ANOP                                                           01120000
+.*                                                                      01130000
+.* USEs with SCOPE=CALLED must be propagated in the BXA_USEC tables     01140000
+&I       SETA  0                       * I indexes BXA_USEC_...         01150000
+.LOOP3   ANOP  ,                       * For all entries                01160000
+&I       SETA  &I+1                    * Point next entry               01170000
+         AIF   (&I GT N'&BXA_USEC_ROUT).LOOP3OK * At end: quit loop     01180000
+         AIF   ('&BXA_USEC_ROUT(&I)' NE '&BXA_SUBR').LOOP3              01190000
+.* Match: copy to called subroutine, unless such an entry already       01200000
+.*        exists. &I points to located entry.                           01210000
+&J       SETA  0                       * J is second-search index       01220000
+.LOOP4   ANOP  ,                       * See if entry exists            01230000
+&J       SETA  &J+1                    * Point to next entry            01240000
+         AIF   (&J GT N'&BXA_USEC_ROUT).LOOP4NF * At end: not found     01250000
+         AIF   ('&BXA_USEC_ROUT(&J)' NE '&NAME').LOOP4                  01260000
+         AIF   ('&BXA_USEC_ARGL(&J)' NE '&BXA_USEC_ARGL(&I)').LOOP4     01270000
+         AIF   ('&BXA_USEC_ARG1(&J)' NE '&BXA_USEC_ARG1(&I)').LOOP4     01280000
+         AIF   ('&BXA_USEC_ARG2(&J)' NE '&BXA_USEC_ARG2(&I)').LOOP4     01290000
+.* Entry to be copied exists for this subroutine: skip copy operation   01300000
+         AGO   .LOOP3                                                   01310000
+.* Second search yielded nothing: Add entry for called subroutine       01320000
+.LOOP4NF ANOP                                                           01330000
+&J       SETA  N'&BXA_USEC_ROUT+1      * J points to new entry          01340000
+&BXA_USEC_ROUT(&J) SETC '&NAME'        * Use USE for this subroutine    01350000
+&BXA_USEC_ARGL(&J) SETC '&BXA_USEC_ARGL(&I)' * USE label parameter      01360000
+&BXA_USEC_ARG1(&J) SETC '&BXA_USEC_ARG1(&I)' * USE dsect parameter      01370000
+&BXA_USEC_ARG2(&J) SETC '&BXA_USEC_ARG2(&I)' * USE base parameter       01380000
+         AGO   .LOOP3                                                   01390000
+.LOOP3OK ANOP                                                           01400000
+.*                                                                      01410000
+.MEND    MEND                                                           01420001
+         POP   PRINT,NOPRINT                                            01430000
+.*                                                                      01440000
+.MEND    MEND                                                           01460001

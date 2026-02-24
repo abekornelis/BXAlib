@@ -1,0 +1,28 @@
+*                                                                       00010000
+* Wish list for asmplus maclib                                          00020000
+* -           Add License terms to each member                          00021000
+* -           Add License=BXAPL/GPL and IAGREE=YES as req'd parms       00022000
+* -           Change type 'g' for GPR to 'r' for Register (Right half)  00023001
+* -           Add type 'l' for Register (Left half)                     00025001
+* -           Add type 'g' for Register (Grande)                        00026001
+* -           Support for SHOWALL option should be removed from         00027005
+*               all macros and inserted into SPACE/EJECT/TITLE etc.     00028006
+* - CLEAR     Allow other types of operands                             00030003
+* - DEC       Allow other types of operands                             00031002
+* - EPSW      Not (yet) compatible with EPSW instruction                00040000
+* -           --> rename BXAEPSW to EPSW and allow 2nd operand!         00041000
+* -           --> remove the BXAEPSW macro (temporary solution)         00042002
+* - EQU       Generate instruction labels as follows:                   00050000
+         DS    0H                                                       00060000
+&LABEL   EQU   *,2,C'I'                                                 00070000
+* - INC       Allow other types of operands                             00080000
+* - MAPREGS   Change type 'g' to type 'r'                               00091008
+*             --> All other macros must change accordingly              00100000
+*             --> See EQU macro for other registertypes to add          00101007
+* - MAPREGS   Add equates for 64-bit registers type 'g'                 00110000
+* - MAPxxxxx  Make overrides dependent upon current OS level            00120000
+* - MAPxxxxx  Some mapping macros still have a different structure      00121010
+* - RDATA     use locator name in stead of RLTORG macro                 00130004
+* - RLTORG    discard after changing RDATA to use locator name          00140004
+*                                                                       00150000
+*                                                                       00160000

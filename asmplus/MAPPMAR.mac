@@ -1,0 +1,204 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Program Management Attribute Record              00180000
+.*      (associated with SMDE)                                          00190000
+.* Warning: field PMARA_LEN is renamed to PMARA_SIZE                    00200000
+.*                                                                      00210000
+&LABEL   MAPPMAR &DSECT=YES,           * YES or NO                     *00220000
+               &CB=,                   * Control block to generate     *00230000
+               &PRFX=                  * Prefix to use                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC MAPPMAR                * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         GBLB  &BXA_MAC_MAPPMAR        * Map has been generated?        00270000
+.*                                                                      00290000
+.* Check parameters                                                     00300000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00310000
+               CB=&CB,                 *                               *00320000
+               PRFX=&PRFX              *                                00330000
+         AIF   (&BXA_RC GT 4).MEND                                      00340002
+.*                                                                      00350000
+.* Check the CB parameter                                               00360000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00370000
+         AIF   ('&CB' EQ 'PMAR').EMBED                                  00380000
+         AIF   ('&CB' EQ 'PMARA').EMBED                                 00390000
+         AIF   ('&CB' EQ 'PMARL').EMBED                                 00400000
+         AIF   ('&CB' EQ 'PMARR').EMBED                                 00410000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.* Generate embedded definition                                         00450000
+.EMBED   ANOP                                                           00460000
+&LABEL   NESTCB &CB,X,&PRFX                                             00470000
+         MEXIT                                                          00480000
+.*                                                                      00490000
+.DSECT   ANOP                                                           00500000
+         AIF   (&BXA_MAC_MAPPMAR).MEND                                  00510002
+&BXA_MAC_MAPPMAR SETB 1                                                 00520000
+.* Set up translation from control block to macro for DCL               00530000
+         GBLC  &BXA_CB_PMAR                                             00540000
+         GBLC  &BXA_CB_PMARA                                            00550000
+         GBLC  &BXA_CB_PMARL                                            00560000
+         GBLC  &BXA_CB_PMARR                                            00570000
+&BXA_CB_PMAR  SETC 'PMAR'                                               00580000
+&BXA_CB_PMARA SETC 'PMAR'                                               00590000
+&BXA_CB_PMARL SETC 'PMAR'                                               00600000
+&BXA_CB_PMARR SETC 'PMAR'                                               00610000
+.*                                                                      00620000
+.* PMAR_LVL - PMAR format level                                         00630000
+PMAR_LVL_VAL       EQUOVR ,,v,PMAR_LVL                                  00640000
+PMAR_PM1_VAL       EQUOVR ,,v,PMAR_LVL                                  00650000
+PMAR_PM2_VAL       EQUOVR ,,v,PMAR_LVL                                  00660000
+PMAR_PM3_VAL       EQUOVR ,,v,PMAR_LVL                                  00670000
+.*                                                                      00680000
+.* PMAR_PLVL - Bind processor creating object                           00690000
+PMAR_PLVL_E_VAL    EQUOVR ,,v,PMAR_PLVL                                 00700000
+PMAR_PLVL_F_VAL    EQUOVR ,,v,PMAR_PLVL                                 00710000
+PMAR_PLVL_AOS_VAL  EQUOVR ,,v,PMAR_PLVL                                 00720000
+PMAR_PLVL_XA_VAL   EQUOVR ,,v,PMAR_PLVL                                 00730000
+PMAR_PLVL_B1_VAL   EQUOVR ,,v,PMAR_PLVL                                 00740000
+PMAR_PLVL_B2_VAL   EQUOVR ,,v,PMAR_PLVL                                 00750000
+PMAR_PLVL_B3_VAL   EQUOVR ,,v,PMAR_PLVL                                 00760000
+.*                                                                      00770000
+.* PMAR_ATR1 - First attribute byte.                                    00780000
+PMAR_RENT          EQUOVR ,,b,PMAR_ATR1                                 00790000
+PMAR_REUS          EQUOVR ,,b,PMAR_ATR1                                 00800000
+PMAR_OVLY          EQUOVR ,,b,PMAR_ATR1                                 00810000
+PMAR_TEST          EQUOVR ,,b,PMAR_ATR1                                 00820000
+PMAR_LOAD          EQUOVR ,,b,PMAR_ATR1                                 00830000
+PMAR_SCTR          EQUOVR ,,b,PMAR_ATR1                                 00840000
+PMAR_EXEC          EQUOVR ,,b,PMAR_ATR1                                 00850000
+PMAR_1BLK          EQUOVR ,,b,PMAR_ATR1                                 00860000
+.*                                                                      00870000
+.* PMAR_ATR2 - Second attribute byte.                                   00880000
+PMAR_FLVL          EQUOVR ,,b,PMAR_ATR2                                 00890000
+PMAR_ORG0          EQUOVR ,,b,PMAR_ATR2                                 00900000
+PMAR_NRLD          EQUOVR ,,b,PMAR_ATR2                                 00910000
+PMAR_NREP          EQUOVR ,,b,PMAR_ATR2                                 00920000
+PMAR_TSTN          EQUOVR ,,b,PMAR_ATR2                                 00930000
+PMAR_REFR          EQUOVR ,,b,PMAR_ATR2                                 00940000
+.*                                                                      00950000
+.* PMAR_FTB1 - Alternative name for flags byte                          00960000
+PMAR_BIG           EQUOVR ,,b,PMAR_FTB1                                 00970000
+PMAR_PAGA          EQUOVR ,,b,PMAR_FTB1                                 00980000
+PMAR_XSSI          EQUOVR ,,b,PMAR_FTB1                                 00990000
+PMAR_XAPF          EQUOVR ,,b,PMAR_FTB1                                 01000000
+PMAR_LFMT          EQUOVR ,,b,PMAR_FTB1                                 01010000
+.*                                                                      01020000
+.* PMAR_FTB2 - Alternative name for flags byte                          01030000
+PMAR_ALTP          EQUOVR ,,b,PMAR_FTB2                                 01040000
+PMAR_RMOD          EQUOVR ,,b,PMAR_FTB2                                 01050000
+PMAR_MAMD          EQUOVR ,,b,PMAR_FTB2                                 01060000
+.*                                                                      01070000
+.* PMARL_ATR1 - Fifth attribute byte                                    01080000
+PMARL_NMIG         EQUOVR ,,b,PMARL_ATR1                                01090000
+PMARL_PRIM         EQUOVR ,,b,PMARL_ATR1                                01100000
+PMARL_PACK         EQUOVR ,,b,PMARL_ATR1                                01110000
+.*                                                                      01120000
+.* PMARL_ATR2 - Sixth attribute byte                                    01130000
+PMARL_CMPR         EQUOVR ,,b,PMARL_ATR2                                01140000
+PMARL_1RMOD        EQUOVR ,,b,PMARL_ATR2                                01150000
+PMARL_2RMOD        EQUOVR ,,b,PMARL_ATR2                                01160000
+PMARL_1ALIN        EQUOVR ,,b,PMARL_ATR2                                01170000
+PMARL_2ALIN        EQUOVR ,,b,PMARL_ATR2                                01180000
+PMARL_FILL         EQUOVR ,,b,PMARL_ATR2                                01190000
+.*                                                                      01200000
+.* PMARL_PM3FL1 - Flag byte                                             01210000
+PMARL_HIDE         EQUOVR ,,b,PMARL_PM3FL1                              01220000
+PMARL_DLLENA       EQUOVR ,,b,PMARL_PM3FL1                              01230000
+PMARL_MUSTDELET    EQUOVR ,,b,PMARL_PM3FL1                              01240000
+PMARL_IEWBLITP     EQUOVR ,,b,PMARL_PM3FL1                              01250000
+PMARL_MANGLED      EQUOVR ,,b,PMARL_PM3FL1                              01260000
+.*                                                                      01270000
+.* PMARA_LEN - Section length                                           01280000
+PMARA_LEN          DSOVR  *NEWNAME,PMARA_SIZE                           01290000
+.*                                                                      01300000
+.* PMARA_FTB2 - Alternative name for flags byte                         01310000
+PMARA_ALTP         EQUOVR ,,b,PMARA_FTB2                                01320000
+PMARA_HIDE         EQUOVR ,,b,PMARA_FTB2                                01330000
+PMARA_NEXEC        EQUOVR ,,b,PMARA_FTB2                                01340000
+PMARA_MANGLED      EQUOVR ,,b,PMARA_FTB2                                01350000
+.*                                                                      01360000
+         MNOTE *,'Including IEWPMAR mapping macro'                      01370000
+         IEWPMAR ,                     * Generate IEWPMAR               01380000
+         DSOVR  *END                                                    01390000
+         EQUOVR *END                                                    01400000
+*                                                                       01410000
+PMAR     DSECT ,                       * Resume PMAR DSECT              01420000
+         ORG   ,                       *                                01430000
+PMAR_LEN EQU   *-PMAR                  * Length of PMAR                 01440000
+*                                                                       01450000
+PMARL    DSECT ,                       * Resume PMARL DSECT             01460000
+         ORG   ,                       *                                01470000
+PMARL_LEN EQU  *-PMARL                 * Length of PMARL                01480000
+*                                                                       01490000
+PMARR    DSECT ,                       * Resume PMARR DSECT             01500000
+         ORG   ,                       *                                01510000
+PMARR_LEN EQU  *-PMARR                 * Length of PMARR                01520000
+*                                                                       01530000
+PMARA    DSECT ,                       * Resume PMARA DSECT             01540000
+         ORG   ,                       *                                01550000
+PMARA_LEN EQU  *-PMARA                 * Length of PMARA                01560000
+.*                                                                      01570000
+.* Return to our original CSECT name                                    01580000
+&SYSECT  &SYSSTYP                                                       01590000
+.*                                                                      01600000
+.MEND    MEND                                                           01620002

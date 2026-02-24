@@ -1,0 +1,181 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Service Call Control Block                       00180000
+.*                                                                      00190000
+.* --> The SCCB can be found through the CVTSCPIN pointer               00200000
+.*                                                                      00210000
+&LABEL   MAPSCCB &DSECT=YES,           * YES or NO                     *00220000
+               &CB=,                   * Control block to generate     *00230000
+               &PRFX=                  * Prefix to use                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC MAPSCCB                * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         GBLB  &BXA_MAC_MAPSCCB        * Map has been generated?        00270000
+.*                                                                      00290000
+.* Check parameters                                                     00300000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00310000
+               CB=&CB,                 *                               *00320000
+               PRFX=&PRFX              *                                00330000
+         AIF   (&BXA_RC GT 4).MEND                                      00340002
+.*                                                                      00350000
+.* Check the CB parameter                                               00360000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00370000
+         AIF   ('&CB' EQ 'SCCB').EMBED                                  00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPSCCB).MEND                                  00480002
+&BXA_MAC_MAPSCCB SETB 1                                                 00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_SCCB                                             00510000
+&BXA_CB_SCCB SETC 'SCCB'                                                00520000
+.*                                                                      00530000
+.* SCCBIFM1 - INSTALLED FACILITY MAP BYTE 1.                            00540000
+SCCBCHPI EQUOVR ,,b,SCCBIFM1                                            00550000
+SCCBCHPS EQUOVR ,,b,SCCBIFM1                                            00560000
+SCCBCHPR EQUOVR ,,b,SCCBIFM1                                            00570000
+SCCBCPUI EQUOVR ,,b,SCCBIFM1                                            00580000
+SCCBCPUR EQUOVR ,,b,SCCBIFM1                                            00590000
+.*                                                                      00600000
+.* SCCBIFM2 - INSTALLED FACILITY MAP BYTE 2.                            00610000
+SCCBSGNL EQUOVR ,,b,SCCBIFM2                                            00620000
+SCCBOMR  EQUOVR ,,b,SCCBIFM2                                            00630000
+SCCBSTST EQUOVR ,,b,SCCBIFM2                                            00640000
+SCCBRSTR EQUOVR ,,b,SCCBIFM2                                            00650000
+SCCBITRC EQUOVR ,,b,SCCBIFM2                                            00660000
+SCCBLPRM EQUOVR ,,b,SCCBIFM2                                            00670000
+SCCBWDAT EQUOVR ,,b,SCCBIFM2                                            00680000
+.*                                                                      00690000
+.* SCCBIFM3 - INSTALLED FACILITY MAP BYTE 3.                            00700000
+SCCBSIR  EQUOVR ,,b,SCCBIFM3                                            00710000
+SCCBSEI  EQUOVR ,,b,SCCBIFM3                                            00720000
+SCCBSER  EQUOVR ,,b,SCCBIFM3                                            00730000
+SCCBCARS EQUOVR ,,b,SCCBIFM3                                            00740000
+SCCBESUM EQUOVR ,,b,SCCBIFM3                                            00750000
+SCCBESEI EQUOVR ,,b,SCCBIFM3                                            00760000
+SCCBESER EQUOVR ,,b,SCCBIFM3                                            00770000
+SCCBCARL EQUOVR ,,b,SCCBIFM3                                            00780000
+.*                                                                      00790000
+.* SCCBIFM4 - INSTALLED FACILITY MAP BYTE 4                             00800000
+SCCBVFR  EQUOVR ,,b,SCCBIFM4                                            00810000
+SCCBEVNT EQUOVR ,,b,SCCBIFM4                                            00820000
+SCCBRRGI EQUOVR ,,b,SCCBIFM4                                            00830000
+.*                                                                      00840000
+.* SCCBCON1 - BITS 0-7 OF CONFIGURATION                                 00850000
+SCCBBFY  EQUOVR ,,b,SCCBCON1                                            00860000
+SCCBSOPF EQUOVR ,,b,SCCBCON1                                            00870000
+SCCBIRIN EQUOVR ,,b,SCCBCON1                                            00880000
+SCCBCSCF EQUOVR ,,b,SCCBCON1                                            00890000
+.*                                                                      00900000
+.* SCCBCON2 - BITS 8-15 OF CONFIGURATION                                00910000
+SCCBCSLO EQUOVR ,,b,SCCBCON2                                            00920000
+.*                                                                      00930000
+.* SCCBCON3 - BITS 16-23 OF CONFIGURATION                               00940000
+SCCBDAOM EQUOVR ,,b,SCCBCON3                                            00950000
+SCCBCKSM EQUOVR ,,b,SCCBCON3                                            00960000
+.*                                                                      00970000
+.* SCCBCON4 - BITS 24-31 OF CONFIGURATION                               00980000
+SCCBPLO  EQUOVR ,,b,SCCBCON4                                            00990000
+SCCBBFP  EQUOVR ,,b,SCCBCON4                                            01000000
+.*                                                                      01010000
+.* SCCBCPFL - CPU CHARACTERISTIC FLAGS BYTE 1.                          01020000
+SCCBVFIN EQUOVR ,,b,SCCBCPFL                                            01030000
+SCCBVFCN EQUOVR ,,b,SCCBCPFL                                            01040000
+SCCBVFSB EQUOVR ,,b,SCCBCPFL                                            01050000
+SCCBCRIN EQUOVR ,,b,SCCBCPFL                                            01060000
+.*                                                                      01070000
+.* SCCBCPF2 - CPU CHARACTERISTIC FLAGS BYTE 2.                          01080000
+SCCBMPSB EQUOVR ,,b,SCCBCPF2                                            01090000
+SCCBPER2 EQUOVR ,,b,SCCBCPF2                                            01100000
+.*                                                                      01110000
+.* Unnamed field at SCCBCPF2+10                                         01120000
+SCCBKSID EQUOVR ,,b,SCCBCPF2+10                                         01130000
+.*                                                                      01140000
+         MNOTE *,'Including IHASCCB mapping macro'                      01150000
+         IHASCCB ,                     * Generate SCCB                  01160000
+         EQUOVR *END                                                    01170000
+*                                                                       01180000
+SCCB     DSECT ,                       * Reset to SCCB DSECT            01190000
+         ORG                                                            01200000
+SCCB_LEN EQU   *-SCCB                  * Length of SCCB                 01210000
+*                                                                       01220000
+SCCBCP   DSECT ,                       * Reset to SCCBCP DSECT          01230000
+         ORG                                                            01240000
+SCCBCP_LEN EQU *-SCCBCP                * Length of SCCBCP               01250000
+*                                                                       01260000
+SCCBHSA  DSECT ,                       * Reset to SCCBHSA DSECT         01270000
+         ORG                                                            01280000
+SCCBHSA_LEN EQU *-SCCBHSA              * Length of SCCBHSA              01290000
+*                                                                       01300000
+SCCBMPF  DSECT ,                       * Reset to SCCBMPF DSECT         01310000
+         ORG                                                            01320000
+SCCBMPF_LEN EQU *-SCCBMPF              * Length of SCCBMPF              01330000
+.*                                                                      01340000
+.* Return to our original CSECT name                                    01350000
+&SYSECT  &SYSSTYP                                                       01360000
+.*                                                                      01370000
+.MEND    MEND                                                           01390002

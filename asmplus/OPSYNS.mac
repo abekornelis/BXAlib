@@ -1,0 +1,110 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro generates OPSYNs for a list of opcodes                    00180000
+.*                                                                      00190000
+         OPSYNS ,                      * Arguments in &SYSLIST          00200000
+.*                                                                      00210000
+.* &SYSLIST - each entry specifies an opcode or directive which will    00220000
+.*            be replaced by its underscore-prefixed equivalent         00230000
+.*                                                                      00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC OPSYNS                 * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00250101
+.* Declare variables                                                    00251000
+         GBLB  &SP_SHOWALL             * SHOWALL option from SYSPARM    00260000
+         LCLA  &I                      * Index for SYSLIST              00270000
+         LCLC  &ARG                    * Argument from SYSLIST          00280000
+         LCLC  &_PROPT                 * NOPRINT option for PUSH/POP    00290000
+         LCLC  &_PRINT                 * NOPRINT option for PRINT       00300000
+.*                                                                      00310000
+.* Set NOPRINT options                                                  00320000
+&_PRINT  SETC  'ON'                    * SHOWALL: show PRINT lines      00330000
+         AIF   (&SP_SHOWALL).PRINTOK   * SHOWALL: show PUSH/POP lines   00340000
+&_PRINT  SETC  'OFF,NOPRINT'           * Not ALL: omit PRINT lines      00350000
+&_PROPT  SETC  ',NOPRINT'              * Not ALL: omit PUSH/POP lines   00360000
+.PRINTOK ANOP                                                           00370000
+.*                                                                      00380000
+.* Change print options                                                 00390000
+         PUSH  PRINT&_PROPT                                             00400000
+         PRINT &_PRINT                                                  00410000
+.*                                                                      00420000
+.* Loop thru SYSLIST to generate OPSYNs                                 00430000
+&I       SETA  0                       * I indexes SYSLIST              00440000
+.LOOP1   ANOP  ,                                                        00450000
+&I       SETA  &I+1                    * Point next entry               00460000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK                               00470000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract opcode                 00480000
+         AIF   ('&ARG'(1,1) EQ '_').RESET                               00490000
+.SET     ANOP  ,                       * Replace opcode by macro        00500000
+         AIF   (K'&ARG EQ 0).LOOP1     * Skip omitted opcode            00510000
+_&ARG    OPSYN &ARG                    * Create underscore version      00520000
+&ARG     OPSYN ,                       * Delete original opcode         00530000
+         AGO   .LOOP1                  * Go process next entry          00540000
+.RESET   ANOP  ,                       * Replace macro by org. opcode   00550000
+&ARG     SETC  '&ARG'(2,*)             * Extract original opcode        00560000
+&ARG     OPSYN _&ARG                   * Re-enable original opcode      00570000
+_&ARG    OPSYN ,                       * Disable replacement macro      00580000
+         AGO   .LOOP1                  * Go process next entry          00590000
+.LOOP1OK ANOP  ,                                                        00600000
+.*                                                                      00610000
+.* Restore printing options                                             00620000
+         POP   PRINT&_PROPT                                             00630000
+.*                                                                      00640000
+.MEND    MEND                                                           00650002

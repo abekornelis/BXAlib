@@ -1,0 +1,150 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the JES Communication Table                          00180000
+.*                                                                      00190000
+&LABEL   MAPJESCT &DSECT=YES,          * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPJESCT               * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPJESCT       * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'JESCT').EMBED                                 00360000
+         AIF   ('&CB' EQ 'JESMNTBL').EMBED                              00370000
+         AIF   ('&CB' EQ 'JESPEXT').EMBED                               00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPJESCT).MEND                                 00480002
+&BXA_MAC_MAPJESCT SETB 1                                                00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_JESCT                                            00510000
+         GBLC  &BXA_CB_JESMNTBL                                         00520000
+         GBLC  &BXA_CB_JESPEXT                                          00530000
+&BXA_CB_JESCT SETC 'JESCT'                                              00540000
+&BXA_CB_JESMNTBL SETC 'JESCT'                                           00550000
+&BXA_CB_JESPEXT SETC 'JESCT'                                            00560000
+.*                                                                      00570000
+.* JESFLG - FLAG BYTE                                                   00580000
+JESJSSNT EQUOVR ,,b,JESFLG                                              00590000
+JESFSIT  EQUOVR ,,b,JESFLG                                              00600000
+JESFRQEX EQUOVR ,,b,JESFLG                                              00610000
+JESRSV15 EQUOVR ,,b,JESFLG                                              00620000
+JESRSV16 EQUOVR ,,b,JESFLG                                              00630000
+JESRSV17 EQUOVR ,,b,JESFLG                                              00640000
+JESRSV18 EQUOVR ,,b,JESFLG                                              00650000
+JESRSV19 EQUOVR ,,b,JESFLG                                              00660000
+.*                                                                      00670000
+.* JESJESFG - PRIMARY SUBSYSTEM FLAGS                                   00680000
+JESPSUBA EQUOVR ,,b,JESJESFG                                            00690000
+JESPSUBI EQUOVR ,,b,JESJESFG                                            00700000
+JES3ACTV EQUOVR ,,b,JESJESFG                                            00710000
+JES3OUTD EQUOVR ,,b,JESJESFG                                            00720000
+JESRSV24 EQUOVR ,,b,JESJESFG                                            00730000
+JESRSV25 EQUOVR ,,b,JESJESFG                                            00740000
+JESRSV26 EQUOVR ,,b,JESJESFG                                            00750000
+JESRSV27 EQUOVR ,,b,JESJESFG                                            00760000
+.*                                                                      00770000
+.* JESALLOF - ALLOCATION FUNCTION FLAGS                                 00780000
+JESUASR  EQUOVR ,,b,JESALLOF                                            00790000
+JESUASF  EQUOVR ,,b,JESALLOF                                            00800000
+JESUPLER EQUOVR ,,b,JESALLOF                                            00810000
+JESALRDY EQUOVR ,,b,JESALLOF                                            00820000
+JESV2EDT EQUOVR ,,b,JESALLOF                                            00830000
+JESRSV05 EQUOVR ,,b,JESALLOF                                            00840000
+JESRSV06 EQUOVR ,,b,JESALLOF                                            00850000
+JESRSV07 EQUOVR ,,b,JESALLOF                                            00860000
+.*                                                                      00870000
+         MNOTE *,'Including IEFJESCT mapping macro'                     00880000
+         IEFJESCT MNTBL=YES            * Include JESMNTBL               00890000
+         EQUOVR *END                                                    00900000
+*                                                                       00910000
+JESCT    DSECT ,                       * Restart JESCT                  00920000
+         ORG   ,                       *                                00930000
+JESCT_LEN EQU  *-JESCT                 * Length of JESCT                00940000
+*                                                                       00950000
+JESMNTBL DSECT ,                       * Restart JESMNTBL               00960000
+         ORG   ,                       *                                00970000
+JESMNTBL_LEN EQU *-JESMNTBL            * Length of JESMNTBL             00980000
+*                                                                       00990000
+JESPEXT  DSECT ,                       * Restart JESPEXT                01000000
+         ORG   ,                       *                                01010000
+JESPEXT_LEN EQU *-JESPEXT              * Length of JESPEXT              01020000
+.*                                                                      01030000
+.* Return to our original CSECT name                                    01040000
+&SYSECT  &SYSSTYP                                                       01050000
+.*                                                                      01060000
+.MEND    MEND                                                           01080002

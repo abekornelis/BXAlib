@@ -1,0 +1,173 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Macro for testing whether an argument contains a valid numeric       00180000
+.*       literal value.                                                 00190000
+.*                                                                      00200000
+&LABEL   CHKNUM &MACRO=,               * Name of invoking macro        *00210000
+               &NAME=,                 * Name of variable being tested *00220000
+               &VAL=,                  * Value of variable to be tested*00230000
+               &MSGLVL=8,              * Msglvl in case of error       *00240000
+               &HEX=OK                 * Any other value disallows HEX  00250000
+.*                                                                      00260000
+.* &MACRO specifies the name of the invoking macro. This name will      00270000
+.*        be used on any MNOTEs generated.                              00280000
+.* &NAME  Specifies the name of the variable being tested. This name    00290000
+.*        will be used on any MNOTEs generated.                         00300000
+.* &VAL   Specifies the value to be tested.                             00310000
+.* &MSGLVL Specifies the MSGLVL to use when generating an MNOTE.        00320000
+.*        Value can be 0-255, * or **. Defaults to 8. If specified as   00330000
+.*        ** messages will be suppressed.                               00340000
+.* &HEX   Specifies whether or not the supplied value may be specified  00350000
+.*        as a hexadecimal literal. Defaults to OK.                     00360000
+.*                                                                      00370000
+.********************************************************************** 00371001
+.*                                                                      00372001
+.*       IMPORTANT NOTICE                                               00373001
+.*       ========= ======                                               00374001
+.*                                                                      00375001
+.* Code below checks whether 'USER' accepted the terms and conditions   00376001
+.* of the license for the BXA macro library. This code is to be treated 00377001
+.* as part of the Copyright Notice and therefore may not be changed     00378001
+.* or disabled in any way.                                              00379001
+.*                                                                      00379101
+.********************************************************************** 00379201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00379301
+         CHKLIC CHKNUM                 * Check license acceptance       00379401
+         AIF   (&BXA_RC NE 0).MEND                                      00379502
+.********************************************************************** 00379601
+.*                                                                      00379701
+.* End of special code that is part of the Copyright Notice             00379801
+.*                                                                      00379901
+.********************************************************************** 00380001
+.*                                                                      00380101
+.* Define global to return SETA-value if VAL is found valid             00381000
+          GBLA  &BXA_NUMVAL                                             00390000
+&BXA_NUMVAL SETA 0                     * Reset to default 0             00400000
+.*                                                                      00410000
+.* Define index field to loop through &VAL field                        00420000
+         LCLA  &I                                                       00430000
+.*                                                                      00440000
+.* Check the MACRO parameter                                            00450000
+         AIF   (K'&MACRO NE 0).NOERR1                                   00460000
+         AIF   ('&MSGLVL' EQ '**').NOERR1                               00470000
+.ERR1    MNOTE 8,'MACRO parameter not specified'                        00480000
+.NOERR1  ANOP                                                           00490000
+.*                                                                      00500000
+.* Check the NAME parameter                                             00510000
+         AIF   (K'&NAME NE 0).NOERR2                                    00520000
+         AIF   ('&MSGLVL' EQ '**').NOERR2                               00530000
+.ERR2    MNOTE 8,'NAME parameter not specified'                         00540000
+.NOERR2  ANOP                                                           00550000
+.*                                                                      00560000
+.* Check the VAL parameter                                              00570000
+         AIF   (K'&VAL NE 0).NOERR3                                     00580000
+.ERR3    MNOTE 8,'VAL parameter not specified'                          00590000
+.NOERR3  ANOP                                                           00600000
+.*                                                                      00610000
+&LABEL   LABEL ,                                                        00620000
+.*                                                                      00630000
+.* If argument is empty: issue error                                    00640000
+         AIF   (K'&VAL NE 0).NOTEMPTY                                   00650000
+         AIF   ('&MSGLVL' EQ '**').MEND                                 00660002
+         MNOTE &MSGLVL,'&NAME in &MACRO contains no value'              00670000
+         MEXIT                                                          00680000
+.NOTEMPTY ANOP                                                          00690000
+.*                                                                      00700000
+.* Check whether the value is in HEX notation                           00710000
+         AIF   ('&VAL'(1,1) EQ 'X').HEX                                 00720000
+         AIF   ('&VAL'(1,1) EQ 'x').INVALID_HEX1                        00730000
+.*                                                                      00740000
+.* Digital number: Check whether each position is in the range 0-9      00750000
+&I       SETA  K'&VAL                                                   00760000
+.LOOP_D  ANOP                                                           00770000
+         AIF   ('&VAL'(&I,1) LT '0').INVALID_DEC1                       00780000
+         AIF   ('&VAL'(&I,1) GT '9').INVALID_DEC1                       00790000
+&I       SETA  &I-1                                                     00800000
+         AIF   (&I GT 0).LOOP_D                                         00810000
+.* VAL is valid: put value into return field and exit                   00820000
+&BXA_NUMVAL SETA &VAL                                                   00830000
+         MEXIT                                                          00840000
+.*                                                                      00850000
+.* Hexadecimal number: Check whether quotes have been in the range 0-9  00860000
+.*                     or A-F.                                          00870000
+.HEX     ANOP                                                           00880000
+&I       SETA  K'&VAL                                                   00890000
+         AIF   (&I LT 4).INVALID_HEX1                                   00900000
+         AIF   ('&VAL'(2,1) NE '''').INVALID_HEX1                       00910000
+         AIF   ('&VAL'(&I,1) NE '''').INVALID_HEX1                      00920000
+&I       SETA  &I-1                                                     00930000
+.*                                                                      00940000
+.LOOP_H  ANOP                                                           00950000
+         AIF   ('&VAL'(&I,1) LT 'A').INVALID_HEX2                       00960000
+         AIF   ('&VAL'(&I,1) LE 'F').VALID_HEX                          00970000
+         AIF   ('&VAL'(&I,1) LT '0').INVALID_HEX2                       00980000
+         AIF   ('&VAL'(&I,1) GT '9').INVALID_HEX2                       00990000
+.VALID_HEX ANOP                                                         01000000
+&I       SETA  &I-1                                                     01010000
+         AIF   (&I GT 2).LOOP_H                                         01020000
+.* VAL is valid: put value into return field and exit                   01030000
+&BXA_NUMVAL SETA &VAL                                                   01040000
+         MEXIT                                                          01050000
+.*                                                                      01060000
+.* Invalid character detected: issue error                              01070000
+.INVALID_DEC1 ANOP                                                      01080000
+         AIF   ('&MSGLVL' EQ '**').MEND                                 01090002
+         MNOTE &MSGLVL,'&NAME in &MACRO contains invalid decimal digit(*01100000
+               s)'                                                      01110000
+         MEXIT                                                          01120000
+.*                                                                      01130000
+.* Invalid hex-specification detected: issue error                      01140000
+.INVALID_HEX1 ANOP                                                      01150000
+         AIF   ('&MSGLVL' EQ '**').MEND                                 01160002
+         MNOTE &MSGLVL,'&NAME in &MACRO contains invalidly specified he*01170000
+               xadecimal number'                                        01180000
+         MEXIT                                                          01190000
+.*                                                                      01200000
+.* Invalid hex character detected: issue error                          01210000
+.INVALID_HEX2 ANOP                                                      01220000
+         AIF   ('&MSGLVL' EQ '**').MEND                                 01230002
+         MNOTE &MSGLVL,'&NAME in &MACRO contains invalid hexadecimal di*01240000
+               git(s)'                                                  01250000
+         MEXIT                                                          01260000
+.*                                                                      01270000
+.MEND    MEND                                                           01290002

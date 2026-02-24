@@ -1,0 +1,293 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Communications Vector Table                      00180000
+.*                                                                      00190000
+&LABEL   MAPCVT &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPCVT                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPCVT         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'CVT').EMBED                                   00360000
+         AIF   ('&CB' EQ 'CVTVSTGX').EMBED                              00370000
+         AIF   ('&CB' EQ 'CVTXTNT1').EMBED                              00380000
+         AIF   ('&CB' EQ 'CVTXTNT2').EMBED                              00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded definition                                         00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPCVT).MEND                                   00490002
+&BXA_MAC_MAPCVT SETB 1                                                  00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_CVT                                              00520000
+         GBLC  &BXA_CB_CVTVSTGX                                         00530000
+         GBLC  &BXA_CB_CVTXTNT1                                         00540000
+         GBLC  &BXA_CB_CVTXTNT2                                         00550000
+&BXA_CB_CVT SETC 'CVT'                                                  00560000
+&BXA_CB_CVTVSTGX SETC 'CVT'                                             00570000
+&BXA_CB_CVTXTNT1 SETC 'CVT'                                             00580000
+&BXA_CB_CVTXTNT2 SETC 'CVT'                                             00590000
+.*                                                                      00600000
+.* CVTDCB - OPERATING SYSTEM characteristics                            00610000
+CVTMVSE  EQUOVR ,,b,CVTDCB                                              00620000
+CVT1SSS  EQUOVR ,,b,CVTDCB                                              00630000
+CVT2SPS  EQUOVR ,,b,CVTDCB                                              00640000
+CVT4MS1  EQUOVR ,,b,CVTDCB                                              00650000
+CVTOSEXT EQUOVR ,,b,CVTDCB                                              00660000
+CVT4MPS  EQUOVR ,,b,CVTDCB                                              00670000
+CVT6DAT  EQUOVR ,,b,CVTDCB                                              00680000
+CVTMVS2  EQUOVR ,,b,CVTDCB                                              00690000
+CVT8AOS2 EQUOVR ,,b,CVTDCB                                              00700000
+.*                                                                      00710000
+.* CVTOPTA - OPTION INDICATORS                                          00720000
+CVTCCH   EQUOVR ,,b,CVTOPTA                                             00730000
+CVTAPR   EQUOVR ,,b,CVTOPTA                                             00740000
+CVTDDR   EQUOVR ,,b,CVTOPTA                                             00750000
+CVTNIP   EQUOVR ,,b,CVTOPTA                                             00760000
+CVT121TR EQUOVR ,,b,CVTOPTA                                             00770000
+CVTASCII EQUOVR ,,b,CVTOPTA                                             00780000
+CVTXPFP  EQUOVR ,,b,CVTOPTA                                             00790000
+.*                                                                      00800000
+.* CVTOPTB - MISCELLANEOUS FLAGS                                        00810000
+CVTPROT  EQUOVR ,,b,CVTOPTB                                             00820000
+CVTCTIMS EQUOVR ,,b,CVTOPTB                                             00830000
+CVTTOD   EQUOVR ,,b,CVTOPTB                                             00840000
+CVTNLOG  EQUOVR ,,b,CVTOPTB                                             00850000
+CVTAPTHR EQUOVR ,,b,CVTOPTB                                             00860000
+CVTFP    EQUOVR ,,b,CVTOPTB                                             00870000
+CVTVS1A  EQUOVR ,,b,CVTOPTB                                             00880000
+CVTVS1B  EQUOVR ,,b,CVTOPTB                                             00890000
+.*                                                                      00900000
+.* CVTGTFST - GTF FLAG BYTES                                            00910000
+CVTGTFAV EQUOVR ,,b,CVTGTFST                                            00920000
+CVTSPD   EQUOVR ,,b,CVTGTFST                                            00930000
+CVTWSPR  EQUOVR ,,b,CVTGTFST                                            00940000
+CVTUSR   EQUOVR ,,b,CVTGTFST                                            00950000
+CVTRNIO  EQUOVR ,,b,CVTGTFST                                            00960000
+.*                                                                      00970000
+.* CVTTCMFG - TCAM FLAGS                                                00980000
+CVTTCRDY EQUOVR ,,b,CVTTCMFG                                            00990000
+CVTLDEV  EQUOVR ,,b,CVTTCMFG                                            01000000
+CVTNWTCM EQUOVR ,,b,CVTTCMFG                                            01010000
+.*                                                                      01020000
+.* CVTDMSRF - OPEN/CLOSE/EOV FLAG BYTE.                                 01030000
+CVTSDUMP EQUOVR ,,b,CVTDMSRF                                            01040000
+CVTUDUMP EQUOVR ,,b,CVTDMSRF                                            01050000
+.*                                                                      01060000
+.* CVTDIRST - FLAG BYTE                                                 01070000
+CVTDICOM EQUOVR ,,b,CVTDIRST                                            01080000
+.*                                                                      01090000
+.* CVTSYLK - SUPERVISOR LOCK.                                           01100000
+CVTSYLKS EQUOVR ,,v,CVTSYLK                                             01110000
+CVTSYLKR EQUOVR ,,v,CVTSYLK                                             01120000
+.*                                                                      01130000
+.* CVTFLAG1 - FLAG BYTE                                                 01140000
+CVTRSMWD EQUOVR ,,b,CVTFLAG1                                            01150000
+CVTSVPRC EQUOVR ,,b,CVTFLAG1                                            01160000
+CVTCUSE  EQUOVR ,,b,CVTFLAG1                                            01170000
+CVTMVPG  EQUOVR ,,b,CVTFLAG1                                            01180000
+CVTOVER  EQUOVR ,,b,CVTFLAG1                                            01190000
+CVTCSTR  EQUOVR ,,b,CVTFLAG1                                            01200000
+CVTSUBSP EQUOVR ,,b,CVTFLAG1                                            01210000
+CVTKPAR  EQUOVR ,,b,CVTFLAG1                                            01220000
+.*                                                                      01230000
+.* CVTFLAG2 - FLAG BYTE                                                 01240000
+CVTCMPSC EQUOVR ,,b,CVTFLAG2                                            01250000
+CVTCMPSH EQUOVR ,,b,CVTFLAG2                                            01260000
+CVTSOPF  EQUOVR ,,b,CVTFLAG2                                            01270000
+CVTBFPH  EQUOVR ,,b,CVTFLAG2                                            01280000
+CVTPER2  EQUOVR ,,b,CVTFLAG2                                            01290000
+.*                                                                      01300000
+.* CVTCTLFG - SYSTEM CONTROL FLAGS                                      01310000
+CVTDSTAT EQUOVR ,,b,CVTCTLFG                                            01320000
+CVTNOMP  EQUOVR ,,b,CVTCTLFG                                            01330000
+CVTGTRCE EQUOVR ,,b,CVTCTLFG                                            01340000
+CVTSDTRC EQUOVR ,,b,CVTCTLFG                                            01350000
+.*                                                                      01360000
+.* CVTGRSST - GRS status.                                               01370000
+CVTE51GN EQUOVR ,,b,CVTGRSST                                            01380000
+CVTE51LN EQUOVR ,,b,CVTGRSST                                            01390000
+.*                                                                      01400000
+.* CVTMFRTR - ADDRESS OF MEASUREMENT FACILITY ROUTINE                   01410000
+CVTMFACT EQUOVR ,,b,CVTMFRTR                                            01420000
+.*                                                                      01430000
+.* CVTGSDA - ADDRESS OF GLOBAL SYSTEM DUPLEX AREA                       01440000
+CVTGSDAB EQUOVR ,,b,CVTGSDA                                             01450000
+.*                                                                      01460000
+.* CVTFUNC - Reserved for solution/offering use.                        01470000
+CVTSOLN  EQUOVR ,,b,CVTFUNC                                             01480000
+.*                                                                      01490000
+.* CVTXAFL - FLAG BYTE FOR MVS/XA PROCESSING.                           01500000
+CVTCSRIM EQUOVR ,,b,CVTXAFL                                             01510000
+.*                                                                      01520000
+.* CVTOSLV0 - BYTE 0 OF CVTOSLVL                                        01530000
+CVTH3310 EQUOVR ,,b,CVTOSLV0                                            01540000
+CVTESA   EQUOVR ,,b,CVTOSLV0                                            01550000
+CVTXAX   EQUOVR ,,b,CVTOSLV0                                            01560000
+CVTH4420 EQUOVR ,,b,CVTOSLV0                                            01570000
+CVTJ3313 EQUOVR ,,b,CVTOSLV0                                            01580000
+CVTJ3311 EQUOVR ,,b,CVTOSLV0                                            01590000
+CVTHIPER EQUOVR ,,b,CVTOSLV0                                            01600000
+CVTH4410 EQUOVR ,,b,CVTOSLV0                                            01610000
+CVTLKR   EQUOVR ,,b,CVTOSLV0                                            01620000
+CVTUCBSV EQUOVR ,,b,CVTOSLV0                                            01630000
+CVTCADS  EQUOVR ,,b,CVTOSLV0                                            01640000
+CVTCRPTL EQUOVR ,,b,CVTOSLV0                                            01650000
+CVTJ4422 EQUOVR ,,b,CVTOSLV0                                            01660000
+.*                                                                      01670000
+.* CVTOSLV1 - BYTE 1 OF CVTOSLVL                                        01680000
+CVTH4430 EQUOVR ,,b,CVTOSLV1                                            01690000
+CVTDYAPF EQUOVR ,,b,CVTOSLV1                                            01700000
+CVTWLM   EQUOVR ,,b,CVTOSLV1                                            01710000
+CVTH5510 EQUOVR ,,b,CVTOSLV1                                            01720000
+CVTDYNEX EQUOVR ,,b,CVTOSLV1                                            01730000
+CVTH5520 EQUOVR ,,b,CVTOSLV1                                            01740000
+CVTENCLV EQUOVR ,,b,CVTOSLV1                                            01750000
+CVTJ5522 EQUOVR ,,b,CVTOSLV1                                            01760000
+CVTH5530 EQUOVR ,,b,CVTOSLV1                                            01770000
+CVTH6603 EQUOVR ,,b,CVTOSLV1                                            01780000
+CVTOS390_010300 EQUOVR ,,b,CVTOSLV1                                     01790000
+CVTOS390_R3     EQUOVR ,,b,CVTOSLV1                                     01800000
+CVTDYNL  EQUOVR ,,b,CVTOSLV1                                            01810000
+CVTH6601 EQUOVR ,,b,CVTOSLV1                                            01820000
+CVTOS390 EQUOVR ,,b,CVTOSLV1                                            01830000
+CVTOS390_010100 EQUOVR ,,b,CVTOSLV1                                     01840000
+CVTOS390_R1     EQUOVR ,,b,CVTOSLV1                                     01850000
+CVTPRDED EQUOVR ,,b,CVTOSLV1                                            01860000
+CVTJ6602 EQUOVR ,,b,CVTOSLV1                                            01870000
+CVTOS390_010200 EQUOVR ,,b,CVTOSLV1                                     01880000
+CVTOS390_R2     EQUOVR ,,b,CVTOSLV1                                     01890000
+CVTPARMC EQUOVR ,,b,CVTOSLV1                                            01900000
+.*                                                                      01910000
+.* CVTOSLV2 - BYTE 2 OF CVTOSLVL                                        01920000
+CVTOS390_010400 EQUOVR ,,b,CVTOSLV2                                     01930000
+CVTOS390_020400 EQUOVR ,,b,CVTOSLV2                                     01940000
+CVTOS390_R4     EQUOVR ,,b,CVTOSLV2                                     01950000
+CVTJ6604 EQUOVR ,,b,CVTOSLV2                                            01960000
+CVTDYLPA EQUOVR ,,b,CVTOSLV2                                            01970000
+CVTRTLS  EQUOVR ,,b,CVTOSLV2                                            01980000
+CVTOS390_020500 EQUOVR ,,b,CVTOSLV2                                     01990000
+CVTOS390_R5     EQUOVR ,,b,CVTOSLV2                                     02000000
+CVTH6605 EQUOVR ,,b,CVTOSLV2                                            02010000
+CVTOS390_020600 EQUOVR ,,b,CVTOSLV2                                     02020000
+CVTOS390_R6     EQUOVR ,,b,CVTOSLV2                                     02030000
+CVTH6606 EQUOVR ,,b,CVTOSLV2                                            02040000
+CVTBFP   EQUOVR ,,b,CVTOSLV2                                            02050000
+.*                                                                      02060000
+.* CVTFLGBT - FLAG BYTE (OS/VS1)                                        02070000
+CVTNPE   EQUOVR ,,b,CVTFLGBT                                            02080000
+CVTVME   EQUOVR ,,b,CVTFLGBT                                            02090000
+CVTBAH   EQUOVR ,,b,CVTFLGBT                                            02100000
+.*                                                                      02110000
+.* CVTAVVT - ADDRESS OF AVM CONTROL BLOCK                               02120000
+CVTAVIN  EQUOVR ,,b,CVTAVVT                                             02130000
+.*                                                                      02140000
+.* CVTFBYT1 - FLAG BYTE                                                 02150000
+CVTRDE   EQUOVR ,,b,CVTFBYT1                                            02160000
+.*                                                                      02170000
+.* CVTATCVT - POINTER TO VTAM'S CVT                                     02180000
+CVTATACT EQUOVR ,,b,CVTATCVT                                            02190000
+.*                                                                      02200000
+.* CVT-macro contains a constant, which is defined outside its DSECT    02210000
+CVTFIX   DSECT ,                       * Reset to CVT DSECT             02220000
+         MNOTE *,'Including CVT mapping macro'                          02230000
+         CVT   DSECT=YES,              * Generate CVT                  *02240000
+               PREFIX=YES,             * with prefix area              *02250000
+               LIST=YES                * and unchanged PRINT option     02260000
+         EQUOVR *END                                                    02270000
+*                                                                       02280000
+CVTFIX   DSECT ,                       * Reset to CVT prefix            02290000
+CVT      EQU   CVTMAP                  * For USINGs                     02300000
+         ORG                                                            02310000
+CVTFIX_LEN EQU CVT-CVTFIX              * Length of CVT prefix           02320000
+CVT_LEN  EQU   *-CVT                   * Length of CVT proper           02330000
+*                                                                       02340000
+CVTVSTGX DSECT ,                       * Reset to CVTVSTGX DSECT        02350000
+         ORG                                                            02360000
+CVTVSTGX_LEN EQU *-CVTVSTGX            * Length of CVTVSTGX             02370000
+*                                                                       02380000
+CVTXTNT1 DSECT ,                       * Reset to OS/VS extension       02390000
+         ORG                                                            02400000
+CVTXTNT1_LEN EQU *-CVTXTNT1            * Length of CVTXTNT1             02410000
+*                                                                       02420000
+CVTXTNT2 DSECT ,                       * Reset to OS/VS2 extension      02430000
+         ORG                                                            02440000
+CVTXTNT2_LEN EQU *-CVTXTNT2            * Length of CVTXTNT2             02450000
+.*                                                                      02460000
+.* Return to our original CSECT name                                    02470000
+&SYSECT  &SYSSTYP                                                       02480000
+.*                                                                      02490000
+.MEND    MEND                                                           02510002

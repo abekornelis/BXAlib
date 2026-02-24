@@ -1,0 +1,167 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro replaces the TRT instruction                              00180000
+.*                                                                      00190000
+&LABEL   TRT   ,                       * Parameters in SYSLIST          00200000
+.********************************************************************** 00201001
+.*                                                                      00202001
+.*       IMPORTANT NOTICE                                               00203001
+.*       ========= ======                                               00204001
+.*                                                                      00205001
+.* Code below checks whether 'USER' accepted the terms and conditions   00206001
+.* of the license for the BXA macro library. This code is to be treated 00207001
+.* as part of the Copyright Notice and therefore may not be changed     00208001
+.* or disabled in any way.                                              00209001
+.*                                                                      00209101
+.********************************************************************** 00209201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00209301
+         CHKLIC TRT                    * Check license acceptance       00209401
+         AIF   (&BXA_RC NE 0).MEND                                      00209502
+.********************************************************************** 00209601
+.*                                                                      00209701
+.* End of special code that is part of the Copyright Notice             00209801
+.*                                                                      00209901
+.********************************************************************** 00210001
+.*                                                                      00211000
+.* Declare variables                                                    00220000
+         GBLA  &BXA_NUMVAL             * Output from CHKREG             00240000
+         GBLC  &BXA_PRM(3)             * Parameters                     00250000
+         GBLB  &BXA_USED_REGS(16)      * USE status of registers 0-15   00260000
+         LCLC  &FROM                   * Second parameter               00270000
+         LCLC  &TO                     * First parameter                00280000
+         LCLC  &_FROMD                 * Source displacement value      00290000
+         LCLC  &_FROMB                 * Source base register           00300000
+         LCLC  &_TOD                   * Destination displacement value 00310000
+         LCLC  &_TOL                   * Destination length             00320000
+         LCLC  &_TOB                   * Destination base register      00330000
+         LCLA  &I                      * Work var.                      00340000
+         LCLC  &TXT                    * Text variable for errors       00350000
+         LCLA  &REG1                   * To register number             00360000
+         LCLA  &REG2                   * From register number           00370000
+.*                                                                      00380000
+.* Extract TO and FROM from SYSLIST                                     00390000
+&TO      SETC  '&SYSLIST(1)'                                            00400000
+&FROM    SETC  '&SYSLIST(2)'                                            00410000
+.*                                                                      00420000
+.* If FROM is not specified try to split the TO field                   00430000
+         AIF   (K'&FROM NE 0).NOSPLIT  *                                00440000
+         SPLIT &TO                     *                                00450000
+&TO      SETC  ''                      *                                00460000
+         AIF   (&BXA_NUMVAL LT 1).NOSPLIT                               00470000
+&TO      SETC  '&BXA_PRM(1)'           * TO field is first parameter    00480000
+         AIF   (&BXA_NUMVAL LT 2).NOSPLIT                               00490000
+&FROM    SETC  '&BXA_PRM(2)'           * FROM field is second parameter 00500000
+.NOSPLIT ANOP  ,                       *                                00510000
+.*                                                                      00520000
+.* Decompose FROM field                                                 00530000
+         DISSECT DB,&FROM              *                                00540000
+&_FROMD  SETC  '&BXA_PRM(1)'           * Displacement                   00550000
+&_FROMB  SETC  '&BXA_PRM(2)'           * Base register                  00560000
+.*                                                                      00570000
+.* Decompose TO field                                                   00580000
+         DISSECT DLB,&TO               *                                00590000
+&_TOD    SETC  '&BXA_PRM(1)'           * Displacement                   00600000
+&_TOL    SETC  '&BXA_PRM(2)'           * Length                         00610000
+&_TOB    SETC  '&BXA_PRM(3)'           * Base                           00620000
+.*                                                                      00630000
+.* Check the destination field                                          00640000
+         AIF   (K'&_TOD NE 0).NOERR1   * Must not be empty              00650000
+.ERR1A   MNOTE 8,'First argument missing or invalid'                    00660000
+.NOERR1  ANOP  ,                       *                                00670000
+.*                                                                      00680000
+.* Check the Destination register                                       00690000
+         AIF   (K'&_TOB EQ 0).NOERR2   * May be empty                   00700000
+         CHKREG &_TOB,g                * A register was specified?      00710000
+         AIF   (&BXA_RC EQ 8).ERR2B    * Not a register                 00720000
+&REG1    SETA  &BXA_NUMVAL             * Save register number           00730000
+         AIF   (&BXA_RC EQ 0).NOERR2   * This is a defined register     00740000
+.* BXA_RC = 4: a  literal number was specified                          00750000
+         AIF   (&SYSNEST EQ 1).ERR2C   * TRT occurred in open code?     00760000
+         AGO   .NOERR2                 *                                00770000
+.ERR2A   MNOTE 8,'Missing destination register'                         00780000
+         AGO   .NOERR2                 *                                00790000
+.ERR2B   ANOP  ,                       *                                00800000
+&TXT     SETC  (DOUBLE '&_TOB')        *                                00810000
+         MNOTE 4,'&TXT is not a valid general purpose register'         00820000
+         AGO   .NOERR2                 *                                00830000
+.ERR2C   MNOTE 4,'You should use a register in stead of &_TOB'          00840000
+.NOERR2  ANOP  ,                       *                                00850000
+.*                                                                      00860000
+.* Check the FROM parameter                                             00870000
+         AIF   (K'&_FROMD GT 0).NOERR3 * Displacement specified?        00880000
+.ERR3A   MNOTE 4,'Second argument missing or invalid'                   00890000
+.NOERR3  ANOP  ,                       *                                00900000
+.*                                                                      00910000
+.* Check the Source base register                                       00920000
+         AIF   (K'&_FROMB EQ 0).NOERR4 * Omitted?                       00930000
+         CHKREG &_FROMB,g              * A register was specified?      00940000
+         AIF   (&BXA_RC EQ 8).ERR4A    * Not a register                 00950000
+&REG2    SETA  &BXA_NUMVAL             * Save nr of specified register  00960000
+         AIF   (&BXA_RC EQ 0).NOERR4   * This is a real register        00970000
+.* BXA_RC = 4: a  literal number was specified                          00980000
+         AIF   (&SYSNEST EQ 1).ERR4B   * TRT occurred in open code?     00990000
+         AGO   .NOERR4                 *                                01000000
+.ERR4A   ANOP  ,                       *                                01010000
+&TXT     SETC  (DOUBLE '&_FROMB')      *                                01020000
+         MNOTE 4,'&TXT is not a valid general purpose register'         01030000
+         AGO   .NOERR4                 *                                01040000
+.ERR4B   MNOTE 4,'You should use a register in stead of &_FROMB'        01050000
+.NOERR4  ANOP  ,                       *                                01060000
+.*                                                                      01070000
+.* Check number of parameters                                           01080000
+         AIF   (N'&SYSLIST LE 2).NOERR5                                 01090000
+.ERR5A   MNOTE 4,'Expected two arguments: remainder ignored'            01100000
+.NOERR5  ANOP  ,                                                        01110000
+.*                                                                      01120000
+.* Check that registers 1 and 2 are not currently in use                01130000
+         AIF   (NOT &BXA_USED_REGS(2)).NOERR6A * R1 available?          01140000
+.ERR6A   MNOTE 4,'Register 1 will be modified but is not available'     01150000
+.NOERR6A ANOP  ,                       *                                01160000
+         AIF   (NOT &BXA_USED_REGS(3)).NOERR6B * R2 available?          01170000
+.ERR6B   MNOTE 4,'Register 2 will be modified but is not available'     01180000
+.NOERR6B ANOP  ,                       *                                01190000
+.*                                                                      01200000
+.* Generate code with indentation                                       01210000
+&LABEL   GEN   _TRT,&TO,&FROM                                           01220000
+.*                                                                      01230000
+.MEND    MEND                                                           01240002

@@ -1,0 +1,194 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Turn off a bit in a bit-field                                        00180000
+.*                                                                      00190000
+&LABEL   SETOF &ADR,                   * Address of bit-field          *00200000
+               &MASK                   * Bit field mask                 00210000
+.*                                                                      00220000
+.* Syntax 1:                                                            00230000
+.* &ADR  specifies the location in storage where the bit-field resides  00240000
+.*       must be in offset(register) notation, or a symbolic name.      00250000
+.* &MASK specifies which bits are to be turned off                      00260000
+.*                                                                      00270000
+.* Syntax 2:                                                            00280000
+.* &ADR  specifies the name of a DCL-declared bit. Any number of        00290000
+.*       arguments may follow, but they all have to be DCL-declared     00300000
+.*       bit names too.                                                 00310000
+.*                                                                      00320000
+.********************************************************************** 00321001
+.*                                                                      00322001
+.*       IMPORTANT NOTICE                                               00323001
+.*       ========= ======                                               00324001
+.*                                                                      00325001
+.* Code below checks whether 'USER' accepted the terms and conditions   00326001
+.* of the license for the BXA macro library. This code is to be treated 00327001
+.* as part of the Copyright Notice and therefore may not be changed     00328001
+.* or disabled in any way.                                              00329001
+.*                                                                      00329101
+.********************************************************************** 00329201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00329301
+         CHKLIC SETOF                  * Check license acceptance       00329401
+         AIF   (&BXA_RC NE 0).MEND                                      00329502
+.********************************************************************** 00329601
+.*                                                                      00329701
+.* End of special code that is part of the Copyright Notice             00329801
+.*                                                                      00329901
+.********************************************************************** 00330001
+.*                                                                      00330101
+.* Declare variables                                                    00331000
+         LCLB  &BITS                   * On for syntax 2                00340000
+         LCLA  &I                      * Index for SYSLIST              00350000
+         LCLA  &J                      * Index for BIT and LOC          00360000
+         LCLA  &MASKVAL                * Calculated mask value          00370000
+         LCLA  &VAL                    * Mask value for any 1 bit       00380000
+         LCLC  &ARG                    * 1 argument from SYSLIST        00390000
+         LCLC  &ARG1                   * Using label preceding dot      00400000
+         LCLC  &ARG2                   * Field name following dot       00410000
+         LCLC  &LOC(5)                 * Locations with bits            00420000
+         LCLC  &_LOC                   * Current location               00430000
+         LCLC  &BIT(5)                 * Bit names                      00440000
+.*                                                                      00450000
+.* Check the ADR parameter                                              00460000
+         AIF   (K'&ADR NE 0).NOERR1                                     00470000
+.ERR1A   MNOTE 8,'Missing argument(s)'                                  00480000
+         MEXIT                                                          00490000
+.NOERR1  ANOP                                                           00500000
+.*                                                                      00510000
+.* &ADR is a defined bit-field?                                         00520000
+         AIF   (T'&ADR NE 'b').NOTABIT                                  00530000
+&BITS    SETB  1                                                        00540000
+.NOTABIT ANOP                                                           00550000
+.*                                                                      00560000
+.* Check the MASK parameter                                             00570000
+         AIF   (&BITS).NOERR2                                           00580000
+         AIF   (K'&MASK NE 0).NOERR2                                    00590000
+.ERR2    MNOTE 8,'Mask of bits to turn off not specified'               00600000
+         MEXIT                                                          00610000
+.NOERR2  ANOP                                                           00620000
+.*                                                                      00630000
+.* Check nr of parameters                                               00640000
+         AIF   (&BITS).NOERR3                                           00650000
+         AIF   (N'&SYSLIST LE 2).NOERR3                                 00660000
+.ERR3    MNOTE 4,'You cannot specify more than 1 mask with &ADR: remain*00670000
+               der ignored'                                             00680000
+.NOERR3  ANOP                                                           00690000
+.*                                                                      00700000
+.* Generate code for syntax 1                                           00710000
+         AIF   (&BITS).CHKBITS                                          00720000
+&LABEL   NI    &ADR,ALLBITS-&MASK      * Turn bit(s) off                00730000
+         MEXIT                                                          00740000
+.*                                                                      00750000
+.* Check all bit-names in &SYSLIST                                      00760000
+.CHKBITS ANOP                                                           00770000
+&I       SETA  0                       * I is index to SYSLIST          00780000
+.LOOP1   ANOP  ,                       * Loop thru all SYSLIST entries  00790000
+&I       SETA  &I+1                    * Point next entry               00800000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           00810000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract argument               00820000
+         AIF   (T'&ARG NE 'b').LOOP1R1 * Wrong type: error 1            00830000
+.* Retrieve bit mask value                                              00840000
+&ARG1    SETC  ''                      * Assume no using label in &ARG  00850000
+&ARG2    SETC  '&ARG'                  *                                00860000
+&J       SETA  ('&ARG2' FIND '.')      * Find location of dot           00870000
+         AIF   (&J EQ 0).LOOP1ND       * No dot found in arg            00880000
+         AIF   (&J EQ 1).LOOP1R3       * Starting dot is an error       00890000
+&ARG1    SETC  '&ARG'(1,&J-1)          * Extract using label            00900000
+         AIF   (&J EQ K'&ARG).LOOP1R3  * Trailing dot is an error       00910000
+&ARG2    SETC  '&ARG'(&J+1,*)          * Extract field name             00920000
+.LOOP1ND ANOP  ,                       * ARG2 now contans field name    00930000
+         GBLC  &(BXA_BITF_&ARG2)       * Name for byte location         00940000
+         AIF   (K'&(BXA_BITF_&ARG2) EQ 0).LOOP1R2 * No location: error  00950000
+&BIT(&I) SETC  '&ARG2'                 * Put bit name in table          00960000
+&LOC(&I) SETC  '&(BXA_BITF_&ARG2)'     * And byte location too          00970000
+         AIF   (K'&ARG1 EQ 0).LOOP1    * Unlabeled: ok                  00980000
+&LOC(&I) SETC  '&ARG1'.'.&LOC(&I)'     * Prefix with label              00990000
+         AGO   .LOOP1                                                   01000000
+.*                                                                      01010000
+.LOOP1R1 ANOP                                                           01020000
+&ARG     SETC  (DOUBLE '&ARG')                                          01030000
+         MNOTE 8,'&ARG is not defined as a bit field: ignored'          01040000
+         AGO   .LOOP1                                                   01050000
+.LOOP1R2 ANOP                                                           01060000
+&ARG     SETC  (DOUBLE '&ARG')                                          01070000
+         MNOTE 8,'&ARG bit has no known location: ignored'              01080000
+         AGO   .LOOP1                                                   01090000
+.LOOP1R3 ANOP                                                           01100000
+&ARG     SETC  (DOUBLE '&ARG')                                          01110000
+         MNOTE 8,'&ARG is not a valid bitfield name: ignored'           01120000
+         AGO   .LOOP1                                                   01130000
+.LOOP1OK ANOP                                                           01140000
+.*                                                                      01150000
+.* Validated bit-names and byte locations now in BIT() and LOC()        01160000
+.* Empty entries may exist for erroneous operands.                      01170000
+.* Entries with equal byte locations will be taken together,            01180000
+.* and processed entries will be wiped.                                 01190000
+.* Arguments are taken together by ORing their bit masks.               01200000
+&LABEL   LABEL ,                                                        01210000
+.*                                                                      01220000
+&I       SETA  0                       * I indexes LOC/BIT              01230000
+.LOOP2   ANOP  ,                       * For all entries                01240000
+&I       SETA  &I+1                    * Point next entry               01250000
+         AIF   (&I GT N'&SYSLIST).LOOP2OK * At end: quit loop           01260000
+&_LOC    SETC  '&LOC(&I)'              * Extract byte location          01270000
+         AIF   (K'&_LOC EQ 0).LOOP2    * Skip processed records         01280000
+&ARG     SETC  '&BIT(&I)'              * Create argument from bit names 01290000
+&MASKVAL SETA  L'&BIT(&I)              * Length attrib = mask value!    01300000
+.*                                                                      01310000
+&J       SETA  &I                      * J indexes LOC/BIT (inner loop) 01320000
+.LOOP3   ANOP  ,                       * For all remaining entries      01330000
+&J       SETA  &J+1                    * Point next entry               01340000
+         AIF   (&J GT N'&SYSLIST).LOOP3OK * At end: quit loop           01350000
+         AIF   ('&LOC(&J)' NE '&_LOC').LOOP3 * Skip mismatch            01360000
+&VAL     SETA  L'&BIT(&J)              * Retrieve mask bit value        01370000
+&MASKVAL SETA  (&MASKVAL OR &VAL)      * Take bit masks together        01380000
+&ARG     SETC  '&MASKVAL'              * Create completed argument      01390000
+&LOC(&J) SETC  ''                      * Wipe entry                     01400000
+         AGO   .LOOP3                                                   01410000
+.LOOP3OK ANOP  ,                       * ARG is now complete            01420000
+.*                                                                      01430000
+.* Generate NI instruction to turn bits off                             01440000
+         NI    &_LOC,ALLBITS-&ARG      * Turn bit(s) off                01450000
+         AGO   .LOOP2                                                   01460000
+.LOOP2OK ANOP                                                           01470000
+.*                                                                      01480000
+.MEND    MEND                                                           01490002

@@ -1,0 +1,835 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Request Parameter List                           00180000
+.*                                                                      00190000
+&LABEL   MAPRPL &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPRPL                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPRPL         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'RPL').EMBED                                   00360000
+         AIF   ('&CB' EQ 'RPL6').EMBED                                  00370000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00380000
+         MEXIT                                                          00390000
+.*                                                                      00400000
+.* Generate embedded definition                                         00410000
+.EMBED   ANOP                                                           00420000
+&LABEL   NESTCB &CB,X,&PRFX                                             00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.DSECT   ANOP                                                           00460000
+         AIF   (&BXA_MAC_MAPRPL).MEND                                   00470002
+&BXA_MAC_MAPRPL SETB 1                                                  00480000
+.* Set up translation from control block to macro for DCL               00490000
+         GBLC  &BXA_CB_RPL                                              00500000
+         GBLC  &BXA_CB_RPL6                                             00510000
+&BXA_CB_RPL SETC 'RPL'                                                  00520000
+&BXA_CB_RPL6 SETC 'RPL'                                                 00530000
+.*                                                                      00540000
+.* RPLID - RPL IDENTIFIER                                               00550000
+RPLIDD   EQUOVR ,,v,RPLID                                               00560000
+.*                                                                      00570000
+.* RPLSTYP - RPL SUBTYPE                                                00580000
+RPLSVSAM EQUOVR ,,v,RPLSTYP                                             00590000
+RPLSTERM EQUOVR ,,v,RPLSTYP                                             00600000
+RPLSVTAM EQUOVR ,,v,RPLSTYP                                             00610000
+RPLS3540 EQUOVR ,,v,RPLSTYP                                             00620000
+RPLCRID  EQUOVR ,,v,RPLSTYP                                             00630000
+.*                                                                      00640000
+.* RPLREQ - RPL REQUEST TYPE                                            00650000
+RPLGET   EQUOVR ,,v,RPLREQ                                              00660000
+RPLPUT   EQUOVR ,,v,RPLREQ                                              00670000
+RPLPOINT EQUOVR ,,v,RPLREQ                                              00680000
+RPLERASE EQUOVR ,,v,RPLREQ                                              00690000
+RPLJSFMT EQUOVR ,,v,RPLREQ                                              00700000
+RPLCHECK EQUOVR ,,v,RPLREQ                                              00710000
+RPLENDRE EQUOVR ,,v,RPLREQ                                              00720000
+RPLVERIF EQUOVR ,,v,RPLREQ                                              00730000
+RPLIMPRT EQUOVR ,,v,RPLREQ                                              00740000
+RPLPFMTD EQUOVR ,,v,RPLREQ                                              00750000
+RPLPFMTI EQUOVR ,,v,RPLREQ                                              00760000
+RPLFRCIO EQUOVR ,,v,RPLREQ                                              00770000
+RPLCNVTA EQUOVR ,,v,RPLREQ                                              00780000
+RPLMNTAC EQUOVR ,,v,RPLREQ                                              00790000
+RPLWRITE EQUOVR ,,v,RPLREQ                                              00800000
+RPLACQRA EQUOVR ,,v,RPLREQ                                              00810000
+RPLRESET EQUOVR ,,v,RPLREQ                                              00820000
+RPLTERM  EQUOVR ,,v,RPLREQ                                              00830000
+RPLDO    EQUOVR ,,v,RPLREQ                                              00840000
+RPLVERRF EQUOVR ,,v,RPLREQ                                              00850000
+RPLLKADD EQUOVR ,,v,RPLREQ                                              00860000
+RPLLKREL EQUOVR ,,v,RPLREQ                                              00870000
+RPLLKCD  EQUOVR ,,v,RPLREQ                                              00880000
+RPLINQRC EQUOVR ,,v,RPLREQ                                              00890000
+RPLRETLK EQUOVR ,,v,RPLREQ                                              00900000
+RPLRECOV EQUOVR ,,v,RPLREQ                                              00910000
+RPLQUI   EQUOVR ,,v,RPLREQ                                              00920000
+RPLEADD  EQUOVR ,,v,RPLREQ                                              00930000
+RPLQUISE EQUOVR ,,v,RPLREQ                                              00940000
+RPLSMLGO EQUOVR ,,v,RPLREQ                                              00950000
+RPLOPNDS EQUOVR ,,v,RPLREQ                                              00960000
+RPLCHNG  EQUOVR ,,v,RPLREQ                                              00970000
+RPLINQIR EQUOVR ,,v,RPLREQ                                              00980000
+RPLINTPT EQUOVR ,,v,RPLREQ                                              00990000
+RPLREAD  EQUOVR ,,v,RPLREQ                                              01000000
+RPLSLICT EQUOVR ,,v,RPLREQ                                              01010000
+RPLCLOSE EQUOVR ,,v,RPLREQ                                              01020000
+RPLCLACB EQUOVR ,,v,RPLREQ                                              01030000
+RPLSNDCD EQUOVR ,,v,RPLREQ                                              01040000
+RPLRCVCD EQUOVR ,,v,RPLREQ                                              01050000
+RPLRSRCD EQUOVR ,,v,RPLREQ                                              01060000
+RPLSSCCD EQUOVR ,,v,RPLREQ                                              01070000
+RPLSDCMD EQUOVR ,,v,RPLREQ                                              01080000
+RPLRVCMD EQUOVR ,,v,RPLREQ                                              01090000
+RPLTREQS EQUOVR ,,v,RPLREQ                                              01100000
+RPLTOPNS EQUOVR ,,v,RPLREQ                                              01110000
+RPLTCLSS EQUOVR ,,v,RPLREQ                                              01120000
+RPLTRMS  EQUOVR ,,v,RPLREQ                                              01130000
+.*                                                                      01140000
+.* RPLECB - INTERNAL ECB                                                01150000
+RPLWAIT  EQUOVR ,,b,RPLECB                                              01160000
+RPLPOST  EQUOVR ,,b,RPLECB                                              01170000
+.*                                                                      01180000
+.* RPLRTNCD - RPL RETURN CODE                                           01190000
+RPLNOERR EQUOVR ,,v,RPLRTNCD                                            01200000
+RPLBLKER EQUOVR ,,v,RPLRTNCD                                            01210000
+RPLCBLKE EQUOVR ,,v,RPLRTNCD                                            01220000
+RPLLOGER EQUOVR ,,v,RPLRTNCD                                            01230000
+RPLLOGIC EQUOVR ,,v,RPLRTNCD                                            01240000
+RPLPHYER EQUOVR ,,v,RPLRTNCD                                            01250000
+RPLPHYSC EQUOVR ,,v,RPLRTNCD                                            01260000
+RPLNGRCC EQUOVR ,,v,RPLRTNCD                                            01270000
+RPLNOVAS EQUOVR ,,v,RPLRTNCD                                            01280000
+RPLSPECC EQUOVR ,,v,RPLRTNCD                                            01290000
+RPLCMDRT EQUOVR ,,v,RPLRTNCD                                            01300000
+RPLPURGE EQUOVR ,,v,RPLRTNCD                                            01310000
+RPLVTMNA EQUOVR ,,v,RPLRTNCD                                            01320000
+RPLSYERR EQUOVR ,,v,RPLRTNCD                                            01330000
+RPLDEVDC EQUOVR ,,v,RPLRTNCD                                            01340000
+RPLLIMEX EQUOVR ,,v,RPLRTNCD                                            01350000
+RPLEXRQ  EQUOVR ,,v,RPLRTNCD                                            01360000
+RPLEXRS  EQUOVR ,,v,RPLRTNCD                                            01370000
+RPLNOIN  EQUOVR ,,v,RPLRTNCD                                            01380000
+RPLVABND EQUOVR ,,v,RPLRTNCD                                            01390000
+.*                                                                      01400000
+.* RPLFDB2 - REASON CODE(VTAM)                                          01410000
+RPLERLK  EQUOVR ,,b,RPLFDB2                                             01420000
+RPLRVID  EQUOVR ,,b,RPLFDB2                                             01430000
+RPLATND  EQUOVR ,,b,RPLFDB2                                             01440000
+RPLDVUNS EQUOVR ,,b,RPLFDB2                                             01450000
+RPLIOERR EQUOVR ,,b,RPLFDB2                                             01460000
+RPLDLGFL EQUOVR ,,b,RPLFDB2                                             01470000
+RPLCUERR EQUOVR ,,b,RPLFDB2                                             01480000
+RPLSTSAV EQUOVR ,,b,RPLFDB2                                             01490000
+.*                                                                      01500000
+.* RPLFDB3 - DATA FLAGS(VTAM)                                           01510000
+RPLUINPT EQUOVR ,,b,RPLFDB3                                             01520000
+RPLSV32  EQUOVR ,,b,RPLFDB3                                             01530000
+RPLREOB  EQUOVR ,,b,RPLFDB3                                             01540000
+RPLREOM  EQUOVR ,,b,RPLFDB3                                             01550000
+RPLREOT  EQUOVR ,,b,RPLFDB3                                             01560000
+RPLLGFRC EQUOVR ,,b,RPLFDB3                                             01570000
+RPLRLG   EQUOVR ,,b,RPLFDB3                                             01580000
+RPLRDSOH EQUOVR ,,b,RPLFDB3                                             01590000
+.*                                                                      01600000
+.* RPLOPT1 - OPTION BYTE 1                                              01610000
+RPLLOC   EQUOVR ,,b,RPLOPT1                                             01620000
+RPLDIR   EQUOVR ,,b,RPLOPT1                                             01630000
+RPLSEQ   EQUOVR ,,b,RPLOPT1                                             01640000
+RPLSKP   EQUOVR ,,b,RPLOPT1                                             01650000
+RPLASY   EQUOVR ,,b,RPLOPT1                                             01660000
+RPLKGE   EQUOVR ,,b,RPLOPT1                                             01670000
+RPLGEN   EQUOVR ,,b,RPLOPT1                                             01680000
+RPLECBSW EQUOVR ,,b,RPLOPT1                                             01690000
+RPLECBIN EQUOVR ,,b,RPLOPT1                                             01700000
+.*                                                                      01710000
+.* RPLOPT2 - OPTION BYTE 2                                              01720000
+RPLKEY   EQUOVR ,,b,RPLOPT2                                             01730000
+RPLADR   EQUOVR ,,b,RPLOPT2                                             01740000
+RPLADD   EQUOVR ,,b,RPLOPT2                                             01750000
+RPLCNV   EQUOVR ,,b,RPLOPT2                                             01760000
+RPLBWD   EQUOVR ,,b,RPLOPT2                                             01770000
+RPLLRD   EQUOVR ,,b,RPLOPT2                                             01780000
+RPLWAITX EQUOVR ,,b,RPLOPT2                                             01790000
+RPLUPD   EQUOVR ,,b,RPLOPT2                                             01800000
+RPLNSP   EQUOVR ,,b,RPLOPT2                                             01810000
+.*                                                                      01820000
+.* RPLOPT3 - OPTION BYTE 3                                              01830000
+RPLEODS  EQUOVR ,,b,RPLOPT3                                             01840000
+RPLSFORM EQUOVR ,,b,RPLOPT3                                             01850000
+RPLBLK   EQUOVR ,,b,RPLOPT3                                             01860000
+RPLVFY   EQUOVR ,,b,RPLOPT3                                             01870000
+RPLFLD   EQUOVR ,,b,RPLOPT3                                             01880000
+RPLFMT   EQUOVR ,,b,RPLOPT3                                             01890000
+RPLFRMT  EQUOVR ,,b,RPLOPT3                                             01900000
+RPLALIGN EQUOVR ,,b,RPLOPT3                                             01910000
+.*                                                                      01920000
+.* RPLOPTRL - VSAM-RLS OPTIONS                                          01930000
+RPLKL    EQUOVR ,,b,RPLOPTRL                                            01940000
+RPLRDNRI EQUOVR ,,b,RPLOPTRL                                            01950000
+RPLRDCR  EQUOVR ,,b,RPLOPTRL                                            01960000
+RPLRDCRE EQUOVR ,,b,RPLOPTRL                                            01970000
+RPLRTYP  EQUOVR ,,b,RPLOPTRL                                            01980000
+RPLRTIND EQUOVR ,,b,RPLOPTRL                                            01990000
+RPLRTYP1 EQUOVR ,,b,RPLOPTRL                                            02000000
+.*                                                                      02010000
+.* RPLOPT4 - OPTCD BYTE 4                                               02020000
+RPLENDTR EQUOVR ,,b,RPLOPT4                                             02030000
+RPLXRBA  EQUOVR ,,b,RPLOPT4                                             02040000
+RPLMKFRM EQUOVR ,,b,RPLOPT4                                             02050000
+RPLNOCIR EQUOVR ,,b,RPLOPT4                                             02060000
+RPLCTA   EQUOVR ,,b,RPLOPT4                                             02070000
+RPLCTM   EQUOVR ,,b,RPLOPT4                                             02080000
+RPLCTO   EQUOVR ,,b,RPLOPT4                                             02090000
+.*                                                                      02100000
+.* RPLOPT5 - OPTION BYTE 5                                              02110000
+RPLDLGIN EQUOVR ,,b,RPLOPT5                                             02120000
+RPLSSNIN EQUOVR ,,b,RPLOPT5                                             02130000
+RPLPSOPT EQUOVR ,,b,RPLOPT5                                             02140000
+RPLNERAS EQUOVR ,,b,RPLOPT5                                             02150000
+RPLEAU   EQUOVR ,,b,RPLOPT5                                             02160000
+RPLERACE EQUOVR ,,b,RPLOPT5                                             02170000
+RPLNODE  EQUOVR ,,b,RPLOPT5                                             02180000
+RPLWROPT EQUOVR ,,b,RPLOPT5                                             02190000
+.*                                                                      02200000
+.* RPLOPT6 - OPTION BYTE 6                                              02210000
+RPLEOB   EQUOVR ,,b,RPLOPT6                                             02220000
+RPLEOM   EQUOVR ,,b,RPLOPT6                                             02230000
+RPLEOT   EQUOVR ,,b,RPLOPT6                                             02240000
+RPLCOND  EQUOVR ,,b,RPLOPT6                                             02250000
+RPLNCOND EQUOVR ,,b,RPLOPT6                                             02260000
+RPLLOCK  EQUOVR ,,b,RPLOPT6                                             02270000
+RPLRSV67 EQUOVR ,,b,RPLOPT6                                             02280000
+RPLRSV68 EQUOVR ,,b,RPLOPT6                                             02290000
+.*                                                                      02300000
+.* RPLOPT7 - OPTION BYTE 7                                              02310000
+RPLCNALL EQUOVR ,,b,RPLOPT7                                             02320000
+RPLCNANY EQUOVR ,,b,RPLOPT7                                             02330000
+RPLCNIMM EQUOVR ,,b,RPLOPT7                                             02340000
+RPLQOPT  EQUOVR ,,b,RPLOPT7                                             02350000
+RPLTPOST EQUOVR ,,b,RPLOPT7                                             02360000
+RPLRLSOP EQUOVR ,,b,RPLOPT7                                             02370000
+RPLTCRNO EQUOVR ,,b,RPLOPT7                                             02380000
+RPLRSV78 EQUOVR ,,b,RPLOPT7                                             02390000
+.*                                                                      02400000
+.* RPLOPT8 - OPTION BYTE 8                                              02410000
+RPLODACQ EQUOVR ,,b,RPLOPT8                                             02420000
+RPLODACP EQUOVR ,,b,RPLOPT8                                             02430000
+RPLODPRM EQUOVR ,,b,RPLOPT8                                             02440000
+RPLPEND  EQUOVR ,,b,RPLOPT8                                             02450000
+RPLSESS  EQUOVR ,,b,RPLOPT8                                             02460000
+RPLACTV  EQUOVR ,,b,RPLOPT8                                             02470000
+RPLUNCON EQUOVR ,,b,RPLOPT8                                             02480000
+RPLRSV88 EQUOVR ,,b,RPLOPT8                                             02490000
+.*                                                                      02500000
+.* RPLAIXID - AIX POINTER TYPE                                          02510000
+RPLAXPKP EQUOVR ,,b,RPLAIXID                                            02520000
+.*                                                                      02530000
+.* RPLEXTD1 - EXIT DEFINITIONS                                          02540000
+RPLEXSCH EQUOVR ,,b,RPLEXTD1                                            02550000
+RPLNEXIT EQUOVR ,,b,RPLEXTD1                                            02560000
+RPLEXIT  EQUOVR ,,b,RPLEXTD1                                            02570000
+RPLTCRYP EQUOVR ,,b,RPLEXTD1                                            02580000
+RPLNIB   EQUOVR ,,b,RPLEXTD1                                            02590000
+RPLBRANC EQUOVR ,,b,RPLEXTD1                                            02600000
+.*                                                                      02610000
+         MNOTE *,'Including IFGRPL mapping macro'                       02620000
+         IFGRPL DSECT=YES              *                                02630000
+         EQUOVR *END                   *                                02640000
+*                                                                       02650000
+IFGRPL   DSECT ,                       * Resume RPL DSECT               02660000
+RPL      EQU   IFGRPL                  * Label for USINGs               02670000
+         ORG   ,                       *                                02680000
+RPL_LEN  EQU   *-RPL                   * Length of RPL                  02690000
+.*                                                                      02700000
+.* Adding overrides for VTAM extension of RPL                           02710000
+.* RPLSSEI - SYSTEM SENSE ERROR CODES                                   02720000
+RPLPATHI EQUOVR ,,b,RPLSSEI                                             02730000
+RPLCPMI  EQUOVR ,,b,RPLSSEI                                             02740000
+RPLSTATI EQUOVR ,,b,RPLSSEI                                             02750000
+RPLFII   EQUOVR ,,b,RPLSSEI                                             02760000
+RPLRRI   EQUOVR ,,b,RPLSSEI                                             02770000
+.*                                                                      02780000
+.* RPLOPT9 - OPTION BYTE 9                                              02790000
+RPLLOGON EQUOVR ,,b,RPLOPT9                                             02800000
+RPLDEVCH EQUOVR ,,b,RPLOPT9                                             02810000
+RPLTERMS EQUOVR ,,b,RPLOPT9                                             02820000
+RPLCOUNT EQUOVR ,,b,RPLOPT9                                             02830000
+RPLAPPST EQUOVR ,,b,RPLOPT9                                             02840000
+RPLRNNM  EQUOVR ,,v,RPLOPT9                                             02850000
+RPLINQST EQUOVR ,,b,RPLOPT9                                             02860000
+RPLCIDE  EQUOVR ,,b,RPLOPT9                                             02870000
+RPLTOPL  EQUOVR ,,b,RPLOPT9                                             02880000
+.*                                                                      02890000
+.* RPLOPT10 - OPTION BYTE 10                                            02900000
+RPLBSCID EQUOVR ,,b,RPLOPT10                                            02910000
+RPLDSPLY EQUOVR ,,b,RPLOPT10                                            02920000
+RPLSPARM EQUOVR ,,b,RPLOPT10                                            02930000
+RPLTSKY  EQUOVR ,,b,RPLOPT10                                            02940000
+RPLUSVAR EQUOVR ,,b,RPLOPT10                                            02950000
+RPLUNBND EQUOVR ,,b,RPLOPT10                                            02960000
+RPLSONOP EQUOVR ,,b,RPLOPT10                                            02970000
+RPLSENOP EQUOVR ,,b,RPLOPT10                                            02980000
+.*                                                                      02990000
+.* RPLOPT11 - OPTION BYTE 11                                            03000000
+RPLQUIES EQUOVR ,,b,RPLOPT11                                            03010000
+RPLSTART EQUOVR ,,b,RPLOPT11                                            03020000
+RPLSTOP  EQUOVR ,,b,RPLOPT11                                            03030000
+RPLHOLD  EQUOVR ,,b,RPLOPT11                                            03040000
+RPLCNTRU EQUOVR ,,b,RPLOPT11                                            03050000
+RPLMTS   EQUOVR ,,b,RPLOPT11                                            03060000
+RPLTERMQ EQUOVR ,,b,RPLOPT11                                            03070000
+RPLKPSRB EQUOVR ,,b,RPLOPT11                                            03080000
+RPLFORCE EQUOVR ,,v,RPLOPT11                                            03090000
+.*                                                                      03100000
+.* RPLOPT12 - OPTION BYTE 12                                            03110000
+RPLRSPQD EQUOVR ,,b,RPLOPT12                                            03120000
+RPLKEEP  EQUOVR ,,b,RPLOPT12                                            03130000
+RPLTRUNC EQUOVR ,,b,RPLOPT12                                            03140000
+RPLNIBTK EQUOVR ,,b,RPLOPT12                                            03150000
+RPLQSESS EQUOVR ,,b,RPLOPT12                                            03160000
+RPLQNOTE EQUOVR ,,b,RPLOPT12                                            03170000
+RPLQALL  EQUOVR ,,b,RPLOPT12                                            03180000
+RPLFMHDR EQUOVR ,,b,RPLOPT12                                            03190000
+.*                                                                      03200000
+.* RPLSSEO - SYSTEM SENSE ERROR                                         03210000
+RPLCPMO  EQUOVR ,,b,RPLSSEO                                             03220000
+RPLSTATO EQUOVR ,,b,RPLSSEO                                             03230000
+RPLFIO   EQUOVR ,,b,RPLSSEO                                             03240000
+RPLRRO   EQUOVR ,,b,RPLSSEO                                             03250000
+.*                                                                      03260000
+.* RPLECB - INTERNAL ECB                                                03270000
+RPLAMOD2 EQUOVR ,,b,RPLECB                                              03280000
+.*                                                                      03290000
+.* RPLRH3 - THIRD REQUEST HEADER BYTE                                   03300000
+RPLBB    EQUOVR ,,b,RPLRH3                                              03310000
+RPLEB    EQUOVR ,,b,RPLRH3                                              03320000
+RPLCMD   EQUOVR ,,b,RPLRH3                                              03330000
+RPLCHREQ EQUOVR ,,b,RPLRH3                                              03340000
+RPLCSI   EQUOVR ,,b,RPLRH3                                              03350000
+RPLCEB   EQUOVR ,,b,RPLRH3                                              03360000
+.*                                                                      03370000
+.* RPLSRTYP - SEND OR RECEIVE TYPE                                      03380000
+RPLSRESP EQUOVR ,,b,RPLSRTYP                                            03390000
+RPLRRESP EQUOVR ,,b,RPLSRTYP                                            03400000
+RPLNFSYN EQUOVR ,,b,RPLSRTYP                                            03410000
+RPLDFASY EQUOVR ,,b,RPLSRTYP                                            03420000
+.*                                                                      03430000
+.* RPLCHN - POSITION IN REQUEST UNIT CHAIN                              03440000
+RPLFIRST EQUOVR ,,b,RPLCHN                                              03450000
+RPLMIDLE EQUOVR ,,b,RPLCHN                                              03460000
+RPLLAST  EQUOVR ,,b,RPLCHN                                              03470000
+RPLONLY  EQUOVR ,,b,RPLCHN                                              03480000
+RPLVACS  EQUOVR ,,b,RPLCHN                                              03490000
+RPLAPPC  EQUOVR ,,b,RPLCHN                                              03500000
+.*                                                                      03510000
+.* RPLVTFL1 - VTAM FLAGS                                                03520000
+RPLXMEM  EQUOVR ,,b,RPLVTFL1                                            03530000
+RPLVTUSE EQUOVR ,,b,RPLVTFL1                                            03540000
+RPLAUTUS EQUOVR ,,b,RPLVTFL1                                            03550000
+RPLTNDSP EQUOVR ,,b,RPLVTFL1                                            03560000
+RPLTLGAC EQUOVR ,,b,RPLVTFL1                                            03570000
+RPLAMODE EQUOVR ,,b,RPLVTFL1                                            03580000
+RPLRSPNM EQUOVR ,,b,RPLVTFL1                                            03590000
+RPLRSPQR EQUOVR ,,b,RPLVTFL1                                            03600000
+.*                                                                      03610000
+.* RPLVTFL2 - POST/RESPOND FLAGS                                        03620000
+RPLSCHED EQUOVR ,,b,RPLVTFL2                                            03630000
+RPLQRI   EQUOVR ,,b,RPLVTFL2                                            03640000
+RPLEX    EQUOVR ,,b,RPLVTFL2                                            03650000
+RPLNFME  EQUOVR ,,b,RPLVTFL2                                            03660000
+RPLRRN   EQUOVR ,,b,RPLVTFL2                                            03670000
+.*                                                                      03680000
+.* RPLCNTDF - DATA FLOW CONTROL CODES                                   03690000
+RPLDATA  EQUOVR ,,b,RPLCNTDF                                            03700000
+RPLCNCEL EQUOVR ,,b,RPLCNTDF                                            03710000
+RPLQC    EQUOVR ,,b,RPLCNTDF                                            03720000
+RPLQEC   EQUOVR ,,b,RPLCNTDF                                            03730000
+RPLCHASE EQUOVR ,,b,RPLCNTDF                                            03740000
+RPLRELQ  EQUOVR ,,b,RPLCNTDF                                            03750000
+RPLQI    EQUOVR ,,b,RPLCNTDF                                            03760000
+.*                                                                      03770000
+.* RPLCNTDC - DATA FLOW CONTROL CODES                                   03780000
+RPLBID   EQUOVR ,,b,RPLCNTDC                                            03790000
+RPLRTR   EQUOVR ,,b,RPLCNTDC                                            03800000
+RPLLUS   EQUOVR ,,b,RPLCNTDC                                            03810000
+RPLSIGNL EQUOVR ,,b,RPLCNTDC                                            03820000
+RPLTBIND EQUOVR ,,b,RPLCNTDC                                            03830000
+RPLTUNBD EQUOVR ,,b,RPLCNTDC                                            03840000
+RPLSBI   EQUOVR ,,b,RPLCNTDC                                            03850000
+RPLBIS   EQUOVR ,,b,RPLCNTDC                                            03860000
+.*                                                                      03870000
+.* RPLCNTSC - SESSION CONTROL CODES                                     03880000
+RPLSDT   EQUOVR ,,b,RPLCNTSC                                            03890000
+RPLCLEAR EQUOVR ,,b,RPLCNTSC                                            03900000
+RPLSTSN  EQUOVR ,,b,RPLCNTSC                                            03910000
+RPLSHUTD EQUOVR ,,b,RPLCNTSC                                            03920000
+RPLSHUTC EQUOVR ,,b,RPLCNTSC                                            03930000
+RPLRQR   EQUOVR ,,b,RPLCNTSC                                            03940000
+RPLRSHUT EQUOVR ,,b,RPLCNTSC                                            03950000
+RPLSWTCH EQUOVR ,,b,RPLCNTSC                                            03960000
+.*                                                                      03970000
+.* RPLO4 - VTAM OPTION BYTE 4                                           03980000
+RPLPERS  EQUOVR ,,b,RPLO4                                               03990000
+RPLNPERS EQUOVR ,,b,RPLO4                                               04000000
+RPLINQPS EQUOVR ,,b,RPLO4                                               04010000
+RPLOPRES EQUOVR ,,b,RPLO4                                               04020000
+RPLSLTMR EQUOVR ,,b,RPLO4                                               04030000
+RPLNQN   EQUOVR ,,b,RPLO4                                               04040000
+RPLEXTOP EQUOVR ,,b,RPLO4                                               04050000
+.*                                                                      04060000
+.* RPLOPT4X - EXTENDED OPTCD VALUE BYTE                                 04070000
+RPLSTGNA EQUOVR ,,v,RPLOPT4X                                            04080000
+RPLSTGND EQUOVR ,,v,RPLOPT4X                                            04090000
+RPLSTGNS EQUOVR ,,v,RPLOPT4X                                            04100000
+RPLIQSNM EQUOVR ,,v,RPLOPT4X                                            04110000
+RPLCGEAF EQUOVR ,,v,RPLOPT4X                                            04120000
+.*                                                                      04130000
+.* RPLO5 - VTAM OPTION BYTE 5                                           04140000
+RPLTNFY  EQUOVR ,,b,RPLO5                                               04150000
+RPLTHRDC EQUOVR ,,b,RPLO5                                               04160000
+RPLCNDCS EQUOVR ,,b,RPLO5                                               04170000
+.*                                                                      04180000
+.* RPLO6 - VTAM OPTION BYTE 6                                           04190000
+RPLXBFL  EQUOVR ,,b,RPLO6                                               04200000
+RPLBUFFL EQUOVR ,,b,RPLO6                                               04210000
+RPLCONTC EQUOVR ,,b,RPLO6                                               04220000
+.*                                                                      04230000
+.* RPLO7 - VTAM OPTION BYTE 7                                           04240000
+RPLBCKUP EQUOVR ,,b,RPLO7                                               04250000
+RPLLMPEO EQUOVR ,,b,RPLO7                                               04260000
+.*                                                                      04270000
+.* RPLO8 - VTAM OPTION BYTE 8                                           04280000
+RPLMAXSP EQUOVR ,,b,RPLO8                                               04290000
+RPLUSRRH EQUOVR ,,b,RPLO8                                               04300000
+.*                                                                      04310000
+.* RPLOBSQ - STSN OUTBOUND ACTION CODES                                 04320000
+RPLOSET  EQUOVR ,,b,RPLOBSQ                                             04330000
+RPLOTST  EQUOVR ,,b,RPLOBSQ                                             04340000
+RPLORSET EQUOVR ,,b,RPLOBSQ                                             04350000
+RPLOIGN  EQUOVR ,,b,RPLOBSQ                                             04360000
+RPLOPOS  EQUOVR ,,b,RPLOBSQ                                             04370000
+RPLONEG  EQUOVR ,,b,RPLOBSQ                                             04380000
+RPLOINV  EQUOVR ,,b,RPLOBSQ                                             04390000
+.*                                                                      04400000
+.* RPLIBSQ - STSN INBOUND ACTION CODES                                  04410000
+RPLISET  EQUOVR ,,b,RPLIBSQ                                             04420000
+RPLITST  EQUOVR ,,b,RPLIBSQ                                             04430000
+RPLIRSET EQUOVR ,,b,RPLIBSQ                                             04440000
+RPLIIGN  EQUOVR ,,b,RPLIBSQ                                             04450000
+RPLIPOS  EQUOVR ,,b,RPLIBSQ                                             04460000
+RPLINEG  EQUOVR ,,b,RPLIBSQ                                             04470000
+RPLIINV  EQUOVR ,,b,RPLIBSQ                                             04480000
+.*                                                                      04490000
+.* RPLOF68 -                                                            04500000
+RPLXSRV  EQUOVR ,,b,RPLOF68                                             04510000
+.*                                                                      04520000
+.* RPLREQ - RPL REQUEST TYPE                                            04530000
+RPL6APPC EQUOVR ,,v,RPLREQ                                              04540000
+RPL6CHEK EQUOVR ,,v,RPLREQ                                              04550000
+RPL3VCNS EQUOVR ,,v,RPLREQ                                              04560000
+RPL3CHEK EQUOVR ,,v,RPLREQ                                              04570000
+.*                                                                      04580000
+.* RPLFDB2 - REASON CODE(VTAM)                                          04590000
+RPLAOK   EQUOVR ,,v,RPLFDB2                                             04600000
+RPLRCDPR EQUOVR ,,v,RPLFDB2                                             04610000
+RPLCBERR EQUOVR ,,v,RPLFDB2                                             04620000
+RPLEXERR EQUOVR ,,v,RPLFDB2                                             04630000
+RPLCLSIP EQUOVR ,,v,RPLFDB2                                             04640000
+RPLCIDNG EQUOVR ,,v,RPLFDB2                                             04650000
+RPLILDOP EQUOVR ,,v,RPLFDB2                                             04660000
+RPLWANCR EQUOVR ,,v,RPLFDB2                                             04670000
+RPLSANOD EQUOVR ,,v,RPLFDB2                                             04680000
+RPLSANDA EQUOVR ,,v,RPLFDB2                                             04690000
+RPLSTOOD EQUOVR ,,v,RPLFDB2                                             04700000
+RPLBUFTE EQUOVR ,,v,RPLFDB2                                             04710000
+RPLRTOOD EQUOVR ,,v,RPLFDB2                                             04720000
+RPLWTOI  EQUOVR ,,v,RPLFDB2                                             04730000
+RPLEWNS  EQUOVR ,,v,RPLFDB2                                             04740000
+RPLEWAU3 EQUOVR ,,v,RPLFDB2                                             04750000
+RPLCWTOO EQUOVR ,,v,RPLFDB2                                             04760000
+RPLCWB   EQUOVR ,,v,RPLFDB2                                             04770000
+RPLCCCPY EQUOVR ,,v,RPLFDB2                                             04780000
+RPLIDA   EQUOVR ,,v,RPLFDB2                                             04790000
+RPLILDOA EQUOVR ,,v,RPLFDB2                                             04800000
+RPLJTOJ  EQUOVR ,,v,RPLFDB2                                             04810000
+RPLM255  EQUOVR ,,v,RPLFDB2                                             04820000
+RPLRILCP EQUOVR ,,v,RPLFDB2                                             04830000
+RPLCRIRT EQUOVR ,,v,RPLFDB2                                             04840000
+RPLRIOCC EQUOVR ,,v,RPLFDB2                                             04850000
+RPLEWBLK EQUOVR ,,v,RPLFDB2                                             04860000
+RPLCRSDC EQUOVR ,,v,RPLFDB2                                             04870000
+RPLIREST EQUOVR ,,v,RPLFDB2                                             04880000
+RPLWBT32 EQUOVR ,,v,RPLFDB2                                             04890000
+RPLRMOBN EQUOVR ,,v,RPLFDB2                                             04900000
+RPLCTN32 EQUOVR ,,v,RPLFDB2                                             04910000
+RPLWCVDE EQUOVR ,,v,RPLFDB2                                             04920000
+RPLRNFT3 EQUOVR ,,v,RPLFDB2                                             04930000
+RPLRCINV EQUOVR ,,v,RPLFDB2                                             04940000
+RPLINVRM EQUOVR ,,v,RPLFDB2                                             04950000
+RPLATSFI EQUOVR ,,v,RPLFDB2                                             04960000
+RPLIIINA EQUOVR ,,v,RPLFDB2                                             04970000
+RPLICNDN EQUOVR ,,v,RPLFDB2                                             04980000
+RPLILSIN EQUOVR ,,v,RPLFDB2                                             04990000
+RPLIICBE EQUOVR ,,v,RPLFDB2                                             05000000
+RPLOLIPT EQUOVR ,,v,RPLFDB2                                             05010000
+RPLINTNA EQUOVR ,,v,RPLFDB2                                             05020000
+RPLRCLCK EQUOVR ,,v,RPLFDB2                                             05030000
+RPLOCE01 EQUOVR ,,v,RPLFDB2                                             05040000
+RPLOCE02 EQUOVR ,,v,RPLFDB2                                             05050000
+RPLOCE03 EQUOVR ,,v,RPLFDB2                                             05060000
+RPLOCE05 EQUOVR ,,v,RPLFDB2                                             05070000
+RPLOCE07 EQUOVR ,,v,RPLFDB2                                             05080000
+RPLOCE08 EQUOVR ,,v,RPLFDB2                                             05090000
+RPLOCE09 EQUOVR ,,v,RPLFDB2                                             05100000
+RPLOCE10 EQUOVR ,,v,RPLFDB2                                             05110000
+RPLOCE11 EQUOVR ,,v,RPLFDB2                                             05120000
+RPLOCE12 EQUOVR ,,v,RPLFDB2                                             05130000
+RPLOCE13 EQUOVR ,,v,RPLFDB2                                             05140000
+RPLOCE14 EQUOVR ,,v,RPLFDB2                                             05150000
+RPLOCE16 EQUOVR ,,v,RPLFDB2                                             05160000
+RPLOCE19 EQUOVR ,,v,RPLFDB2                                             05170000
+RPLOCE21 EQUOVR ,,v,RPLFDB2                                             05180000
+RPLOCE22 EQUOVR ,,v,RPLFDB2                                             05190000
+RPLOCE25 EQUOVR ,,v,RPLFDB2                                             05200000
+RPLOCE27 EQUOVR ,,v,RPLFDB2                                             05210000
+RPLOCE28 EQUOVR ,,v,RPLFDB2                                             05220000
+RPLOCE29 EQUOVR ,,v,RPLFDB2                                             05230000
+RPLOCE32 EQUOVR ,,v,RPLFDB2                                             05240000
+RPLOCE33 EQUOVR ,,v,RPLFDB2                                             05250000
+RPLRNONA EQUOVR ,,v,RPLFDB2                                             05260000
+RPLOCE34 EQUOVR ,,v,RPLFDB2                                             05270000
+RPLOCE35 EQUOVR ,,v,RPLFDB2                                             05280000
+RPLOCE36 EQUOVR ,,v,RPLFDB2                                             05290000
+RPLOCE37 EQUOVR ,,v,RPLFDB2                                             05300000
+RPLOCE39 EQUOVR ,,v,RPLFDB2                                             05310000
+RPLRNOEL EQUOVR ,,v,RPLFDB2                                             05320000
+RPLRNOSE EQUOVR ,,v,RPLFDB2                                             05330000
+RPLRNOIA EQUOVR ,,v,RPLFDB2                                             05340000
+RPLRNOCL EQUOVR ,,v,RPLFDB2                                             05350000
+RPLRNOCE EQUOVR ,,v,RPLFDB2                                             05360000
+RPLPCIT  EQUOVR ,,v,RPLFDB2                                             05370000
+RPLLGCNT EQUOVR ,,v,RPLFDB2                                             05380000
+RPLCPCNT EQUOVR ,,v,RPLFDB2                                             05390000
+RPLILRS  EQUOVR ,,v,RPLFDB2                                             05400000
+RPLUSELE EQUOVR ,,v,RPLFDB2                                             05410000
+RPLCRNF  EQUOVR ,,v,RPLFDB2                                             05420000
+RPLNORD  EQUOVR ,,v,RPLFDB2                                             05430000
+RPLOLIPX EQUOVR ,,v,RPLFDB2                                             05440000
+RPLCPYE2 EQUOVR ,,v,RPLFDB2                                             05450000
+RPLRELNP EQUOVR ,,v,RPLFDB2                                             05460000
+RPLCPYE1 EQUOVR ,,v,RPLFDB2                                             05470000
+RPLDFIBH EQUOVR ,,v,RPLFDB2                                             05480000
+RPLDFIPO EQUOVR ,,v,RPLFDB2                                             05490000
+RPLRCWNP EQUOVR ,,v,RPLFDB2                                             05500000
+RPLYTCTN EQUOVR ,,v,RPLFDB2                                             05510000
+RPLYADIF EQUOVR ,,v,RPLFDB2                                             05520000
+RPLSTALF EQUOVR ,,v,RPLFDB2                                             05530000
+RPLUSRES EQUOVR ,,v,RPLFDB2                                             05540000
+RPLSSTRM EQUOVR ,,v,RPLFDB2                                             05550000
+RPLUNTRM EQUOVR ,,v,RPLFDB2                                             05560000
+RPLNCPAN EQUOVR ,,v,RPLFDB2                                             05570000
+RPLPCF   EQUOVR ,,v,RPLFDB2                                             05580000
+RPLANS   EQUOVR ,,v,RPLFDB2                                             05590000
+RPLCLOCC EQUOVR ,,v,RPLFDB2                                             05600000
+RPLVOFOC EQUOVR ,,v,RPLFDB2                                             05610000
+RPLDISCO EQUOVR ,,v,RPLFDB2                                             05620000
+RPLBTHEX EQUOVR ,,v,RPLFDB2                                             05630000
+RPLOCS01 EQUOVR ,,v,RPLFDB2                                             05640000
+RPLOCS02 EQUOVR ,,v,RPLFDB2                                             05650000
+RPLOCS03 EQUOVR ,,v,RPLFDB2                                             05660000
+RPLOCS04 EQUOVR ,,v,RPLFDB2                                             05670000
+RPLOCS05 EQUOVR ,,v,RPLFDB2                                             05680000
+RPLOCS06 EQUOVR ,,v,RPLFDB2                                             05690000
+RPLOCS07 EQUOVR ,,v,RPLFDB2                                             05700000
+RPLOCS08 EQUOVR ,,v,RPLFDB2                                             05710000
+RPLOCS09 EQUOVR ,,v,RPLFDB2                                             05720000
+RPLDIDOL EQUOVR ,,v,RPLFDB2                                             05730000
+RPLDIDIL EQUOVR ,,v,RPLFDB2                                             05740000
+.*                                                                      05750000
+.* RPLFDB3 - DATA FLAGS(VTAM)                                           05760000
+RPLIACT  EQUOVR ,,v,RPLFDB3                                             05770000
+RPLIINA  EQUOVR ,,v,RPLFDB3                                             05780000
+RPLINA   EQUOVR ,,v,RPLFDB3                                             05790000
+RPLITNA  EQUOVR ,,v,RPLFDB3                                             05800000
+RPLIQUIE EQUOVR ,,v,RPLFDB3                                             05810000
+.*                                                                      05820000
+.* RPL6FLG1 - FIRST INDICATORS BYTE                                     05830000
+RPL6FILL EQUOVR ,,b,RPL6FLG1                                            05840000
+RPL6CD   EQUOVR ,,b,RPL6FLG1                                            05850000
+RPL6SLS  EQUOVR ,,b,RPL6FLG1                                            05860000
+RPL6CFTX EQUOVR ,,b,RPL6FLG1                                            05870000
+RPL6LIST EQUOVR ,,b,RPL6FLG1                                            05880000
+.*                                                                      05890000
+.* RPL6FLG2 - SECOND INDICATORS BYTE                                    05900000
+RPL6BISC EQUOVR ,,b,RPL6FLG2                                            05910000
+RPL6RTSX EQUOVR ,,b,RPL6FLG2                                            05920000
+RPL6CXMD EQUOVR ,,b,RPL6FLG2                                            05930000
+RPL6TYPE EQUOVR ,,b,RPL6FLG2                                            05940000
+RPL6NAMU EQUOVR ,,b,RPL6FLG2                                            05950000
+.*                                                                      05960000
+.* RPL6FLG3 - THIRD INDICATORS BYTE                                     05970000
+RPL6LOCK EQUOVR ,,b,RPL6FLG3                                            05980000
+RPL6DERC EQUOVR ,,b,RPL6FLG3                                            05990000
+RPL6EXDR EQUOVR ,,b,RPL6FLG3                                            06000000
+RPL6CMOD EQUOVR ,,b,RPL6FLG3                                            06010000
+RPL6LAST EQUOVR ,,b,RPL6FLG3                                            06020000
+.*                                                                      06030000
+.* RPL6RCV1 - WHAT RECEIVED INDICATOR                                   06040000
+RPL6WDAT EQUOVR ,,b,RPL6RCV1                                            06050000
+RPL6WDAC EQUOVR ,,b,RPL6RCV1                                            06060000
+RPL6WDAI EQUOVR ,,b,RPL6RCV1                                            06070000
+RPL6WSND EQUOVR ,,b,RPL6RCV1                                            06080000
+RPL6WCFM EQUOVR ,,b,RPL6RCV1                                            06090000
+RPL6WDAL EQUOVR ,,b,RPL6RCV1                                            06100000
+RPL6WLOG EQUOVR ,,b,RPL6RCV1                                            06110000
+RPL6WPSH EQUOVR ,,b,RPL6RCV1                                            06120000
+.*                                                                      06130000
+.* RPL6RCV2 - RESERVED FOR BIT MASK                                     06140000
+RPL6WPSI EQUOVR ,,b,RPL6RCV2                                            06150000
+.*                                                                      06160000
+.* RPL6RTUN - RETURNED INDICATORS                                       06170000
+RPL6RMH5 EQUOVR ,,b,RPL6RTUN                                            06180000
+RPL6RLOG EQUOVR ,,b,RPL6RTUN                                            06190000
+RPL6RSIG EQUOVR ,,b,RPL6RTUN                                            06200000
+RPL6CLSA EQUOVR ,,b,RPL6RTUN                                            06210000
+RPL6AVFA EQUOVR ,,b,RPL6RTUN                                            06220000
+RPL6PV   EQUOVR ,,b,RPL6RTUN                                            06230000
+RPL6CRYP EQUOVR ,,b,RPL6RTUN                                            06240000
+.*                                                                      06250000
+.* RPL6CBID - CONTROL BLOCK IDENTIFIER                                  06260000
+.*RPL6ID EQUOVR ,,v,RPL6CBID             Value exceeds X'FFFF'          06270000
+.*                                                                      06280000
+.* RPL6REQ - TYPE OF APPCCMD                                            06290000
+RPL6ALLC EQUOVR ,,v,RPL6REQ                                             06300000
+RPL6PLOC EQUOVR ,,v,RPL6REQ                                             06310000
+RPL6SFM5 EQUOVR ,,v,RPL6REQ                                             06320000
+RPL6RSRV EQUOVR ,,v,RPL6REQ                                             06330000
+RPL6DEAL EQUOVR ,,v,RPL6REQ                                             06340000
+RPL6DEAQ EQUOVR ,,v,RPL6REQ                                             06350000
+RPL6OPER EQUOVR ,,v,RPL6REQ                                             06360000
+RPL6PREC EQUOVR ,,v,RPL6REQ                                             06370000
+RPL6RFH5 EQUOVR ,,v,RPL6REQ                                             06380000
+RPL6RCV  EQUOVR ,,v,RPL6REQ                                             06390000
+RPL6RCVX EQUOVR ,,v,RPL6REQ                                             06400000
+RPL6RJCT EQUOVR ,,v,RPL6REQ                                             06410000
+RPL6SEND EQUOVR ,,v,RPL6REQ                                             06420000
+RPL6SNDX EQUOVR ,,v,RPL6REQ                                             06430000
+RPL6SNRC EQUOVR ,,v,RPL6REQ                                             06440000
+RPL6SETS EQUOVR ,,v,RPL6REQ                                             06450000
+RPL6TSTS EQUOVR ,,v,RPL6REQ                                             06460000
+.*                                                                      06470000
+.* RPL6QUAL - SUBTYPE OF APPCCMD                                        06480000
+RPL6NQUA EQUOVR ,,v,RPL6QUAL                                            06490000
+RPL6APRG EQUOVR ,,v,RPL6QUAL                                            06500000
+RPL6ASRV EQUOVR ,,v,RPL6QUAL                                            06510000
+RPL6ATIM EQUOVR ,,v,RPL6QUAL                                            06520000
+RPL6AUSR EQUOVR ,,v,RPL6QUAL                                            06530000
+RPL6ANY  EQUOVR ,,v,RPL6QUAL                                            06540000
+RPL6CNOS EQUOVR ,,v,RPL6QUAL                                            06550000
+RPL6CFRM EQUOVR ,,v,RPL6QUAL                                            06560000
+RPL6CFMD EQUOVR ,,v,RPL6QUAL                                            06570000
+RPL6DATA EQUOVR ,,v,RPL6QUAL                                            06580000
+RPL6DCON EQUOVR ,,v,RPL6QUAL                                            06590000
+RPL6DFLU EQUOVR ,,v,RPL6QUAL                                            06600000
+RPL6DFIN EQUOVR ,,v,RPL6QUAL                                            06610000
+RPL6DSPY EQUOVR ,,v,RPL6QUAL                                            06620000
+RPL6ERR  EQUOVR ,,v,RPL6QUAL                                            06630000
+RPL6FLSH EQUOVR ,,v,RPL6QUAL                                            06640000
+RPL6RQSD EQUOVR ,,v,RPL6QUAL                                            06650000
+RPL6SPEC EQUOVR ,,v,RPL6QUAL                                            06660000
+RPL6ACT  EQUOVR ,,v,RPL6QUAL                                            06670000
+RPL6DACT EQUOVR ,,v,RPL6QUAL                                            06680000
+RPL6ALCD EQUOVR ,,v,RPL6QUAL                                            06690000
+RPL6IMED EQUOVR ,,v,RPL6QUAL                                            06700000
+RPL6CWIN EQUOVR ,,v,RPL6QUAL                                            06710000
+RPL6SESN EQUOVR ,,v,RPL6QUAL                                            06720000
+RPL6CONV EQUOVR ,,v,RPL6QUAL                                            06730000
+RPL6SUSP EQUOVR ,,v,RPL6QUAL                                            06740000
+RPL6RESM EQUOVR ,,v,RPL6QUAL                                            06750000
+RPL6REST EQUOVR ,,v,RPL6QUAL                                            06760000
+RPL6SYNB EQUOVR ,,v,RPL6QUAL                                            06770000
+RPL6SYNE EQUOVR ,,v,RPL6QUAL                                            06780000
+RPL6CNGP EQUOVR ,,v,RPL6QUAL                                            06790000
+RPL6SESF EQUOVR ,,v,RPL6QUAL                                            06800000
+RPL6IANY EQUOVR ,,v,RPL6QUAL                                            06810000
+RPL6ISPC EQUOVR ,,v,RPL6QUAL                                            06820000
+RPL6QALL EQUOVR ,,v,RPL6QUAL                                            06830000
+RPL6IALL EQUOVR ,,v,RPL6QUAL                                            06840000
+RPL6QUE  EQUOVR ,,v,RPL6QUAL                                            06850000
+RPL6DQUE EQUOVR ,,v,RPL6QUAL                                            06860000
+.*                                                                      06870000
+.* RPL6FLG1 - FIRST INDICATORS BYTE                                     06880000
+RPL6BUFF EQUOVR ,,v,RPL6FLG1                                            06890000
+RPL6LL   EQUOVR ,,b,RPL6FLG1                                            06900000
+.*                                                                      06910000
+.* RPL6FLG1 - FIRST INDICATORS BYTE                                     06920000
+RPL6CDIM EQUOVR ,,v,RPL6FLG1                                            06930000
+RPL6CDDE EQUOVR ,,b,RPL6FLG1                                            06940000
+.*                                                                      06950000
+.* RPL6FLG1 - FIRST INDICATORS BYTE                                     06960000
+RPL6CFT  EQUOVR ,,b,RPL6FLG1                                            06970000
+RPL6NCFT EQUOVR ,,v,RPL6FLG1                                            06980000
+.*                                                                      06990000
+.* RPL6FLG2 - SECOND INDICATORS BYTE                                    07000000
+RPL6TBIT EQUOVR ,,b,RPL6FLG2                                            07010000
+RPL6USER EQUOVR ,,b,RPL6FLG2                                            07020000
+RPL6PRGM EQUOVR ,,b,RPL6FLG2                                            07030000
+RPL6SVC  EQUOVR ,,b,RPL6FLG2                                            07040000
+.*                                                                      07050000
+.* RPL6FLG2 - SECOND INDICATORS BYTE                                    07060000
+RPL6NUNS EQUOVR ,,v,RPL6FLG2                                            07070000
+RPL6ANAM EQUOVR ,,b,RPL6FLG2                                            07080000
+RPL6GNAM EQUOVR ,,b,RPL6FLG2                                            07090000
+.*                                                                      07100000
+.* RPL6FLG3 - THIRD INDICATORS BYTE                                     07110000
+RPL6LONG EQUOVR ,,v,RPL6FLG3                                            07120000
+RPL6SHRT EQUOVR ,,b,RPL6FLG3                                            07130000
+.*                                                                      07140000
+.* RPL6FLG3 - THIRD INDICATORS BYTE                                     07150000
+RPL6RNRM EQUOVR ,,v,RPL6FLG3                                            07160000
+RPL6RABN EQUOVR ,,b,RPL6FLG3                                            07170000
+RPL6RANR EQUOVR ,,b,RPL6FLG3                                            07180000
+.*                                                                      07190000
+.* RPL6FLG3 - THIRD INDICATORS BYTE                                     07200000
+RPL6CBIT EQUOVR ,,b,RPL6FLG3                                            07210000
+RPL6LLCA EQUOVR ,,v,RPL6FLG3                                            07220000
+RPL6BFCA EQUOVR ,,b,RPL6FLG3                                            07230000
+RPL6CS   EQUOVR ,,b,RPL6FLG3                                            07240000
+RPL6SAME EQUOVR ,,b,RPL6FLG3                                            07250000
+.*                                                                      07260000
+.* RPL6FLG2 - SECOND INDICATORS BYTE                                    07270000
+RPL6CXBT EQUOVR ,,b,RPL6FLG2                                            07280000
+RPL6CSCX EQUOVR ,,v,RPL6FLG2                                            07290000
+RPL6CACX EQUOVR ,,b,RPL6FLG2                                            07300000
+RPL6SAMX EQUOVR ,,b,RPL6FLG2                                            07310000
+.*                                                                      07320000
+.* RPL6FLG3 - THIRD INDICATORS BYTE                                     07330000
+RPL6NLST EQUOVR ,,v,RPL6FLG3                                            07340000
+RPL6LMOD EQUOVR ,,b,RPL6FLG3                                            07350000
+RPL6NCTL EQUOVR ,,b,RPL6FLG3                                            07360000
+RPL6ALL  EQUOVR ,,b,RPL6FLG3                                            07370000
+.*                                                                      07380000
+.* RPL6FLG1 - FIRST INDICATORS BYTE                                     07390000
+RPL6LINO EQUOVR ,,v,RPL6FLG1                                            07400000
+RPL6LINS EQUOVR ,,b,RPL6FLG1                                            07410000
+RPL6LIAL EQUOVR ,,b,RPL6FLG1                                            07420000
+.*                                                                      07430000
+.* RPL6CCST - CURRENT CONVERSATION STATE                                07440000
+RPL6RSET EQUOVR ,,v,RPL6CCST                                            07450000
+RPL6SND  EQUOVR ,,v,RPL6CCST                                            07460000
+RPL6RECV EQUOVR ,,v,RPL6CCST                                            07470000
+RPL6RVCF EQUOVR ,,v,RPL6CCST                                            07480000
+RPL6RVCS EQUOVR ,,v,RPL6CCST                                            07490000
+RPL6RVCD EQUOVR ,,v,RPL6CCST                                            07500000
+RPL6PNDD EQUOVR ,,v,RPL6CCST                                            07510000
+RPL6PECL EQUOVR ,,v,RPL6CCST                                            07520000
+RPL6ENDC EQUOVR ,,v,RPL6CCST                                            07530000
+RPL6PNDS EQUOVR ,,v,RPL6CCST                                            07540000
+RPL6PRVL EQUOVR ,,v,RPL6CCST                                            07550000
+RPL6FDRS EQUOVR ,,v,RPL6CCST                                            07560000
+RPL6FDSR EQUOVR ,,v,RPL6CCST                                            07570000
+RPL6FDSO EQUOVR ,,v,RPL6CCST                                            07580000
+RPL6FDRO EQUOVR ,,v,RPL6CCST                                            07590000
+RPL6FSRL EQUOVR ,,v,RPL6CCST                                            07600000
+RPL6FROL EQUOVR ,,v,RPL6CCST                                            07610000
+RPL6FRSL EQUOVR ,,v,RPL6CCST                                            07620000
+RPL6PALC EQUOVR ,,v,RPL6CCST                                            07630000
+.*                                                                      07640000
+.* RPL6DETP - DEACTIVATION TYPE CODE                                    07650000
+RPL6TCLP EQUOVR ,,v,RPL6DETP                                            07660000
+RPL6TPVL EQUOVR ,,v,RPL6DETP                                            07670000
+.*                                                                      07680000
+.* RPL6RTUN - RETURNED INDICATORS                                       07690000
+RPL6CNON EQUOVR ,,v,RPL6RTUN                                            07700000
+RPL6CSEL EQUOVR ,,v,RPL6RTUN                                            07710000
+RPL6CMAN EQUOVR ,,v,RPL6RTUN                                            07720000
+.*                                                                      07730000
+         MNOTE *,'Including ISTRPLEX mapping macro'                     07740000
+IFGRPL   DSECT ,                       * Resume RPL DSECT               07750000
+         ORG   RPL+RPL_LEN             * At end of base RPL             07760000
+         ISTRPLEX ,                    *                                07770000
+         EQUOVR *END                   *                                07780000
+*                                                                       07790000
+IFGRPL   DSECT ,                       * Resume RPL DSECT               07800000
+         ORG   ,                       *                                07810000
+VTAMRPL_LEN EQU *-RPL                  * Length of VTAM RPL             07820000
+*                                                                       07830000
+ISTRPL6X DSECT ,                       * Resume LU 6.2 extension        07840000
+RPL6     EQU   ISTRPL6X                * Label for usings               07850000
+         ORG   ,                       *                                07860000
+RPL6_LEN EQU   *-RPL6                  * Length of RPL eXtension        07870000
+.*                                                                      07880000
+.* Return to our original CSECT name                                    07890000
+&SYSECT  &SYSSTYP                                                       07900000
+.*                                                                      07910000
+.MEND    MEND                                                           07930002

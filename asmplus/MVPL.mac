@@ -1,0 +1,98 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Copy a parameter list from program storage to dynamic storage        00180000
+.*                                                                      00190000
+&LABEL   MVPL  &TO,                    * Destination                   *00200000
+               &FROM                   * Source                         00210000
+.*                                                                      00220000
+.* &TO   specifies the destination location label. No length should be  00230000
+.*       specified.                                                     00240000
+.* &FROM specifies the label of the prototype plist in the program.     00250000
+.*                                                                      00260000
+.********************************************************************** 00261001
+.*                                                                      00262001
+.*       IMPORTANT NOTICE                                               00263001
+.*       ========= ======                                               00264001
+.*                                                                      00265001
+.* Code below checks whether 'USER' accepted the terms and conditions   00266001
+.* of the license for the BXA macro library. This code is to be treated 00267001
+.* as part of the Copyright Notice and therefore may not be changed     00268001
+.* or disabled in any way.                                              00269001
+.*                                                                      00269101
+.********************************************************************** 00269201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00269301
+         CHKLIC MVPL                   * Check license acceptance       00269401
+         AIF   (&BXA_RC NE 0).MEND                                      00269502
+.********************************************************************** 00269601
+.*                                                                      00269701
+.* End of special code that is part of the Copyright Notice             00269801
+.*                                                                      00269901
+.********************************************************************** 00270001
+.*                                                                      00270101
+.* Declare variables                                                    00271000
+         GBLC  &SYSASCE                * ASC environment AR or P        00280000
+         LCLC  &LEN                    * Name of length equate          00290000
+.*                                                                      00300000
+.* Check the TO parameter                                               00310000
+         AIF   (K'&TO NE 0).NOERR1                                      00320000
+.ERR1A   MNOTE 8,'No first operand specified'                           00330000
+         MEXIT                                                          00340000
+.NOERR1  ANOP                                                           00350000
+.*                                                                      00360000
+.* Check the FROM parameter                                             00370000
+         AIF   (K'&FROM NE 0).NOERR2                                    00380000
+.ERR2A   MNOTE 8,'No second operand specified'                          00390000
+         MEXIT                                                          00400000
+.NOERR2  ANOP                                                           00410000
+.*                                                                      00420000
+.* Determine length field                                               00430000
+&LEN     SETC  '&TO'.'_LEN'                                             00440000
+.*                                                                      00450000
+.* Generate code                                                        00460000
+&LABEL   L     R1,=AL4(&FROM)          * Point to prototype plist       00470000
+         AIF   ('&SYSASCE' NE 'AR').NOTAR                               00480000
+         CPY   AR1,AR12                * Plist in primary space!        00490000
+.NOTAR   ANOP  ,                                                        00500000
+         MVC   &TO.(&LEN),0(R1)        * Copy prototype to dyn storage  00510000
+.*                                                                      00520000
+.MEND    MEND                                                           00530002

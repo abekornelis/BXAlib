@@ -1,0 +1,94 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Allocate an available general purpose register                       00180000
+.* This is a sub-macro for use by the IF$-macro only                    00190001
+.*                                                                      00200000
+&LABEL   IF$ALC &REG                   * Register to protect            00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC IF$ALC                 * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLB  &BXA_USED_REGS(16)      * Use status of registers        00240000
+         GBLA  &BXA_NUMVAL             * Register allocated             00260000
+         LCLA  &I                                                       00270000
+         LCLA  &ALC_REG                * Allocated register nr          00280000
+         LCLB  &DODROP                 * DROP required yes/no           00290000
+.*                                                                      00300000
+.* Set the &REG in use, unless it is in USE already                     00310000
+         GBLA  &(BXA_REGN_&REG)        * Declare var with register nr   00320000
+&I       SETA  &(BXA_REGN_&REG)+1      * Determine register index       00330000
+         AIF   (&BXA_USED_REGS(&I)).USEOK                               00340000
+         USE   &REG                    * Tell asm not to use this reg   00350000
+&DODROP  SETB  1                       * Must drop register before end  00360000
+.USEOK   ANOP ,                        *                                00370000
+.*                                                                      00380000
+.* Register is now in us, so it is safe to allocate, using EQUREG       00390000
+         EQUREG SEARCH=(R0,R1,R14,R15), * Allocate a work register     *00400000
+               R0=YES                  * R0 would do fine               00410000
+&I       SETA  &BXA_RC                 * Remember return code and       00420000
+&ALCREG  SETA  &BXA_NUMVAL             *  allocated register for later  00430000
+         AIF   (NOT &DODROP).DROPOK    * Skip drop if USE was skipped   00440000
+         DROP  &REG                    * No longer needed!              00450000
+.DROPOK  ANOP  ,                       * Housekeeping done              00460000
+.*                                                                      00470000
+&BXA_RC  SETA  &I                      * Set returncode for IF          00480000
+&BXA_NUMVAL SETA &ALCREG               * And pass allocated reg.nr.     00490000
+.*                                                                      00500000
+.MEND    MEND                                                           00510002

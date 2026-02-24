@@ -1,0 +1,138 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the return and reason codes for IEFPRMLB as well as  00180000
+.* its parameter areas                                                  00190000
+.*                                                                      00200000
+&LABEL   MAPPRMLB &DSECT=YES,          * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPPRMLB               * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLC  &BXA_MAPS_LST           * Maps listing option            00260000
+         GBLC  &BXA_PGM_TITLE          * Title for the listing          00270000
+         GBLB  &SP_SHOWALL             * Show all statements?           00280000
+         GBLB  &BXA_MAC_MAPPRMLB       * Map has been generated?        00290000
+.*                                                                      00310000
+.* Check parameters                                                     00320000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00330000
+               CB=&CB,                 *                               *00340000
+               PRFX=&PRFX              *                                00350000
+         AIF   (&BXA_RC GT 4).MEND                                      00360002
+.*                                                                      00370000
+.* Check the CB parameter                                               00380000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00390000
+         AIF   ('&CB' EQ 'PRM_LIST_BUFFER').EMBED                       00400000
+         AIF   ('&CB' EQ 'PRM_MESSAGE_BUFFER').EMBED                    00410000
+         AIF   ('&CB' EQ 'PRM_READ_BUFFER').EMBED                       00420000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.* Generate embedded definition                                         00460000
+.EMBED   ANOP                                                           00470000
+&LABEL   NESTCB &CB,X,&PRFX                                             00480000
+         MEXIT                                                          00490000
+.*                                                                      00500000
+.DSECT   ANOP                                                           00510000
+         AIF   (&BXA_MAC_MAPPRMLB).MEND                                 00520002
+&BXA_MAC_MAPPRMLB SETB 1                                                00530000
+.* Set up translation from control block to macro for DCL               00540000
+         GBLC  &BXA_CB_PRM_LIST_BUFFER                                  00550000
+         GBLC  &BXA_CB_PRM_MESSAGE_BUFFER                               00560000
+         GBLC  &BXA_CB_PRM_READ_BUFFER                                  00570000
+&BXA_CB_PRM_LIST_BUFFER    SETC 'PRMLB'                                 00580000
+&BXA_CB_PRM_MESSAGE_BUFFER SETC 'PRMLB'                                 00590000
+&BXA_CB_PRM_READ_BUFFER    SETC 'PRMLB'                                 00600000
+.*                                                                      00610000
+.* PRM_MSG_BUFFER_FLAGS                                                 00620000
+PRM_MSG_BUFFER_FULL EQUOVR ,,b,PRM_MSG_BUFFER_FLAGS                     00630000
+.*                                                                      00640000
+         MNOTE *,'Including IEFZPMAP mapping macro'                     00650000
+         IEFZPMAP DSECT=YES,           * Include IEFPRMLB areas        *00660000
+               LIST=&BXA_MAPS_LST      *                                00670000
+         EQUOVR *END                                                    00680000
+.*                                                                      00690000
+.* Length equates not included here: IBM supplies them in IEFZPMAP      00700000
+* Length of PRM_LIST_BUFFER is to be incremented by 56 for each        *00710000
+                                     additional entry                   00720000
+* Length of PRM_READ_BUFFER is to be incremented by 80 for each        *00730000
+                                     additional entry                   00740000
+* Length of PRM_MESSAGE_BUFFER is to be incremented by 256 for each    *00750000
+                                        additional entry                00760000
+.*                                                                      00770000
+.* Add equates from IEFZPRC                                             00780000
+         MNOTE *,'Including IEFZPRC mapping macro'                      00790000
+BXA_EQU  DSECT ,                       * Fancy dsect name               00800000
+         IEFZPRC ,                     * Include IEFPRMLB equates       00810000
+.*                                                                      00820000
+.* Return to our original CSECT name                                    00830000
+.* Since IEFZPMAP changes the listing's title: reset title too          00840000
+&SYSECT  &SYSSTYP                                                       00850000
+         TITLE '&BXA_PGM_TITLE'                                         00860000
+         AIF   (&SP_SHOWALL).TITLE                                      00870000
+.* Generate comment line in stead of a MNOTE line                       00880000
+*                                                                       00890000
+         AGO   .TITLEOK                                                 00900000
+.TITLE   ANOP                                                           00910000
+         MNOTE *,'Previous STMT: TITLE ''&BXA_PGM_TITLE'''              00920000
+.TITLEOK ANOP                                                           00930000
+.*                                                                      00940000
+.MEND    MEND                                                           00960002

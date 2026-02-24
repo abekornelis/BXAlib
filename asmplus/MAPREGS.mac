@@ -1,0 +1,140 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the registers onto mnemonic names                    00180000
+.*                                                                      00190000
+         MAPREGS                                                        00200000
+.********************************************************************** 00201001
+.*                                                                      00202001
+.*       IMPORTANT NOTICE                                               00203001
+.*       ========= ======                                               00204001
+.*                                                                      00205001
+.* Code below checks whether 'USER' accepted the terms and conditions   00206001
+.* of the license for the BXA macro library. This code is to be treated 00207001
+.* as part of the Copyright Notice and therefore may not be changed     00208001
+.* or disabled in any way.                                              00209001
+.*                                                                      00209101
+.********************************************************************** 00209201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00209301
+         CHKLIC MAPREGS                * Check license acceptance       00209401
+         AIF   (&BXA_RC NE 0).MEND                                      00209502
+.********************************************************************** 00209601
+.*                                                                      00209701
+.* End of special code that is part of the Copyright Notice             00209801
+.*                                                                      00209901
+.********************************************************************** 00210001
+.*                                                                      00211000
+.* Expand only once                                                     00220000
+         GBLB  &BXA_MAC_MAPREGS                                         00230000
+         AIF   (&BXA_MAC_MAPREGS).MEND                                  00240002
+&BXA_MAC_MAPREGS SETB 1                                                 00250000
+.*                                                                      00260000
+.* Put equates in a DSECT to prevent warning messages in ASM listing    00270000
+BXA_EQU  DSECT                                                          00280000
+.*                                                                      00290000
+         MNOTE *,'Generating register equates'                          00300000
+*                                                                       00310000
+* Register equates                                                      00320000
+R0       EQU   0,4,C'g'                *                                00330000
+R1       EQU   1,4,C'g'                *                                00340000
+R2       EQU   2,4,C'g'                *                                00350000
+R3       EQU   3,4,C'g'                *                                00360000
+R4       EQU   4,4,C'g'                *                                00370000
+R5       EQU   5,4,C'g'                *                                00380000
+R6       EQU   6,4,C'g'                *                                00390000
+R7       EQU   7,4,C'g'                *                                00400000
+R8       EQU   8,4,C'g'                *                                00410000
+R9       EQU   9,4,C'g'                *                                00420000
+R10      EQU   10,4,C'g'               *                                00430000
+R11      EQU   11,4,C'g'               *                                00440000
+R12      EQU   12,4,C'g'               *                                00450000
+R13      EQU   13,4,C'g'               *                                00460000
+R14      EQU   14,4,C'g'               *                                00470000
+R15      EQU   15,4,C'g'               *                                00480000
+*                                                                       00490000
+* Access register equates                                               00500000
+AR0      EQU   0,4,C'a'                *                                00510000
+AR1      EQU   1,4,C'a'                *                                00520000
+AR2      EQU   2,4,C'a'                *                                00530000
+AR3      EQU   3,4,C'a'                *                                00540000
+AR4      EQU   4,4,C'a'                *                                00550000
+AR5      EQU   5,4,C'a'                *                                00560000
+AR6      EQU   6,4,C'a'                *                                00570000
+AR7      EQU   7,4,C'a'                *                                00580000
+AR8      EQU   8,4,C'a'                *                                00590000
+AR9      EQU   9,4,C'a'                *                                00600000
+AR10     EQU   10,4,C'a'               *                                00610000
+AR11     EQU   11,4,C'a'               *                                00620000
+AR12     EQU   12,4,C'a'               *                                00630000
+AR13     EQU   13,4,C'a'               *                                00640000
+AR14     EQU   14,4,C'a'               *                                00650000
+AR15     EQU   15,4,C'a'               *                                00660000
+*                                                                       00670000
+* Floating point register equates                                       00680000
+FPR0     EQU   0,8,C'f'                *                                00690000
+FPR2     EQU   2,8,C'f'                *                                00700000
+FPR4     EQU   4,8,C'f'                *                                00710000
+FPR6     EQU   6,8,C'f'                *                                00720000
+*                                                                       00730000
+* Control register equates                                              00740000
+CR0      EQU   0,4,C'c'                *                                00750000
+CR1      EQU   1,4,C'c'                *                                00760000
+CR2      EQU   2,4,C'c'                *                                00770000
+CR3      EQU   3,4,C'c'                *                                00780000
+CR4      EQU   4,4,C'c'                *                                00790000
+CR5      EQU   5,4,C'c'                *                                00800000
+CR6      EQU   6,4,C'c'                *                                00810000
+CR7      EQU   7,4,C'c'                *                                00820000
+CR8      EQU   8,4,C'c'                *                                00830000
+CR9      EQU   9,4,C'c'                *                                00840000
+CR10     EQU   10,4,C'c'               *                                00850000
+CR11     EQU   11,4,C'c'               *                                00860000
+CR12     EQU   12,4,C'c'               *                                00870000
+CR13     EQU   13,4,C'c'               *                                00880000
+CR14     EQU   14,4,C'c'               *                                00890000
+CR15     EQU   15,4,C'c'               *                                00900000
+*                                                                       00910000
+.*                                                                      00920000
+.* Return to our original CSECT name                                    00930000
+&SYSECT  &SYSSTYP                                                       00940000
+.*                                                                      00950000
+.MEND    MEND                                                           00970002

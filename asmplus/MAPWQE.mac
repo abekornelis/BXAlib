@@ -1,0 +1,1040 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the WTO Queue ELement                                00180000
+.*                                                                      00190000
+&LABEL   MAPWQE &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPWQE                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPWQE         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'WQE').EMBED                                   00360000
+         AIF   ('&CB' EQ 'WQEMAJ').EMBED                                00370000
+         AIF   ('&CB' EQ 'WQEMIN').EMBED                                00380000
+         AIF   ('&CB' EQ 'WQESYAR').EMBED                               00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded definition                                         00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPWQE).MEND                                   00490002
+&BXA_MAC_MAPWQE SETB 1                                                  00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_WQE                                              00520000
+         GBLC  &BXA_CB_WQEMAJ                                           00530000
+         GBLC  &BXA_CB_WQEMIN                                           00540000
+         GBLC  &BXA_CB_WQESYAR                                          00550000
+&BXA_CB_WQE SETC 'WQE'                                                  00560000
+&BXA_CB_WQEMAJ SETC 'WQE'                                               00570000
+&BXA_CB_WQEMIN SETC 'WQE'                                               00580000
+&BXA_CB_WQESYAR SETC 'WQE'                                              00590000
+.*                                                                      00600000
+.* WQEXA - DISPOSITION FLAGS                                            00610000
+WQEPURGE EQUOVR ,,b,WQEXA                                               00620000
+WQEQFHC  EQUOVR ,,b,WQEXA                                               00630000
+WQEORE   EQUOVR ,,b,WQEXA                                               00640000
+WQEQDFHC EQUOVR ,,b,WQEXA                                               00650000
+WQEWTOR  EQUOVR ,,b,WQEXA                                               00660000
+WQEDOM   EQUOVR ,,b,WQEXA                                               00670000
+WQESUSP  EQUOVR ,,b,WQEXA                                               00680000
+WQEAUTH  EQUOVR ,,b,WQEXA                                               00690000
+.*                                                                      00700000
+.* WQEAVAIL - BUFFER STATUS FLAGS                                       00710000
+WQEBUFA  EQUOVR ,,b,WQEAVAIL                                            00720000
+WQEBUFB  EQUOVR ,,b,WQEAVAIL                                            00730000
+WQEBUFC  EQUOVR ,,b,WQEAVAIL                                            00740000
+WQEBUFD  EQUOVR ,,b,WQEAVAIL                                            00750000
+WQEBUFE  EQUOVR ,,b,WQEAVAIL                                            00760000
+WQEBUFF  EQUOVR ,,b,WQEAVAIL                                            00770000
+WQEBUFG  EQUOVR ,,b,WQEAVAIL                                            00780000
+WQEMTRCD EQUOVR ,,b,WQEAVAIL                                            00790000
+.*                                                                      00800000
+.* WQEMCSF1 - FIRST BYTE OF MCS FLAGS                                   00810000
+WQEMCSA  EQUOVR ,,b,WQEMCSF1                                            00820000
+WQEMCSB  EQUOVR ,,b,WQEMCSF1                                            00830000
+WQEMCSC  EQUOVR ,,b,WQEMCSF1                                            00840000
+WQEMCSD  EQUOVR ,,b,WQEMCSF1                                            00850000
+WQEMCSE  EQUOVR ,,b,WQEMCSF1                                            00860000
+WQEMCSFF EQUOVR ,,b,WQEMCSF1                                            00870000
+WQEMCSG  EQUOVR ,,b,WQEMCSF1                                            00880000
+WQEMCSH  EQUOVR ,,b,WQEMCSF1                                            00890000
+.*                                                                      00900000
+.* WQEMCSF2 - SECOND BYTE OF MCS FLAGS                                  00910000
+WQEMCSI  EQUOVR ,,b,WQEMCSF2                                            00920000
+WQEMCSJ  EQUOVR ,,b,WQEMCSF2                                            00930000
+WQEMCSK  EQUOVR ,,b,WQEMCSF2                                            00940000
+WQEMCSL  EQUOVR ,,b,WQEMCSF2                                            00950000
+WQEMCSM  EQUOVR ,,b,WQEMCSF2                                            00960000
+WQEMCSN  EQUOVR ,,b,WQEMCSF2                                            00970000
+WQEMCSO  EQUOVR ,,b,WQEMCSF2                                            00980000
+WQEMCSP  EQUOVR ,,b,WQEMCSF2                                            00990000
+.*                                                                      01000000
+.* WQEMSGTP - FIRST BYTE OF MESSAGE TYPE FLAGS                          01010000
+WQEMSGTA EQUOVR ,,b,WQEMSGTP                                            01020000
+WQEMSGTB EQUOVR ,,b,WQEMSGTP                                            01030000
+WQEMSGTC EQUOVR ,,b,WQEMSGTP                                            01040000
+WQEMSGTD EQUOVR ,,b,WQEMSGTP                                            01050000
+WQERSV13 EQUOVR ,,b,WQEMSGTP                                            01060000
+WQEMSGTF EQUOVR ,,b,WQEMSGTP                                            01070000
+WQERSV14 EQUOVR ,,b,WQEMSGTP                                            01080000
+WQERSV15 EQUOVR ,,b,WQEMSGTP                                            01090000
+.*                                                                      01100000
+.* WQEROUT1 - 1ST BYTE OF ROUTING CODES                                 01110000
+WQEROUTA EQUOVR ,,b,WQEROUT1                                            01120000
+WQEROUTB EQUOVR ,,b,WQEROUT1                                            01130000
+WQEROUTC EQUOVR ,,b,WQEROUT1                                            01140000
+WQEROUTD EQUOVR ,,b,WQEROUT1                                            01150000
+WQEROUTE EQUOVR ,,b,WQEROUT1                                            01160000
+WQEROUTF EQUOVR ,,b,WQEROUT1                                            01170000
+WQEROUTG EQUOVR ,,b,WQEROUT1                                            01180000
+WQEROUTH EQUOVR ,,b,WQEROUT1                                            01190000
+.*                                                                      01200000
+.* WQEROUT2 - 2ND BYTE OF ROUTING CODES                                 01210000
+WQEROUTI EQUOVR ,,b,WQEROUT2                                            01220000
+WQEROUTJ EQUOVR ,,b,WQEROUT2                                            01230000
+WQEROUTK EQUOVR ,,b,WQEROUT2                                            01240000
+WQEROUTL EQUOVR ,,b,WQEROUT2                                            01250000
+WQEROUTM EQUOVR ,,b,WQEROUT2                                            01260000
+WQEROUTN EQUOVR ,,b,WQEROUT2                                            01270000
+WQEROUTO EQUOVR ,,b,WQEROUT2                                            01280000
+WQEROUTP EQUOVR ,,b,WQEROUT2                                            01290000
+.*                                                                      01300000
+.* WQEFLG3 - MISCELLANEOUS FLAGS                                        01310000
+WQEDLVRD EQUOVR ,,b,WQEFLG3                                             01320000
+WQEDNDWQ EQUOVR ,,b,WQEFLG3                                             01330000
+WQENSYL  EQUOVR ,,b,WQEFLG3                                             01340000
+WQEJ3B1  EQUOVR ,,b,WQEFLG3                                             01350000
+WQEJ3B2  EQUOVR ,,b,WQEFLG3                                             01360000
+.*                                                                      01370000
+.* WQEFLG1 - MISCELLANEOUS FLAGS                                        01380000
+WQEFLG11 EQUOVR ,,b,WQEFLG1                                             01390000
+WQERETAN EQUOVR ,,b,WQEFLG1                                             01400000
+WQENMOD  EQUOVR ,,b,WQEFLG1                                             01410000
+WQESQMC  EQUOVR ,,b,WQEFLG1                                             01420000
+WQENOJLG EQUOVR ,,b,WQEFLG1                                             01430000
+WQEAUTOV EQUOVR ,,b,WQEFLG1                                             01440000
+WQEPPNA  EQUOVR ,,b,WQEFLG1                                             01450000
+WQERISS  EQUOVR ,,b,WQEFLG1                                             01460000
+.*                                                                      01470000
+.* WQEDC1 - FIRST BYTE OF DESCRIPTOR CODES                              01480000
+WQEDCA   EQUOVR ,,b,WQEDC1                                              01490000
+WQEDCB   EQUOVR ,,b,WQEDC1                                              01500000
+WQEDCC   EQUOVR ,,b,WQEDC1                                              01510000
+WQEDCD   EQUOVR ,,b,WQEDC1                                              01520000
+WQEDCE   EQUOVR ,,b,WQEDC1                                              01530000
+WQEDCF   EQUOVR ,,b,WQEDC1                                              01540000
+WQEDCG   EQUOVR ,,b,WQEDC1                                              01550000
+WQEDCH   EQUOVR ,,b,WQEDC1                                              01560000
+.*                                                                      01570000
+.* WQEDC2 - SECOND BYTE OF DESCRIPTOR CODES                             01580000
+WQEDCI   EQUOVR ,,b,WQEDC2                                              01590000
+WQEDCJ   EQUOVR ,,b,WQEDC2                                              01600000
+WQEDCK   EQUOVR ,,b,WQEDC2                                              01610000
+WQEDCL   EQUOVR ,,b,WQEDC2                                              01620000
+WQEDCM   EQUOVR ,,b,WQEDC2                                              01630000
+WQERSV23 EQUOVR ,,b,WQEDC2                                              01640000
+WQERSV24 EQUOVR ,,b,WQEDC2                                              01650000
+WQERSV25 EQUOVR ,,b,WQEDC2                                              01660000
+.*                                                                      01670000
+.* WQEVRSN - VERSION LEVEL                                              01680000
+WQESP211 EQUOVR ,,v,WQEVRSN                                             01690000
+WQESP220 EQUOVR ,,v,WQEVRSN                                             01700000
+WQESP410 EQUOVR ,,v,WQEVRSN                                             01710000
+WQESP422 EQUOVR ,,v,WQEVRSN                                             01720000
+WQESP440 EQUOVR ,,v,WQEVRSN                                             01730000
+WQEVRID  EQUOVR ,,v,WQEVRSN                                             01740000
+.*                                                                      01750000
+.* WQEFLG2 - MISC FLAGS BYTE 2                                          01760000
+WQEHNDL  EQUOVR ,,b,WQEFLG2                                             01770000
+WQERSV98 EQUOVR ,,b,WQEFLG2                                             01780000
+WQEFORN  EQUOVR ,,b,WQEFLG2                                             01790000
+WQETRANS EQUOVR ,,b,WQEFLG2                                             01800000
+WQESUPSJ EQUOVR ,,b,WQEFLG2                                             01810000
+WQEQXSYS EQUOVR ,,b,WQEFLG2                                             01820000
+WQEQEXT  EQUOVR ,,b,WQEFLG2                                             01830000
+WQEQMCS  EQUOVR ,,b,WQEFLG2                                             01840000
+.*                                                                      01850000
+.* WQEMCSE1 - FIRST BYTE                                                01860000
+WQEEBUSY EQUOVR ,,b,WQEMCSE1                                            01870000
+WQEECONS EQUOVR ,,b,WQEMCSE1                                            01880000
+WQEEDOMI EQUOVR ,,b,WQEMCSE1                                            01890000
+WQEECONN EQUOVR ,,b,WQEMCSE1                                            01900000
+WQEEWTOR EQUOVR ,,b,WQEMCSE1                                            01910000
+WQEEPRIO EQUOVR ,,b,WQEMCSE1                                            01920000
+WQECNM   EQUOVR ,,b,WQEMCSE1                                            01930000
+.*                                                                      01940000
+.* WQEMCSE2 - SECOND BYTE OF EXT MCS FLAGS                              01950000
+WQEETXTA EQUOVR ,,b,WQEMCSE2                                            01960000
+WQERSV99 EQUOVR ,,b,WQEMCSE2                                            01970000
+WQEEDBCS EQUOVR ,,b,WQEMCSE2                                            01980000
+WQEEIDBC EQUOVR ,,b,WQEMCSE2                                            01990000
+WQERSV1B EQUOVR ,,b,WQEMCSE2                                            02000000
+WQEESYNC EQUOVR ,,b,WQEMCSE2                                            02010000
+WQERSV1C EQUOVR ,,b,WQEMCSE2                                            02020000
+WQERSV1D EQUOVR ,,b,WQEMCSE2                                            02030000
+.*                                                                      02040000
+.* WQERFB1 - REQUEST FLAGS BYTE ONE                                     02050000
+WQERCMT  EQUOVR ,,b,WQERFB1                                             02060000
+WQERCRC  EQUOVR ,,b,WQERFB1                                             02070000
+WQERCDC  EQUOVR ,,b,WQERFB1                                             02080000
+WQERQPC  EQUOVR ,,b,WQERFB1                                             02090000
+WQERQUN  EQUOVR ,,b,WQERFB1                                             02100000
+WQERQRC  EQUOVR ,,b,WQERFB1                                             02110000
+WQERCCN  EQUOVR ,,b,WQERFB1                                             02120000
+WQERPML  EQUOVR ,,b,WQERFB1                                             02130000
+.*                                                                      02140000
+.* WQERFB2 - REQUEST FLAGS BYTE TWO                                     02150000
+WQERDTM  EQUOVR ,,b,WQERFB2                                             02160000
+WQEROMS  EQUOVR ,,b,WQERFB2                                             02170000
+WQERFHC  EQUOVR ,,b,WQERFB2                                             02180000
+WQERNHC  EQUOVR ,,b,WQERFB2                                             02190000
+WQERHCO  EQUOVR ,,b,WQERFB2                                             02200000
+WQERBCA  EQUOVR ,,b,WQERFB2                                             02210000
+WQERBCN  EQUOVR ,,b,WQERFB2                                             02220000
+WQERNRT  EQUOVR ,,b,WQERFB2                                             02230000
+.*                                                                      02240000
+.* WQERFB3 - REQUEST FLAGS BYTE THREE                                   02250000
+WQERRET  EQUOVR ,,b,WQERFB3                                             02260000
+WQERCKY  EQUOVR ,,b,WQERFB3                                             02270000
+WQERCFC  EQUOVR ,,b,WQERFB3                                             02280000
+WQERCMF  EQUOVR ,,b,WQERFB3                                             02290000
+WQERANO  EQUOVR ,,b,WQERFB3                                             02300000
+WQERAYS  EQUOVR ,,b,WQERFB3                                             02310000
+WQEQHCO  EQUOVR ,,b,WQERFB3                                             02320000
+WQEHUD   EQUOVR ,,b,WQERFB3                                             02330000
+.*                                                                      02340000
+.* WQESUPB - SUPPRESSION BYTE                                           02350000
+WQESNSV  EQUOVR ,,b,WQESUPB                                             02360000
+WQESEER  EQUOVR ,,b,WQESUPB                                             02370000
+WQESNSI  EQUOVR ,,b,WQESUPB                                             02380000
+WQESAUT  EQUOVR ,,b,WQESUPB                                             02390000
+WQESQED  EQUOVR ,,b,WQESUPB                                             02400000
+WQESSSI  EQUOVR ,,b,WQESUPB                                             02410000
+WQESWTO  EQUOVR ,,b,WQESUPB                                             02420000
+WQESMPF  EQUOVR ,,b,WQESUPB                                             02430000
+.*                                                                      02440000
+.* WQEML1 - FIRST BYTE OF LEVEL INDICATOR                               02450000
+WQEMLR   EQUOVR ,,b,WQEML1                                              02460000
+WQEMLIA  EQUOVR ,,b,WQEML1                                              02470000
+WQEMLCE  EQUOVR ,,b,WQEML1                                              02480000
+WQEMLE   EQUOVR ,,b,WQEML1                                              02490000
+WQEMLI   EQUOVR ,,b,WQEML1                                              02500000
+WQEMLBC  EQUOVR ,,b,WQEML1                                              02510000
+.*                                                                      02520000
+.* WQEERC1 - BYTE 1  - EXTENDED ROUTING CODES                           02530000
+WQERC1   EQUOVR ,,b,WQEERC1                                             02540000
+WQERC2   EQUOVR ,,b,WQEERC1                                             02550000
+WQERC3   EQUOVR ,,b,WQEERC1                                             02560000
+WQERC4   EQUOVR ,,b,WQEERC1                                             02570000
+WQERC5   EQUOVR ,,b,WQEERC1                                             02580000
+WQERC6   EQUOVR ,,b,WQEERC1                                             02590000
+WQERC7   EQUOVR ,,b,WQEERC1                                             02600000
+WQERC8   EQUOVR ,,b,WQEERC1                                             02610000
+.*                                                                      02620000
+.* WQEERC2 - BYTE 2  - EXTENDED ROUTING CODES                           02630000
+WQERC9   EQUOVR ,,b,WQEERC2                                             02640000
+WQERC10  EQUOVR ,,b,WQEERC2                                             02650000
+WQERC11  EQUOVR ,,b,WQEERC2                                             02660000
+WQERC12  EQUOVR ,,b,WQEERC2                                             02670000
+WQERC13  EQUOVR ,,b,WQEERC2                                             02680000
+WQERC14  EQUOVR ,,b,WQEERC2                                             02690000
+WQERC15  EQUOVR ,,b,WQEERC2                                             02700000
+WQERC16  EQUOVR ,,b,WQEERC2                                             02710000
+.*                                                                      02720000
+.* WQEERC3 - BYTE 3  - EXTENDED ROUTING CODES                           02730000
+WQERC17  EQUOVR ,,b,WQEERC3                                             02740000
+WQERC18  EQUOVR ,,b,WQEERC3                                             02750000
+WQERC19  EQUOVR ,,b,WQEERC3                                             02760000
+WQERC20  EQUOVR ,,b,WQEERC3                                             02770000
+WQERC21  EQUOVR ,,b,WQEERC3                                             02780000
+WQERC22  EQUOVR ,,b,WQEERC3                                             02790000
+WQERC23  EQUOVR ,,b,WQEERC3                                             02800000
+WQERC24  EQUOVR ,,b,WQEERC3                                             02810000
+.*                                                                      02820000
+.* WQEERC4 - BYTE 4  - EXTENDED ROUTING CODES                           02830000
+WQERC25  EQUOVR ,,b,WQEERC4                                             02840000
+WQERC26  EQUOVR ,,b,WQEERC4                                             02850000
+WQERC27  EQUOVR ,,b,WQEERC4                                             02860000
+WQERC28  EQUOVR ,,b,WQEERC4                                             02870000
+WQERC29  EQUOVR ,,b,WQEERC4                                             02880000
+WQERC30  EQUOVR ,,b,WQEERC4                                             02890000
+WQERC31  EQUOVR ,,b,WQEERC4                                             02900000
+WQERC32  EQUOVR ,,b,WQEERC4                                             02910000
+.*                                                                      02920000
+.* WQEERC5 - BYTE 5  - EXTENDED ROUTING CODES                           02930000
+WQERC33  EQUOVR ,,b,WQEERC5                                             02940000
+WQERC34  EQUOVR ,,b,WQEERC5                                             02950000
+WQERC35  EQUOVR ,,b,WQEERC5                                             02960000
+WQERC36  EQUOVR ,,b,WQEERC5                                             02970000
+WQERC37  EQUOVR ,,b,WQEERC5                                             02980000
+WQERC38  EQUOVR ,,b,WQEERC5                                             02990000
+WQERC39  EQUOVR ,,b,WQEERC5                                             03000000
+WQERC40  EQUOVR ,,b,WQEERC5                                             03010000
+.*                                                                      03020000
+.* WQEERC6 - BYTE 6  - EXTENDED ROUTING CODES                           03030000
+WQERC41  EQUOVR ,,b,WQEERC6                                             03040000
+WQERC42  EQUOVR ,,b,WQEERC6                                             03050000
+WQERC43  EQUOVR ,,b,WQEERC6                                             03060000
+WQERC44  EQUOVR ,,b,WQEERC6                                             03070000
+WQERC45  EQUOVR ,,b,WQEERC6                                             03080000
+WQERC46  EQUOVR ,,b,WQEERC6                                             03090000
+WQERC47  EQUOVR ,,b,WQEERC6                                             03100000
+WQERC48  EQUOVR ,,b,WQEERC6                                             03110000
+.*                                                                      03120000
+.* WQEERC7 - BYTE 7  - EXTENDED ROUTING CODES                           03130000
+WQERC49  EQUOVR ,,b,WQEERC7                                             03140000
+WQERC50  EQUOVR ,,b,WQEERC7                                             03150000
+WQERC51  EQUOVR ,,b,WQEERC7                                             03160000
+WQERC52  EQUOVR ,,b,WQEERC7                                             03170000
+WQERC53  EQUOVR ,,b,WQEERC7                                             03180000
+WQERC54  EQUOVR ,,b,WQEERC7                                             03190000
+WQERC55  EQUOVR ,,b,WQEERC7                                             03200000
+WQERC56  EQUOVR ,,b,WQEERC7                                             03210000
+.*                                                                      03220000
+.* WQEERC8 - BYTE 8  - EXTENDED ROUTING CODES                           03230000
+WQERC57  EQUOVR ,,b,WQEERC8                                             03240000
+WQERC58  EQUOVR ,,b,WQEERC8                                             03250000
+WQERC59  EQUOVR ,,b,WQEERC8                                             03260000
+WQERC60  EQUOVR ,,b,WQEERC8                                             03270000
+WQERC61  EQUOVR ,,b,WQEERC8                                             03280000
+WQERC62  EQUOVR ,,b,WQEERC8                                             03290000
+WQERC63  EQUOVR ,,b,WQEERC8                                             03300000
+WQERC64  EQUOVR ,,b,WQEERC8                                             03310000
+.*                                                                      03320000
+.* WQEERC9 - BYTE 9  - EXTENDED ROUTING CODES                           03330000
+WQERC65  EQUOVR ,,b,WQEERC9                                             03340000
+WQERC66  EQUOVR ,,b,WQEERC9                                             03350000
+WQERC67  EQUOVR ,,b,WQEERC9                                             03360000
+WQERC68  EQUOVR ,,b,WQEERC9                                             03370000
+WQERC69  EQUOVR ,,b,WQEERC9                                             03380000
+WQERC70  EQUOVR ,,b,WQEERC9                                             03390000
+WQERC71  EQUOVR ,,b,WQEERC9                                             03400000
+WQERC72  EQUOVR ,,b,WQEERC9                                             03410000
+.*                                                                      03420000
+.* WQEERC10 - BYTE 10 - EXTENDED ROUTING CODES                          03430000
+WQERC73  EQUOVR ,,b,WQEERC10                                            03440000
+WQERC74  EQUOVR ,,b,WQEERC10                                            03450000
+WQERC75  EQUOVR ,,b,WQEERC10                                            03460000
+WQERC76  EQUOVR ,,b,WQEERC10                                            03470000
+WQERC77  EQUOVR ,,b,WQEERC10                                            03480000
+WQERC78  EQUOVR ,,b,WQEERC10                                            03490000
+WQERC79  EQUOVR ,,b,WQEERC10                                            03500000
+WQERC80  EQUOVR ,,b,WQEERC10                                            03510000
+.*                                                                      03520000
+.* WQEERC11 - BYTE 11 - EXTENDED ROUTING CODES                          03530000
+WQERC81  EQUOVR ,,b,WQEERC11                                            03540000
+WQERC82  EQUOVR ,,b,WQEERC11                                            03550000
+WQERC83  EQUOVR ,,b,WQEERC11                                            03560000
+WQERC84  EQUOVR ,,b,WQEERC11                                            03570000
+WQERC85  EQUOVR ,,b,WQEERC11                                            03580000
+WQERC86  EQUOVR ,,b,WQEERC11                                            03590000
+WQERC87  EQUOVR ,,b,WQEERC11                                            03600000
+WQERC88  EQUOVR ,,b,WQEERC11                                            03610000
+.*                                                                      03620000
+.* WQEERC12 - BYTE 12 - EXTENDED ROUTING CODES                          03630000
+WQERC89  EQUOVR ,,b,WQEERC12                                            03640000
+WQERC90  EQUOVR ,,b,WQEERC12                                            03650000
+WQERC91  EQUOVR ,,b,WQEERC12                                            03660000
+WQERC92  EQUOVR ,,b,WQEERC12                                            03670000
+WQERC93  EQUOVR ,,b,WQEERC12                                            03680000
+WQERC94  EQUOVR ,,b,WQEERC12                                            03690000
+WQERC95  EQUOVR ,,b,WQEERC12                                            03700000
+WQERC96  EQUOVR ,,b,WQEERC12                                            03710000
+.*                                                                      03720000
+.* WQEERC13 - BYTE 13 - EXTENDED ROUTING CODES                          03730000
+WQERC97  EQUOVR ,,b,WQEERC13                                            03740000
+WQERC98  EQUOVR ,,b,WQEERC13                                            03750000
+WQERC99  EQUOVR ,,b,WQEERC13                                            03760000
+WQERC100 EQUOVR ,,b,WQEERC13                                            03770000
+WQERC101 EQUOVR ,,b,WQEERC13                                            03780000
+WQERC102 EQUOVR ,,b,WQEERC13                                            03790000
+WQERC103 EQUOVR ,,b,WQEERC13                                            03800000
+WQERC104 EQUOVR ,,b,WQEERC13                                            03810000
+.*                                                                      03820000
+.* WQEERC14 - BYTE 14 - EXTENDED ROUTING CODES                          03830000
+WQERC105 EQUOVR ,,b,WQEERC14                                            03840000
+WQERC106 EQUOVR ,,b,WQEERC14                                            03850000
+WQERC107 EQUOVR ,,b,WQEERC14                                            03860000
+WQERC108 EQUOVR ,,b,WQEERC14                                            03870000
+WQERC109 EQUOVR ,,b,WQEERC14                                            03880000
+WQERC110 EQUOVR ,,b,WQEERC14                                            03890000
+WQERC111 EQUOVR ,,b,WQEERC14                                            03900000
+WQERC112 EQUOVR ,,b,WQEERC14                                            03910000
+.*                                                                      03920000
+.* WQEERC15 - BYTE 15 - EXTENDED ROUTING CODES                          03930000
+WQERC113 EQUOVR ,,b,WQEERC15                                            03940000
+WQERC114 EQUOVR ,,b,WQEERC15                                            03950000
+WQERC115 EQUOVR ,,b,WQEERC15                                            03960000
+WQERC116 EQUOVR ,,b,WQEERC15                                            03970000
+WQERC117 EQUOVR ,,b,WQEERC15                                            03980000
+WQERC118 EQUOVR ,,b,WQEERC15                                            03990000
+WQERC119 EQUOVR ,,b,WQEERC15                                            04000000
+WQERC120 EQUOVR ,,b,WQEERC15                                            04010000
+.*                                                                      04020000
+.* WQEERC16 - BYTE 16 - EXTENDED ROUTING CODES                          04030000
+WQERC121 EQUOVR ,,b,WQEERC16                                            04040000
+WQERC122 EQUOVR ,,b,WQEERC16                                            04050000
+WQERC123 EQUOVR ,,b,WQEERC16                                            04060000
+WQERC124 EQUOVR ,,b,WQEERC16                                            04070000
+WQERC125 EQUOVR ,,b,WQEERC16                                            04080000
+WQERC126 EQUOVR ,,b,WQEERC16                                            04090000
+WQERC127 EQUOVR ,,b,WQEERC16                                            04100000
+WQERC128 EQUOVR ,,b,WQEERC16                                            04110000
+.*                                                                      04120000
+.* WQEERF1 - REQUEST FLAGS BYTE ONE                                     04130000
+WQEEMRY  EQUOVR ,,b,WQEERF1                                             04140000
+WQEEMRN  EQUOVR ,,b,WQEERF1                                             04150000
+WQEEMCO  EQUOVR ,,b,WQEERF1                                             04160000
+WQEEMHI  EQUOVR ,,b,WQEERF1                                             04170000
+WQEEMIN  EQUOVR ,,b,WQEERF1                                             04180000
+.*                                                                      04190000
+.* WQEXIF1 - MISC AND MINOR ERROR FLAG BYTE 1                           04200000
+WQEXTTR  EQUOVR ,,b,WQEXIF1                                             04210000
+WQEXNVT  EQUOVR ,,b,WQEXIF1                                             04220000
+WQEXMER  EQUOVR ,,b,WQEXIF1                                             04230000
+WQEXIRM  EQUOVR ,,b,WQEXIF1                                             04240000
+WQEDMDB  EQUOVR ,,b,WQEXIF1                                             04250000
+.*                                                                      04260000
+.* WQEXIF2 - MISC AND MINOR ERROR FLAG BYTE 2                           04270000
+WQEQONLY EQUOVR ,,b,WQEXIF2                                             04280000
+WQEAMRFO EQUOVR ,,b,WQEXIF2                                             04290000
+WQEAMRFA EQUOVR ,,b,WQEXIF2                                             04300000
+WQEQD    EQUOVR ,,b,WQEXIF2                                             04310000
+WQEWTPR  EQUOVR ,,b,WQEXIF2                                             04320000
+WQEMFR   EQUOVR ,,b,WQEXIF2                                             04330000
+WQEAMRFR EQUOVR ,,b,WQEXIF2                                             04340000
+WQEQTSYS EQUOVR ,,b,WQEXIF2                                             04350000
+.*                                                                      04360000
+.* WQEBENIP -  BRANCH ENTRY/NIP FLAGS                                   04370000
+WQEDOMD  EQUOVR ,,b,WQEBENIP                                            04380000
+WQENBEW  EQUOVR ,,b,WQEBENIP                                            04390000
+WQENHABD EQUOVR ,,b,WQEBENIP                                            04400000
+WQEASCB  EQUOVR ,,b,WQEBENIP                                            04410000
+.*                                                                      04420000
+.* WQEMISC - MISCELLANEOUS ROUTING INFORMATION                          04430000
+WQEUD    EQUOVR ,,b,WQEMISC                                             04440000
+WQEFUDO  EQUOVR ,,b,WQEMISC                                             04450000
+WQEFIDO  EQUOVR ,,b,WQEMISC                                             04460000
+WQEAUTO  EQUOVR ,,b,WQEMISC                                             04470000
+WQEHC    EQUOVR ,,b,WQEMISC                                             04480000
+.*                                                                      04490000
+.* WQEMISCC - MISCELLANEOUS CONTROL PROGRAM FLAGS                       04500000
+WQESPVD  EQUOVR ,,b,WQEMISCC                                            04510000
+WQEPRIV  EQUOVR ,,b,WQEMISCC                                            04520000
+WQEQNLY  EQUOVR ,,b,WQEMISCC                                            04530000
+.*                                                                      04540000
+.* WMJMMLW - MLWTO FLAGS                                                04550000
+WMJMMLWA EQUOVR ,,b,WMJMMLW                                             04560000
+WMJMMLWB EQUOVR ,,b,WMJMMLW                                             04570000
+WMJMMLWC EQUOVR ,,b,WMJMMLW                                             04580000
+WMJMMLWD EQUOVR ,,b,WMJMMLW                                             04590000
+WMJMMLWE EQUOVR ,,b,WMJMMLW                                             04600000
+WMJMMLWF EQUOVR ,,b,WMJMMLW                                             04610000
+WMJMMLWG EQUOVR ,,b,WMJMMLW                                             04620000
+WMJMMLWH EQUOVR ,,b,WMJMMLW                                             04630000
+.*                                                                      04640000
+.* WMJMSER1 - 1ST BYTE OF LINE CONTROL FLAGS                            04650000
+WMJMSERA EQUOVR ,,b,WMJMSER1                                            04660000
+WMJMSERB EQUOVR ,,b,WMJMSER1                                            04670000
+WMJMSERC EQUOVR ,,b,WMJMSER1                                            04680000
+WMJMSERD EQUOVR ,,b,WMJMSER1                                            04690000
+WMJMSERE EQUOVR ,,b,WMJMSER1                                            04700000
+WQERSV31 EQUOVR ,,b,WMJMSER1                                            04710000
+WQERSV32 EQUOVR ,,b,WMJMSER1                                            04720000
+WQERSV33 EQUOVR ,,b,WMJMSER1                                            04730000
+.*                                                                      04740000
+.* WMJMLTY1 - 1ST BYTE OF LINE TYPE FLAGS                               04750000
+WMJMLTYA EQUOVR ,,b,WMJMLTY1                                            04760000
+WMJMLTYB EQUOVR ,,b,WMJMLTY1                                            04770000
+WMJMLTYC EQUOVR ,,b,WMJMLTY1                                            04780000
+WMJMLTYD EQUOVR ,,b,WMJMLTY1                                            04790000
+WQERSV35 EQUOVR ,,b,WMJMLTY1                                            04800000
+WQERSV36 EQUOVR ,,b,WMJMLTY1                                            04810000
+WQERSV37 EQUOVR ,,b,WMJMLTY1                                            04820000
+WQERSV38 EQUOVR ,,b,WMJMLTY1                                            04830000
+.*                                                                      04840000
+.* WMJMECBF - STATUS FLAGS                                              04850000
+WMJMWAIT EQUOVR ,,b,WMJMECBF                                            04860000
+WMJMMAJD EQUOVR ,,b,WMJMECBF                                            04870000
+WMJMCONS EQUOVR ,,b,WMJMECBF                                            04880000
+WMJMPSB1 EQUOVR ,,b,WMJMECBF                                            04890000
+WMJMRV9A EQUOVR ,,b,WMJMECBF                                            04900000
+WMJMWTP  EQUOVR ,,b,WMJMECBF                                            04910000
+WQERSVD6 EQUOVR ,,b,WMJMECBF                                            04920000
+WQERSVD7 EQUOVR ,,b,WMJMECBF                                            04930000
+.*                                                                      04940000
+.* WMJMDSP - DISPOSITION FLAGS                                          04950000
+WMJMDSPA EQUOVR ,,b,WMJMDSP                                             04960000
+WMJMDSPB EQUOVR ,,b,WMJMDSP                                             04970000
+WMJMDSPC EQUOVR ,,b,WMJMDSP                                             04980000
+WMJMDSPD EQUOVR ,,b,WMJMDSP                                             04990000
+WMJMDSPE EQUOVR ,,b,WMJMDSP                                             05000000
+WMJMDSPF EQUOVR ,,b,WMJMDSP                                             05010000
+WMJMDSPG EQUOVR ,,b,WMJMDSP                                             05020000
+WMJMDSPH EQUOVR ,,b,WMJMDSP                                             05030000
+.*                                                                      05040000
+.* WMJMBUF - BUFFER STATUS FLAGS                                        05050000
+WMJMBUFA EQUOVR ,,b,WMJMBUF                                             05060000
+WMJMBUFB EQUOVR ,,b,WMJMBUF                                             05070000
+WMJMBUFC EQUOVR ,,b,WMJMBUF                                             05080000
+WMJMBUFD EQUOVR ,,b,WMJMBUF                                             05090000
+WMJMBUFE EQUOVR ,,b,WMJMBUF                                             05100000
+WMJMBUFF EQUOVR ,,b,WMJMBUF                                             05110000
+WMJMBUFG EQUOVR ,,b,WMJMBUF                                             05120000
+WMJMTRCD EQUOVR ,,b,WMJMBUF                                             05130000
+.*                                                                      05140000
+.* WMJMCS1 - 1ST BYTE OF MCS FLAGS                                      05150000
+WMJMCS1A EQUOVR ,,b,WMJMCS1                                             05160000
+WMJMCS1B EQUOVR ,,b,WMJMCS1                                             05170000
+WMJMCS1C EQUOVR ,,b,WMJMCS1                                             05180000
+WMJMCS1D EQUOVR ,,b,WMJMCS1                                             05190000
+WMJMCS1E EQUOVR ,,b,WMJMCS1                                             05200000
+WMJMCS1F EQUOVR ,,b,WMJMCS1                                             05210000
+WMJMCS1G EQUOVR ,,b,WMJMCS1                                             05220000
+WMJMCS1H EQUOVR ,,b,WMJMCS1                                             05230000
+.*                                                                      05240000
+.* WMJMCS2 - 2ND BYTE OF MCS FLAGS                                      05250000
+WMJMCS2A EQUOVR ,,b,WMJMCS2                                             05260000
+WMJMCS2B EQUOVR ,,b,WMJMCS2                                             05270000
+WMJMCS2C EQUOVR ,,b,WMJMCS2                                             05280000
+WMJMCS2D EQUOVR ,,b,WMJMCS2                                             05290000
+WMJMCS2E EQUOVR ,,b,WMJMCS2                                             05300000
+WMJMCS2F EQUOVR ,,b,WMJMCS2                                             05310000
+WMJMCS2G EQUOVR ,,b,WMJMCS2                                             05320000
+WMJMCS2H EQUOVR ,,b,WMJMCS2                                             05330000
+.*                                                                      05340000
+.* WMJMMT1 - 1ST BYTE OF MESSAGE TYPE FLAGS                             05350000
+WMJMMT1A EQUOVR ,,b,WMJMMT1                                             05360000
+WMJMMT1B EQUOVR ,,b,WMJMMT1                                             05370000
+WQERSVA6 EQUOVR ,,b,WMJMMT1                                             05380000
+WMJMMT1D EQUOVR ,,b,WMJMMT1                                             05390000
+WQERSV50 EQUOVR ,,b,WMJMMT1                                             05400000
+WMJMMT1F EQUOVR ,,b,WMJMMT1                                             05410000
+WQERSV51 EQUOVR ,,b,WMJMMT1                                             05420000
+WQERSV52 EQUOVR ,,b,WMJMMT1                                             05430000
+.*                                                                      05440000
+.* WMJMRCT1 - 1ST BYTE OF ROUTING CODES                                 05450000
+WMJMRCTA EQUOVR ,,b,WMJMRCT1                                            05460000
+WMJMRCTB EQUOVR ,,b,WMJMRCT1                                            05470000
+WMJMRCTC EQUOVR ,,b,WMJMRCT1                                            05480000
+WMJMRCTD EQUOVR ,,b,WMJMRCT1                                            05490000
+WMJMRCTE EQUOVR ,,b,WMJMRCT1                                            05500000
+WMJMRCTF EQUOVR ,,b,WMJMRCT1                                            05510000
+WMJMRCTG EQUOVR ,,b,WMJMRCT1                                            05520000
+WMJMRCTH EQUOVR ,,b,WMJMRCT1                                            05530000
+.*                                                                      05540000
+.* WMJMRCT2 - 2ND BYTE OF ROUTING CODES                                 05550000
+WMJMRCTI EQUOVR ,,b,WMJMRCT2                                            05560000
+WMJMRCTJ EQUOVR ,,b,WMJMRCT2                                            05570000
+WMJMRCTK EQUOVR ,,b,WMJMRCT2                                            05580000
+WMJMRCTL EQUOVR ,,b,WMJMRCT2                                            05590000
+WMJMRCTM EQUOVR ,,b,WMJMRCT2                                            05600000
+WMJMRCTN EQUOVR ,,b,WMJMRCT2                                            05610000
+WMJMRCTO EQUOVR ,,b,WMJMRCT2                                            05620000
+WMJMRCTP EQUOVR ,,b,WMJMRCT2                                            05630000
+.*                                                                      05640000
+.* WMJMFLG3 - MISCELLANEOUS FLAGS                                       05650000
+WMJDLVRD EQUOVR ,,b,WMJMFLG3                                            05660000
+WMJDNDWQ EQUOVR ,,b,WMJMFLG3                                            05670000
+WMJNSYL  EQUOVR ,,b,WMJMFLG3                                            05680000
+WMJJ3B1  EQUOVR ,,b,WMJMFLG3                                            05690000
+WMJJ3B2  EQUOVR ,,b,WMJMFLG3                                            05700000
+.*                                                                      05710000
+.* WMJFLG1 - MISCELLANEOUS FLAGS                                        05720000
+WMJFLG11 EQUOVR ,,b,WMJFLG1                                             05730000
+WMJMRETN EQUOVR ,,b,WMJFLG1                                             05740000
+WMJMNMOD EQUOVR ,,b,WMJFLG1                                             05750000
+WMJMSQMC EQUOVR ,,b,WMJFLG1                                             05760000
+WMJNOJLG EQUOVR ,,b,WMJFLG1                                             05770000
+WMJAUTOV EQUOVR ,,b,WMJFLG1                                             05780000
+WMJPPNA  EQUOVR ,,b,WMJFLG1                                             05790000
+WMJMRISS EQUOVR ,,b,WMJFLG1                                             05800000
+.*                                                                      05810000
+.* WMJMDEC1 - 1ST BYTE OF DESCRIPTOR CODES                              05820000
+WMJMDECA EQUOVR ,,b,WMJMDEC1                                            05830000
+WMJMDECB EQUOVR ,,b,WMJMDEC1                                            05840000
+WMJMDECC EQUOVR ,,b,WMJMDEC1                                            05850000
+WMJMDECD EQUOVR ,,b,WMJMDEC1                                            05860000
+WMJMDECE EQUOVR ,,b,WMJMDEC1                                            05870000
+WMJMDECF EQUOVR ,,b,WMJMDEC1                                            05880000
+WMJMDECG EQUOVR ,,b,WMJMDEC1                                            05890000
+WMJMDECH EQUOVR ,,b,WMJMDEC1                                            05900000
+.*                                                                      05910000
+.* WMJMDEC2 - 2ND BYTE OF DESCRIPTOR CODES                              05920000
+WMJMDECI EQUOVR ,,b,WMJMDEC2                                            05930000
+WMJMDECJ EQUOVR ,,b,WMJMDEC2                                            05940000
+WMJMDECK EQUOVR ,,b,WMJMDEC2                                            05950000
+WMJMDECL EQUOVR ,,b,WMJMDEC2                                            05960000
+WMJMDECM EQUOVR ,,b,WMJMDEC2                                            05970000
+WQERSV59 EQUOVR ,,b,WMJMDEC2                                            05980000
+WQERSV60 EQUOVR ,,b,WMJMDEC2                                            05990000
+WQERSV61 EQUOVR ,,b,WMJMDEC2                                            06000000
+.*                                                                      06010000
+.* WMJMFLG2 - MISC FLAGS BYTE 2                                         06020000
+WMJMHNDL EQUOVR ,,b,WMJMFLG2                                            06030000
+WMJMLCPL EQUOVR ,,b,WMJMFLG2                                            06040000
+WMJMFORN EQUOVR ,,b,WMJMFLG2                                            06050000
+WMJMTRAN EQUOVR ,,b,WMJMFLG2                                            06060000
+WMJSUPSJ EQUOVR ,,b,WMJMFLG2                                            06070000
+WMJQXSYS EQUOVR ,,b,WMJMFLG2                                            06080000
+WMJQEXT  EQUOVR ,,b,WMJMFLG2                                            06090000
+WMJQMCS  EQUOVR ,,b,WMJMFLG2                                            06100000
+.*                                                                      06110000
+.* WMJMCE1 - FIRST BYTE                                                 06120000
+WMJEBUSY EQUOVR ,,b,WMJMCE1                                             06130000
+WMJECONS EQUOVR ,,b,WMJMCE1                                             06140000
+WMJEDOMI EQUOVR ,,b,WMJMCE1                                             06150000
+WMJECONN EQUOVR ,,b,WMJMCE1                                             06160000
+WMJEWTOR EQUOVR ,,b,WMJMCE1                                             06170000
+WMJEPRIO EQUOVR ,,b,WMJMCE1                                             06180000
+WMJMCNM  EQUOVR ,,b,WMJMCE1                                             06190000
+.*                                                                      06200000
+.* WMJMCE2 - SECOND BYTE OF EXT MCS FLAGS                               06210000
+WMJMTXTA EQUOVR ,,b,WMJMCE2                                             06220000
+WMJMRV99 EQUOVR ,,b,WMJMCE2                                             06230000
+WMJMRV9B EQUOVR ,,b,WMJMCE2                                             06240000
+WMJMRV9C EQUOVR ,,b,WMJMCE2                                             06250000
+WMJMRV1A EQUOVR ,,b,WMJMCE2                                             06260000
+WMJMRV1B EQUOVR ,,b,WMJMCE2                                             06270000
+WMJMRV1C EQUOVR ,,b,WMJMCE2                                             06280000
+WMJMRV1D EQUOVR ,,b,WMJMCE2                                             06290000
+.*                                                                      06300000
+.* WMJMRFB1 - REQUEST FLAGS BYTE ONE                                    06310000
+WMJMRCMT EQUOVR ,,b,WMJMRFB1                                            06320000
+WMJMRCRC EQUOVR ,,b,WMJMRFB1                                            06330000
+WMJMRCDC EQUOVR ,,b,WMJMRFB1                                            06340000
+WMJMRQPC EQUOVR ,,b,WMJMRFB1                                            06350000
+WMJMRQUN EQUOVR ,,b,WMJMRFB1                                            06360000
+WMJMRQRC EQUOVR ,,b,WMJMRFB1                                            06370000
+WMJMRCCN EQUOVR ,,b,WMJMRFB1                                            06380000
+WMJMRPML EQUOVR ,,b,WMJMRFB1                                            06390000
+.*                                                                      06400000
+.* WMJMRFB2 - REQUEST FLAGS BYTE TWO                                    06410000
+WMJMRDTM EQUOVR ,,b,WMJMRFB2                                            06420000
+WMJMROMS EQUOVR ,,b,WMJMRFB2                                            06430000
+WMJMRFHC EQUOVR ,,b,WMJMRFB2                                            06440000
+WMJMRFNC EQUOVR ,,b,WMJMRFB2                                            06450000
+WMJMRHCO EQUOVR ,,b,WMJMRFB2                                            06460000
+WMJMRBCA EQUOVR ,,b,WMJMRFB2                                            06470000
+WMJMRBCN EQUOVR ,,b,WMJMRFB2                                            06480000
+WMJMRNRT EQUOVR ,,b,WMJMRFB2                                            06490000
+.*                                                                      06500000
+.* WMJMRFB3 - REQUEST FLAGS BYTE THREE                                  06510000
+WMJMRRET EQUOVR ,,b,WMJMRFB3                                            06520000
+WMJMRCKY EQUOVR ,,b,WMJMRFB3                                            06530000
+WMJMRCFC EQUOVR ,,b,WMJMRFB3                                            06540000
+WMJMRCMF EQUOVR ,,b,WMJMRFB3                                            06550000
+WMJRANO  EQUOVR ,,b,WMJMRFB3                                            06560000
+WMJRAYS  EQUOVR ,,b,WMJMRFB3                                            06570000
+WMJMQHCO EQUOVR ,,b,WMJMRFB3                                            06580000
+WMJMHUD  EQUOVR ,,b,WMJMRFB3                                            06590000
+.*                                                                      06600000
+.* WMJMSUPB - SUPPRESSION BYTE                                          06610000
+WMJMSNSV EQUOVR ,,b,WMJMSUPB                                            06620000
+WMJMSEER EQUOVR ,,b,WMJMSUPB                                            06630000
+WMJMSNSI EQUOVR ,,b,WMJMSUPB                                            06640000
+WMJMSAUT EQUOVR ,,b,WMJMSUPB                                            06650000
+WMJMSQED EQUOVR ,,b,WMJMSUPB                                            06660000
+WMJMSSSI EQUOVR ,,b,WMJMSUPB                                            06670000
+WMJMSWTO EQUOVR ,,b,WMJMSUPB                                            06680000
+WMJMSMPF EQUOVR ,,b,WMJMSUPB                                            06690000
+.*                                                                      06700000
+.* WMJMML1 - FIRST BYTE OF LEVEL INDICATORS                             06710000
+WMJMMLR  EQUOVR ,,b,WMJMML1                                             06720000
+WMJMMLIA EQUOVR ,,b,WMJMML1                                             06730000
+WMJMMLCE EQUOVR ,,b,WMJMML1                                             06740000
+WMJMMLE  EQUOVR ,,b,WMJMML1                                             06750000
+WMJMMLI  EQUOVR ,,b,WMJMML1                                             06760000
+WMJMMLBC EQUOVR ,,b,WMJMML1                                             06770000
+.*                                                                      06780000
+.* WMJMRC1 - BYTE 1  - EXTENDED ROUTING CODES                           06790000
+WMJRC1   EQUOVR ,,b,WMJMRC1                                             06800000
+WMJRC2   EQUOVR ,,b,WMJMRC1                                             06810000
+WMJRC3   EQUOVR ,,b,WMJMRC1                                             06820000
+WMJRC4   EQUOVR ,,b,WMJMRC1                                             06830000
+WMJRC5   EQUOVR ,,b,WMJMRC1                                             06840000
+WMJRC6   EQUOVR ,,b,WMJMRC1                                             06850000
+WMJRC7   EQUOVR ,,b,WMJMRC1                                             06860000
+WMJRC8   EQUOVR ,,b,WMJMRC1                                             06870000
+.*                                                                      06880000
+.* WMJMRC2 - BYTE 2  - EXTENDED ROUTING CODES                           06890000
+WMJRC9   EQUOVR ,,b,WMJMRC2                                             06900000
+WMJRC10  EQUOVR ,,b,WMJMRC2                                             06910000
+WMJRC11  EQUOVR ,,b,WMJMRC2                                             06920000
+WMJRC12  EQUOVR ,,b,WMJMRC2                                             06930000
+WMJRC13  EQUOVR ,,b,WMJMRC2                                             06940000
+WMJRC14  EQUOVR ,,b,WMJMRC2                                             06950000
+WMJRC15  EQUOVR ,,b,WMJMRC2                                             06960000
+WMJRC16  EQUOVR ,,b,WMJMRC2                                             06970000
+.*                                                                      06980000
+.* WMJMRC3 - BYTE 3  - EXTENDED ROUTING CODES                           06990000
+WMJRC17  EQUOVR ,,b,WMJMRC3                                             07000000
+WMJRC18  EQUOVR ,,b,WMJMRC3                                             07010000
+WMJRC19  EQUOVR ,,b,WMJMRC3                                             07020000
+WMJRC20  EQUOVR ,,b,WMJMRC3                                             07030000
+WMJRC21  EQUOVR ,,b,WMJMRC3                                             07040000
+WMJRC22  EQUOVR ,,b,WMJMRC3                                             07050000
+WMJRC23  EQUOVR ,,b,WMJMRC3                                             07060000
+WMJRC24  EQUOVR ,,b,WMJMRC3                                             07070000
+.*                                                                      07080000
+.* WMJMRC4 - BYTE 4  - EXTENDED ROUTING CODES                           07090000
+WMJRC25  EQUOVR ,,b,WMJMRC4                                             07100000
+WMJRC26  EQUOVR ,,b,WMJMRC4                                             07110000
+WMJRC27  EQUOVR ,,b,WMJMRC4                                             07120000
+WMJRC28  EQUOVR ,,b,WMJMRC4                                             07130000
+WMJRC29  EQUOVR ,,b,WMJMRC4                                             07140000
+WMJRC30  EQUOVR ,,b,WMJMRC4                                             07150000
+WMJRC31  EQUOVR ,,b,WMJMRC4                                             07160000
+WMJRC32  EQUOVR ,,b,WMJMRC4                                             07170000
+.*                                                                      07180000
+.* WMJMRC5 - BYTE 5  - EXTENDED ROUTING CODES                           07190000
+WMJRC33  EQUOVR ,,b,WMJMRC5                                             07200000
+WMJRC34  EQUOVR ,,b,WMJMRC5                                             07210000
+WMJRC35  EQUOVR ,,b,WMJMRC5                                             07220000
+WMJRC36  EQUOVR ,,b,WMJMRC5                                             07230000
+WMJRC37  EQUOVR ,,b,WMJMRC5                                             07240000
+WMJRC38  EQUOVR ,,b,WMJMRC5                                             07250000
+WMJRC39  EQUOVR ,,b,WMJMRC5                                             07260000
+WMJRC40  EQUOVR ,,b,WMJMRC5                                             07270000
+.*                                                                      07280000
+.* WMJMRC6 - BYTE 6  - EXTENDED ROUTING CODES                           07290000
+WMJRC41  EQUOVR ,,b,WMJMRC6                                             07300000
+WMJRC42  EQUOVR ,,b,WMJMRC6                                             07310000
+WMJRC43  EQUOVR ,,b,WMJMRC6                                             07320000
+WMJRC44  EQUOVR ,,b,WMJMRC6                                             07330000
+WMJRC45  EQUOVR ,,b,WMJMRC6                                             07340000
+WMJRC46  EQUOVR ,,b,WMJMRC6                                             07350000
+WMJRC47  EQUOVR ,,b,WMJMRC6                                             07360000
+WMJRC48  EQUOVR ,,b,WMJMRC6                                             07370000
+.*                                                                      07380000
+.* WMJMRC7 - BYTE 7  - EXTENDED ROUTING CODES                           07390000
+WMJRC49  EQUOVR ,,b,WMJMRC7                                             07400000
+WMJRC50  EQUOVR ,,b,WMJMRC7                                             07410000
+WMJRC51  EQUOVR ,,b,WMJMRC7                                             07420000
+WMJRC52  EQUOVR ,,b,WMJMRC7                                             07430000
+WMJRC53  EQUOVR ,,b,WMJMRC7                                             07440000
+WMJRC54  EQUOVR ,,b,WMJMRC7                                             07450000
+WMJRC55  EQUOVR ,,b,WMJMRC7                                             07460000
+WMJRC56  EQUOVR ,,b,WMJMRC7                                             07470000
+.*                                                                      07480000
+.* WMJMRC8 - BYTE 8  - EXTENDED ROUTING CODES                           07490000
+WMJRC57  EQUOVR ,,b,WMJMRC8                                             07500000
+WMJRC58  EQUOVR ,,b,WMJMRC8                                             07510000
+WMJRC59  EQUOVR ,,b,WMJMRC8                                             07520000
+WMJRC60  EQUOVR ,,b,WMJMRC8                                             07530000
+WMJRC61  EQUOVR ,,b,WMJMRC8                                             07540000
+WMJRC62  EQUOVR ,,b,WMJMRC8                                             07550000
+WMJRC63  EQUOVR ,,b,WMJMRC8                                             07560000
+WMJRC64  EQUOVR ,,b,WMJMRC8                                             07570000
+.*                                                                      07580000
+.* WMJMRC9 - BYTE 9  - EXTENDED ROUTING CODES                           07590000
+WMJRC65  EQUOVR ,,b,WMJMRC9                                             07600000
+WMJRC66  EQUOVR ,,b,WMJMRC9                                             07610000
+WMJRC67  EQUOVR ,,b,WMJMRC9                                             07620000
+WMJRC68  EQUOVR ,,b,WMJMRC9                                             07630000
+WMJRC69  EQUOVR ,,b,WMJMRC9                                             07640000
+WMJRC70  EQUOVR ,,b,WMJMRC9                                             07650000
+WMJRC71  EQUOVR ,,b,WMJMRC9                                             07660000
+WMJRC72  EQUOVR ,,b,WMJMRC9                                             07670000
+.*                                                                      07680000
+.* WMJMRC10 - BYTE 10 - EXTENDED ROUTING CODES                          07690000
+WMJRC73  EQUOVR ,,b,WMJMRC10                                            07700000
+WMJRC74  EQUOVR ,,b,WMJMRC10                                            07710000
+WMJRC75  EQUOVR ,,b,WMJMRC10                                            07720000
+WMJRC76  EQUOVR ,,b,WMJMRC10                                            07730000
+WMJRC77  EQUOVR ,,b,WMJMRC10                                            07740000
+WMJRC78  EQUOVR ,,b,WMJMRC10                                            07750000
+WMJRC79  EQUOVR ,,b,WMJMRC10                                            07760000
+WMJRC80  EQUOVR ,,b,WMJMRC10                                            07770000
+.*                                                                      07780000
+.* WMJMRC11 - BYTE 11 - EXTENDED ROUTING CODES                          07790000
+WMJRC81  EQUOVR ,,b,WMJMRC11                                            07800000
+WMJRC82  EQUOVR ,,b,WMJMRC11                                            07810000
+WMJRC83  EQUOVR ,,b,WMJMRC11                                            07820000
+WMJRC84  EQUOVR ,,b,WMJMRC11                                            07830000
+WMJRC85  EQUOVR ,,b,WMJMRC11                                            07840000
+WMJRC86  EQUOVR ,,b,WMJMRC11                                            07850000
+WMJRC87  EQUOVR ,,b,WMJMRC11                                            07860000
+WMJRC88  EQUOVR ,,b,WMJMRC11                                            07870000
+.*                                                                      07880000
+.* WMJMRC12 - BYTE 12 - EXTENDED ROUTING CODES                          07890000
+WMJRC89  EQUOVR ,,b,WMJMRC12                                            07900000
+WMJRC90  EQUOVR ,,b,WMJMRC12                                            07910000
+WMJRC91  EQUOVR ,,b,WMJMRC12                                            07920000
+WMJRC92  EQUOVR ,,b,WMJMRC12                                            07930000
+WMJRC93  EQUOVR ,,b,WMJMRC12                                            07940000
+WMJRC94  EQUOVR ,,b,WMJMRC12                                            07950000
+WMJRC95  EQUOVR ,,b,WMJMRC12                                            07960000
+WMJRC96  EQUOVR ,,b,WMJMRC12                                            07970000
+.*                                                                      07980000
+.* WMJMRC13 - BYTE 13 - EXTENDED ROUTING CODES                          07990000
+WMJRC97  EQUOVR ,,b,WMJMRC13                                            08000000
+WMJRC98  EQUOVR ,,b,WMJMRC13                                            08010000
+WMJRC99  EQUOVR ,,b,WMJMRC13                                            08020000
+WMJRC100 EQUOVR ,,b,WMJMRC13                                            08030000
+WMJRC101 EQUOVR ,,b,WMJMRC13                                            08040000
+WMJRC102 EQUOVR ,,b,WMJMRC13                                            08050000
+WMJRC103 EQUOVR ,,b,WMJMRC13                                            08060000
+WMJRC104 EQUOVR ,,b,WMJMRC13                                            08070000
+.*                                                                      08080000
+.* WMJMRC14 - BYTE 14 - EXTENDED ROUTING CODES                          08090000
+WMJRC105 EQUOVR ,,b,WMJMRC14                                            08100000
+WMJRC106 EQUOVR ,,b,WMJMRC14                                            08110000
+WMJRC107 EQUOVR ,,b,WMJMRC14                                            08120000
+WMJRC108 EQUOVR ,,b,WMJMRC14                                            08130000
+WMJRC109 EQUOVR ,,b,WMJMRC14                                            08140000
+WMJRC110 EQUOVR ,,b,WMJMRC14                                            08150000
+WMJRC111 EQUOVR ,,b,WMJMRC14                                            08160000
+WMJRC112 EQUOVR ,,b,WMJMRC14                                            08170000
+.*                                                                      08180000
+.* WMJMRC15 - BYTE 15 - EXTENDED ROUTING CODES                          08190000
+WMJRC113 EQUOVR ,,b,WMJMRC15                                            08200000
+WMJRC114 EQUOVR ,,b,WMJMRC15                                            08210000
+WMJRC115 EQUOVR ,,b,WMJMRC15                                            08220000
+WMJRC116 EQUOVR ,,b,WMJMRC15                                            08230000
+WMJRC117 EQUOVR ,,b,WMJMRC15                                            08240000
+WMJRC118 EQUOVR ,,b,WMJMRC15                                            08250000
+WMJRC119 EQUOVR ,,b,WMJMRC15                                            08260000
+WMJRC120 EQUOVR ,,b,WMJMRC15                                            08270000
+.*                                                                      08280000
+.* WMJMRC16 - BYTE 16 - EXTENDED ROUTING CODES                          08290000
+WMJRC121 EQUOVR ,,b,WMJMRC16                                            08300000
+WMJRC122 EQUOVR ,,b,WMJMRC16                                            08310000
+WMJRC123 EQUOVR ,,b,WMJMRC16                                            08320000
+WMJRC124 EQUOVR ,,b,WMJMRC16                                            08330000
+WMJRC125 EQUOVR ,,b,WMJMRC16                                            08340000
+WMJRC126 EQUOVR ,,b,WMJMRC16                                            08350000
+WMJRC127 EQUOVR ,,b,WMJMRC16                                            08360000
+WMJRC128 EQUOVR ,,b,WMJMRC16                                            08370000
+.*                                                                      08380000
+.* WMJMERF1 - REQUEST FLAGS BYTE ONE                                    08390000
+WMJEMRY  EQUOVR ,,b,WMJMERF1                                            08400000
+WMJEMRN  EQUOVR ,,b,WMJMERF1                                            08410000
+WMJEMCO  EQUOVR ,,b,WMJMERF1                                            08420000
+WMJEMHI  EQUOVR ,,b,WMJMERF1                                            08430000
+WMJEMIN  EQUOVR ,,b,WMJMERF1                                            08440000
+.*                                                                      08450000
+.* WMJMXIF1 - MISC AND MINOR ERROR FLAG BYTE 1                          08460000
+WMJMTXTR EQUOVR ,,b,WMJMXIF1                                            08470000
+WMJMXNVT EQUOVR ,,b,WMJMXIF1                                            08480000
+WMJMXMER EQUOVR ,,b,WMJMXIF1                                            08490000
+WMJMXIRM EQUOVR ,,b,WMJMXIF1                                            08500000
+WMJMDMDB EQUOVR ,,b,WMJMXIF1                                            08510000
+.*                                                                      08520000
+.* WMJMXIF2 - MISC AND MINOR ERROR FLAG BYTE 2                          08530000
+WMJQONLY EQUOVR ,,b,WMJMXIF2                                            08540000
+WMJAMRFO EQUOVR ,,b,WMJMXIF2                                            08550000
+WMJAMRFA EQUOVR ,,b,WMJMXIF2                                            08560000
+WMJMQD   EQUOVR ,,b,WMJMXIF2                                            08570000
+WMJMWTPR EQUOVR ,,b,WMJMXIF2                                            08580000
+WMJMMFR  EQUOVR ,,b,WMJMXIF2                                            08590000
+WMJAMRFR EQUOVR ,,b,WMJMXIF2                                            08600000
+WMJQTSYS EQUOVR ,,b,WMJMXIF2                                            08610000
+.*                                                                      08620000
+.* WMJBENIP - BRANCH ENTRY/NIP FLAGS                                    08630000
+WMJMDOMD EQUOVR ,,b,WMJBENIP                                            08640000
+WMJMNBEW EQUOVR ,,b,WMJBENIP                                            08650000
+WMJMHABD EQUOVR ,,b,WMJBENIP                                            08660000
+WMJMASCB EQUOVR ,,b,WMJBENIP                                            08670000
+.*                                                                      08680000
+.* WMJMMISC - MISCELLANEOUS ROUTING INFORMATION                         08690000
+WMJMUD   EQUOVR ,,b,WMJMMISC                                            08700000
+WMJMFUDO EQUOVR ,,b,WMJMMISC                                            08710000
+WMJMFIDO EQUOVR ,,b,WMJMMISC                                            08720000
+WMJMAUTO EQUOVR ,,b,WMJMMISC                                            08730000
+WMJMHC   EQUOVR ,,b,WMJMMISC                                            08740000
+.*                                                                      08750000
+.* WMJMISCC - MISCELLANEOUS CONTROL PROGRAM FLAGS                       08760000
+WMJMSPVD EQUOVR ,,b,WMJMISCC                                            08770000
+WMJMPRIV EQUOVR ,,b,WMJMISCC                                            08780000
+WMJMQNLY EQUOVR ,,b,WMJMISCC                                            08790000
+.*                                                                      08800000
+.* WMNMML1 - MLWTO FLAGS FOR FIRST MESSAGE                              08810000
+WQERSV62 EQUOVR ,,b,WMNMML1                                             08820000
+WMNMML1B EQUOVR ,,b,WMNMML1                                             08830000
+WMNMML1C EQUOVR ,,b,WMNMML1                                             08840000
+WMNMML1D EQUOVR ,,b,WMNMML1                                             08850000
+WMNMML1E EQUOVR ,,b,WMNMML1                                             08860000
+WMNMML1F EQUOVR ,,b,WMNMML1                                             08870000
+WMNMML1G EQUOVR ,,b,WMNMML1                                             08880000
+WMNMML1H EQUOVR ,,b,WMNMML1                                             08890000
+.*                                                                      08900000
+.* WMNMLT1 -  LINE TYPE FLAGS FOR FIRST MESSAGE                         08910000
+WMNMLT1A EQUOVR ,,b,WMNMLT1                                             08920000
+WMNMLT1B EQUOVR ,,b,WMNMLT1                                             08930000
+WMNMLT1C EQUOVR ,,b,WMNMLT1                                             08940000
+WMNMLT1D EQUOVR ,,b,WMNMLT1                                             08950000
+WQERSV63 EQUOVR ,,b,WMNMLT1                                             08960000
+WQERSV64 EQUOVR ,,b,WMNMLT1                                             08970000
+WQERSV65 EQUOVR ,,b,WMNMLT1                                             08980000
+WQERSV66 EQUOVR ,,b,WMNMLT1                                             08990000
+.*                                                                      09000000
+.* WMNMST1 - STATUS FLAGS                                               09010000
+WMNMTPD1 EQUOVR ,,b,WMNMST1                                             09020000
+WMNMTRC1 EQUOVR ,,b,WMNMST1                                             09030000
+WMNMWTP1 EQUOVR ,,b,WMNMST1                                             09040000
+WQERSVB1 EQUOVR ,,b,WMNMST1                                             09050000
+WQERSVB2 EQUOVR ,,b,WMNMST1                                             09060000
+WQERSVB3 EQUOVR ,,b,WMNMST1                                             09070000
+WQERSVB4 EQUOVR ,,b,WMNMST1                                             09080000
+WQERSVB5 EQUOVR ,,b,WMNMST1                                             09090000
+.*                                                                      09100000
+.* WMNMMSF1 - MISCELLANEOUS FLAGS                                       09110000
+WMNMRV99 EQUOVR ,,b,WMNMMSF1                                            09120000
+WMNMRV9A EQUOVR ,,b,WMNMMSF1                                            09130000
+WMNMTRAN EQUOVR ,,b,WMNMMSF1                                            09140000
+.*                                                                      09150000
+.* WMN1RFB1 - REQUEST FLAGS BYTE ONE                                    09160000
+WMN1RCMT EQUOVR ,,b,WMN1RFB1                                            09170000
+WMN1RPML EQUOVR ,,b,WMN1RFB1                                            09180000
+.*                                                                      09190000
+.* WMN1SUPB - SUPPRESSION BYTE                                          09200000
+WMN1SNSV EQUOVR ,,b,WMN1SUPB                                            09210000
+WMN1SEER EQUOVR ,,b,WMN1SUPB                                            09220000
+WMN1SNSI EQUOVR ,,b,WMN1SUPB                                            09230000
+WMN1SAUT EQUOVR ,,b,WMN1SUPB                                            09240000
+WMN1SQED EQUOVR ,,b,WMN1SUPB                                            09250000
+WMN1SSSI EQUOVR ,,b,WMN1SUPB                                            09260000
+WMN1SWTO EQUOVR ,,b,WMN1SUPB                                            09270000
+WMN1SMPF EQUOVR ,,b,WMN1SUPB                                            09280000
+.*                                                                      09290000
+.* WMNMML2 - MLWTO FLAGS FOR SECOND MESSAGE                             09300000
+WQERSV68 EQUOVR ,,b,WMNMML2                                             09310000
+WMNMML2B EQUOVR ,,b,WMNMML2                                             09320000
+WMNMML2C EQUOVR ,,b,WMNMML2                                             09330000
+WMNMML2D EQUOVR ,,b,WMNMML2                                             09340000
+WMNMML2E EQUOVR ,,b,WMNMML2                                             09350000
+WQERSV69 EQUOVR ,,b,WMNMML2                                             09360000
+WMNMML2G EQUOVR ,,b,WMNMML2                                             09370000
+WMNMML2H EQUOVR ,,b,WMNMML2                                             09380000
+.*                                                                      09390000
+.* WMNMLT2 - LINE TYPE FLAGS FOR SECOND MESSAGE                         09400000
+WMNMLT2A EQUOVR ,,b,WMNMLT2                                             09410000
+WMNMLT2B EQUOVR ,,b,WMNMLT2                                             09420000
+WMNMLT2C EQUOVR ,,b,WMNMLT2                                             09430000
+WMNMLT2D EQUOVR ,,b,WMNMLT2                                             09440000
+WQERSV70 EQUOVR ,,b,WMNMLT2                                             09450000
+WQERSV71 EQUOVR ,,b,WMNMLT2                                             09460000
+WQERSV72 EQUOVR ,,b,WMNMLT2                                             09470000
+WQERSV73 EQUOVR ,,b,WMNMLT2                                             09480000
+.*                                                                      09490000
+.* WMNMST2 - STATUS FLAGS                                               09500000
+WMNMTPD2 EQUOVR ,,b,WMNMST2                                             09510000
+WMNMTRC2 EQUOVR ,,b,WMNMST2                                             09520000
+WMNMWTP2 EQUOVR ,,b,WMNMST2                                             09530000
+WQERSVC1 EQUOVR ,,b,WMNMST2                                             09540000
+WQERSVC2 EQUOVR ,,b,WMNMST2                                             09550000
+WQERSVC3 EQUOVR ,,b,WMNMST2                                             09560000
+WQERSVC4 EQUOVR ,,b,WMNMST2                                             09570000
+WQERSVC5 EQUOVR ,,b,WMNMST2                                             09580000
+.*                                                                      09590000
+.* WMN2RFB1 - REQUEST FLAGS BYTE ONE                                    09600000
+WMN2RCMT EQUOVR ,,b,WMN2RFB1                                            09610000
+WMN2RPML EQUOVR ,,b,WMN2RFB1                                            09620000
+.*                                                                      09630000
+.* WMN2SUPB - SUPPRESSION BYTE                                          09640000
+WMN2SNSV EQUOVR ,,b,WMN2SUPB                                            09650000
+WMN2SEER EQUOVR ,,b,WMN2SUPB                                            09660000
+WMN2SNSI EQUOVR ,,b,WMN2SUPB                                            09670000
+WMN2SAUT EQUOVR ,,b,WMN2SUPB                                            09680000
+WMN2SQED EQUOVR ,,b,WMN2SUPB                                            09690000
+WMN2SSSI EQUOVR ,,b,WMN2SUPB                                            09700000
+WMN2SWTO EQUOVR ,,b,WMN2SUPB                                            09710000
+WMN2SMPF EQUOVR ,,b,WMN2SUPB                                            09720000
+.*                                                                      09730000
+         MNOTE *,'Including IHAWQE mapping macro'                       09740000
+         IHAWQE FORMAT=NEW             *                                09750000
+         EQUOVR *END                                                    09760000
+*                                                                       09770000
+WQE      DSECT ,                       * Resume WQE DSECT               09780000
+         ORG   ,                                                        09790000
+WQE_LEN  EQU   *-WQE                   * Length of WQE                  09800000
+*                                                                       09810000
+WQEMAJ   DSECT ,                       * Resume WQE-major DSECT         09820000
+         ORG   ,                                                        09830000
+WQEMAJ_LEN EQU *-WQEMAJ                * Length of WQE-major            09840000
+*                                                                       09850000
+WQEMIN   DSECT ,                       * Resume WQE-minor DSECT         09860000
+         ORG   ,                                                        09870000
+WQEMIN_LEN EQU *-WQEMIN                * Length of WQE-minor            09880000
+*                                                                       09890000
+WQESYAR  DSECT ,                       * Resume WQE SYSID-array DSECT   09900000
+         ORG   ,                                                        09910000
+WQESYAR_LEN EQU *-WQESYAR              * Length of WQESYAR              09920000
+.*                                                                      09930000
+.* Return to our original CSECT name                                    09940000
+&SYSECT  &SYSSTYP                                                       09950000
+.*                                                                      09960000
+.MEND    MEND                                                           09980002

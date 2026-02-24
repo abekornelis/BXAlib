@@ -1,0 +1,184 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Load a signed field or literal into a register                       00180000
+.* This is a sub-macro for use by the $IF-macro only                    00190000
+.*                                                                      00200000
+&LABEL   IF$LS &REG,                   * Register to load              *00210000
+               &FLD,                   * Field or literal with value   *00220000
+               &LITLEN,                * Length of literal or 0 for fld*00230000
+               &TYPE                   * Type of field                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC IF$LS                  * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         LCLA  &LEN                                                     00270000
+         LCLA  &I                                                       00280000
+         LCLC  &NUM                                                     00290000
+         LCLC  &_FLD                                                    00300000
+.*                                                                      00310000
+.* Determine length of field to be loaded                               00320000
+         AIF   ('&TYPE' EQ '0').DECLIT                                  00330000
+         AIF   (K'&LITLEN EQ 0).FLDLEN                                  00340000
+         AIF   (&LITLEN EQ 0).FLDLEN                                    00350000
+&LEN     SETA  &LITLEN                 * Length is that of literal      00360000
+         AGO   .LENOK                                                   00370000
+.FLDLEN  ANOP  ,                                                        00380000
+&LEN     SETA  L'&FLD                  * Length is that of field        00390000
+.LENOK   ANOP                                                           00400000
+.*                                                                      00410000
+.* Action depends on length of field to be loaded                       00420000
+         AIF   (&LEN EQ 1).LEN1                                         00430000
+         AIF   (&LEN EQ 2).LEN2                                         00440000
+         AIF   (&LEN EQ 3).LEN3                                         00450000
+         AIF   (&LEN EQ 4).LEN4                                         00460000
+&_FLD    SETC  (DOUBLE '&FLD')                                          00470000
+         MNOTE 8,'&_FLD is too long to load into a register'            00480000
+         MEXIT                                                          00490000
+.*                                                                      00500000
+.* Load a 1-byte value into a register                                  00510000
+.LEN1    ANOP  ,                                                        00520000
+&LABEL   ICM   &REG,YNNN,&FLD          * Load signed byte               00530000
+         SRA   &REG,24                 * Remove garbage & sign extend   00540000
+         MEXIT                                                          00550000
+.*                                                                      00560000
+.* Load a 2-byte value into a register                                  00570000
+.LEN2    ANOP  ,                                                        00580000
+&I       SETA  ('AFHVY' FIND '&TYPE')  * Some aligned type?             00590000
+         AIF   (&I NE 0).LEN2_LH       * Yes: use LH                    00600000
+         AIF   ('&FLD'(1,1) EQ '=').LEN2_LH * 2-byte literal: aligned!  00610000
+&LABEL   ICM   &REG,YYNN,&FLD          * Load signed bytes              00620000
+         SRA   &REG,16                 * Remove garbage & sign extend   00630000
+         MEXIT                                                          00640000
+.LEN2_LH ANOP  ,                                                        00650000
+&LABEL   LH    &REG,&FLD               * Load signed halfword           00660000
+         MEXIT                                                          00670000
+.*                                                                      00680000
+.* Load a 3-byte value into a register                                  00690000
+.LEN3    ANOP  ,                                                        00700000
+&LABEL   ICM   &REG,YYYN,&FLD          * Load signed bytes              00710000
+         SRA   &REG,8                  * Remove garbage & sign extend   00720000
+         MEXIT                                                          00730000
+.*                                                                      00740000
+.* Load a 4-byte value into a register                                  00750000
+.LEN4    ANOP  ,                                                        00760000
+&I       SETA  ('AFV' FIND '&TYPE')    * Some aligned type?             00770000
+         AIF   (&I NE 0).LEN4_L        * Yes: use L                     00780000
+         AIF   ('&FLD'(1,1) EQ '=').LEN4_L * 4-byte literal: aligned!   00790000
+&LABEL   ICM   &REG,YYYY,&FLD          * Load signed bytes              00800000
+         MEXIT                                                          00810000
+.LEN4_L  ANOP  ,                                                        00820000
+&LABEL   L     &REG,&FLD               * Load signed word               00830000
+         MEXIT                                                          00840000
+.*                                                                      00850000
+.* Handle a decimal literal - may be negative                           00860000
+.DECLIT  ANOP  ,                                                        00870000
+         AIF   ('&FLD'(1,1) EQ '-').DECLITN                             00880000
+&I       SETA  ('&FLD'(1,1) FIND '0123456789')                          00890000
+         AIF   (&I NE 0).DECLITP       * Decimal value                  00900000
+         AIF   ('&FLD'(K'&FLD,1) EQ '''').DECLITP * Hex or Bin value    00910000
+.* Specified literal must be an equated symbol of type 0                00920000
+         AIF   (T'&FLD EQ '0').NOERR1                                   00930000
+&_FLD    SETC  (DOUBLE '&FLD')         * Make displayable               00940000
+.ERR1    MNOTE 8,'&_FLD has type T'&FLD, expected type of 0'            00950000
+         MEXIT                                                          00960000
+.NOERR1  ANOP  ,                                                        00970000
+.*                                                                      00980000
+.* Retrieve value and decide how to load it                             00990000
+&I       SETA  L'&FLD                  * Type 0: length = copy of value 01000000
+         AIF   (&I EQ 0).USE_CLEAR                                      01010000
+         AIF   (&I GT 32767).USE_L                                      01020000
+         AIF   (&I GT 4095).USE_LH                                      01030000
+         AIF   (&I GT 0).USE_LA                                         01040000
+         AIF   (&I LT -32767).USE_L                                     01050000
+         AGO   .USE_LH                                                  01060000
+.*                                                                      01070000
+.* Handle positive literal                                              01080000
+.DECLITP ANOP  ,                       * Positive literal number        01090000
+&I       SETA  &FLD                    * Load decimal value             01100000
+         AIF   (&I EQ 0).USE_CLEAR                                      01110000
+         AIF   (&I LT 4096).USE_LA                                      01120000
+         AIF   (&I LT 32768).USE_LH                                     01130000
+         AGO   .USE_L                                                   01140000
+.*                                                                      01150000
+.* Handle negative literal                                              01160000
+.DECLITN ANOP  ,                       * Negative literal number        01170000
+&NUM     SETC  '&FLD'(2,*)             * Extract numerical part         01180000
+&I       SETA  &NUM                                                     01190000
+         AIF   (&I EQ 0).USE_CLEAR                                      01200000
+         AIF   (&I LT 32768).USE_LH                                     01210000
+         AGO   .USE_L                                                   01220000
+.*                                                                      01230000
+.USE_CLEAR ANOP ,                                                       01240000
+&LABEL   CLEAR &REG                    * Wipe register                  01250000
+         MEXIT                                                          01260000
+.*                                                                      01270000
+.USE_LA  ANOP  ,                                                        01280000
+&LABEL   LA    &REG,&FLD               * Load literal number            01290000
+         MEXIT                                                          01300000
+.*                                                                      01310000
+.USE_LH  ANOP  ,                                                        01320000
+&LABEL   LH    &REG,=H'&FLD'           * Load literal number            01330000
+         MEXIT                                                          01340000
+.*                                                                      01350000
+.USE_L   ANOP  ,                                                        01360000
+&LABEL   L     &REG,=F'&FLD'           * Load literal number            01370000
+         MEXIT                                                          01380000
+.*                                                                      01390000
+.MEND    MEND                                                           01400002

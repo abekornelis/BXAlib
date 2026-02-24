@@ -1,0 +1,152 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for Latch Management                                   00180000
+.*                                                                      00190000
+&LABEL   MAPLMASM &DSECT=YES,          * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPLMASM               * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPLMASM       * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'LCRTPL').EMBED                                00360000
+         AIF   ('&CB' EQ 'LOBTPL').EMBED                                00370000
+         AIF   ('&CB' EQ 'LPRGPL').EMBED                                00380000
+         AIF   ('&CB' EQ 'LRELPL').EMBED                                00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded definition                                         00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPLMASM).MEND                                 00490002
+&BXA_MAC_MAPLMASM SETB 1                                                00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_LCRTPL                                           00520000
+         GBLC  &BXA_CB_LOBTPL                                           00530000
+         GBLC  &BXA_CB_LPRGPL                                           00540000
+         GBLC  &BXA_CB_LRELPL                                           00550000
+&BXA_CB_LCRTPL SETC 'LMASM'                                             00560000
+&BXA_CB_LOBTPL SETC 'LMASM'                                             00570000
+&BXA_CB_LPRGPL SETC 'LMASM'                                             00580000
+&BXA_CB_LRELPL SETC 'LMASM'                                             00590000
+.*                                                                      00600000
+         MNOTE *,'Including ISGLMASM'                                   00610000
+.*                                                                      00620000
+.* Put equates in a DSECT to prevent warning messages in ASM listing    00630000
+BXA_EQU  DSECT                                                          00640000
+         ISGLMASM                                                       00650000
+         ORG   ,                       * Reset to end of DSECT          00660000
+*                                                                       00670000
+* Plist for ISGLCRT - Latch Create                                      00680000
+LCRTPL   DSECT                                                          00690000
+LCRTNR   DS    A                       * Count: pointer to fullword     00700000
+LCRTNAM  DS    A                       * Latch set name: ptr to CL48    00710000
+LCRTOPT  DS    A                       * Create option: ptr to F        00720000
+LCRTTOK  DS    A                       * Latch set token: ptr to 2F     00730000
+LCRTRCD  DS    A                       * Return code: pointer to F      00740000
+LCRTPL_LEN EQU *-LCRTPL                * Length of parmlist             00750000
+*                                                                       00760000
+* Plist for ISGLOBT - Latch Obtain                                      00770000
+LOBTPL   DSECT                                                          00780000
+LOBTSTOK DS    A                       * Latch Set token: ptr to XL8    00790000
+LOBTLAT  DS    A                       * Latch nr: ptr to F             00800000
+LOBTRQID DS    A                       * Requestor ID: ptr to XL8       00810000
+LOBTOOPT DS    A                       * Obtain option: ptr to F        00820000
+LOBTAOPT DS    A                       * Access option: ptr to F        00830000
+LOBTECBP DS    A                       * ECB address: ptr to A(ECB-ptr) 00840000
+LOBTLTOK DS    A                       * Latch token: ptr to XL8        00850000
+LOBTWORK DS    A                       * Work area: ptr to XL256        00860000
+LOBTRCD  DS    A                       * Return code: ptr to F          00870000
+LOBTPL_LEN EQU *-LOBTPL                * Length of parmlist             00880000
+*                                                                       00890000
+* Plist for ISGLPRG - Latch Purge                                       00900000
+LPRGPL   DSECT                                                          00910000
+LPRGSTOK DS    A                       * Latch Set token: ptr to XL8    00920000
+LPRGRQID DS    A                       * Requestor ID: ptr to XL8       00930000
+LPRGRCD  DS    A                       * Return code: ptr to F          00940000
+LPRGPL_LEN EQU *-LPRGPL                * Length of parmlist             00950000
+*                                                                       00960000
+* Plist for ISGLREL - Latch Release                                     00970000
+LRELPL   DSECT                                                          00980000
+LRELSTOK DS    A                       * Latch Set token: ptr to XL8    00990000
+LRELLTOK DS    A                       * Latch token: ptr to XL8        01000000
+LRELROPT DS    A                       * Release option: ptr to F       01010000
+LRELWORK DS    A                       * Work area: ptr to XL256        01020000
+LRELRCD  DS    A                       * Return code: ptr to F          01030000
+LRELPL_LEN EQU *-LRELPL                * Length of parmlist             01040000
+.*                                                                      01050000
+.* Return to our original CSECT name                                    01060000
+&SYSECT  &SYSSTYP                                                       01070000
+.*                                                                      01080000
+.MEND    MEND                                                           01100002

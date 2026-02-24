@@ -1,0 +1,296 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Operator Reply Element definition                00180000
+.*                                                                      00190000
+&LABEL   MAPORE &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPORE                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPORE         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'ORE').EMBED                                   00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPORE).MEND                                   00460002
+&BXA_MAC_MAPORE SETB 1                                                  00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_ORE                                              00490000
+&BXA_CB_ORE SETC 'ORE'                                                  00500000
+.*                                                                      00510000
+.* OREXA - FLAGS                                                        00520000
+OREFORGN EQUOVR ,,b,OREXA                                               00530000
+OREKEY0  EQUOVR ,,b,OREXA                                               00540000
+ORESWAP  EQUOVR ,,b,OREXA                                               00550000
+ORESUSP  EQUOVR ,,b,OREXA                                               00560000
+OREINUSE EQUOVR ,,b,OREXA                                               00570000
+OREDMCMP EQUOVR ,,b,OREXA                                               00580000
+.* ORERSV05 EQUOVR ,,b,OREXA           * Last seen in OS/390 V2R6       00590000
+OREDOMD  EQUOVR ,,b,OREXA              * First seen in z/OS V1R4        00591000
+ORERSV06 EQUOVR ,,b,OREXA                                               00600000
+.*                                                                      00610000
+.* OREXC - BUFFER STATUS FLAGS                                          00620000
+OREBUFA  EQUOVR ,,b,OREXC                                               00630000
+OREBUFB  EQUOVR ,,b,OREXC                                               00640000
+OREBUFC  EQUOVR ,,b,OREXC                                               00650000
+OREBUFD  EQUOVR ,,b,OREXC                                               00660000
+OREBUFE  EQUOVR ,,b,OREXC                                               00670000
+.* ORERSV08 EQUOVR ,,b,OREXC           * Last seen in OS/390 V2R6       00680000
+ORESAVD  EQUOVR ,,b,OREXC              * First seen in z/OS V1R4        00690000
+ORERSV09 EQUOVR ,,b,OREXC                                               00691000
+ORERSV10 EQUOVR ,,b,OREXC                                               00700000
+.*                                                                      00710000
+.* OREVRSN - VERSION LEVEL                                              00720000
+ORESP13  EQUOVR ,,b,OREVRSN                                             00730000
+ORESP22  EQUOVR ,,b,OREVRSN                                             00740000
+ORESP313 EQUOVR ,,b,OREVRSN                                             00750000
+ORESP410 EQUOVR ,,b,OREVRSN                                             00760000
+OREVRID  EQUOVR ,,b,OREVRSN                                             00770000
+.*                                                                      00780000
+.* ORERTA - FIRST BYTE OF ROUTING CODES                                 00790000
+ORERT001 EQUOVR ,,b,ORERTA                                              00800000
+ORERT002 EQUOVR ,,b,ORERTA                                              00810000
+ORERT003 EQUOVR ,,b,ORERTA                                              00820000
+ORERT004 EQUOVR ,,b,ORERTA                                              00830000
+ORERT005 EQUOVR ,,b,ORERTA                                              00840000
+ORERT006 EQUOVR ,,b,ORERTA                                              00850000
+ORERT007 EQUOVR ,,b,ORERTA                                              00860000
+ORERT008 EQUOVR ,,b,ORERTA                                              00870000
+.*                                                                      00880000
+.* ORERTB - SECOND BYTE OF ROUTING CODES                                00890000
+ORERT009 EQUOVR ,,b,ORERTB                                              00900000
+ORERT010 EQUOVR ,,b,ORERTB                                              00910000
+ORERT011 EQUOVR ,,b,ORERTB                                              00920000
+ORERT012 EQUOVR ,,b,ORERTB                                              00930000
+ORERT013 EQUOVR ,,b,ORERTB                                              00940000
+ORERT014 EQUOVR ,,b,ORERTB                                              00950000
+ORERT015 EQUOVR ,,b,ORERTB                                              00960000
+ORERT016 EQUOVR ,,b,ORERTB                                              00970000
+.*                                                                      00980000
+.* ORERTC - THIRD BYTE OF ROUTING CODES                                 00990000
+ORERT017 EQUOVR ,,b,.ORERTC                                             01000000
+ORERT018 EQUOVR ,,b,.ORERTC                                             01010000
+ORERT019 EQUOVR ,,b,.ORERTC                                             01020000
+ORERT020 EQUOVR ,,b,.ORERTC                                             01030000
+ORERT021 EQUOVR ,,b,.ORERTC                                             01040000
+ORERT022 EQUOVR ,,b,.ORERTC                                             01050000
+ORERT023 EQUOVR ,,b,.ORERTC                                             01060000
+ORERT024 EQUOVR ,,b,.ORERTC                                             01070000
+.*                                                                      01080000
+.* ORERTD - FOURTH BYTE OF ROUTING CODES                                01090000
+ORERT025 EQUOVR ,,b,ORERTD                                              01100000
+ORERT026 EQUOVR ,,b,ORERTD                                              01110000
+ORERT027 EQUOVR ,,b,ORERTD                                              01120000
+ORERT028 EQUOVR ,,b,ORERTD                                              01130000
+ORERT029 EQUOVR ,,b,ORERTD                                              01140000
+ORERT030 EQUOVR ,,b,ORERTD                                              01150000
+ORERT031 EQUOVR ,,b,ORERTD                                              01160000
+ORERT032 EQUOVR ,,b,ORERTD                                              01170000
+.*                                                                      01180000
+.* ORERTE - FIFTH BYTE OF ROUTING CODES                                 01190000
+ORERT033 EQUOVR ,,b,ORERTE                                              01200000
+ORERT034 EQUOVR ,,b,ORERTE                                              01210000
+ORERT035 EQUOVR ,,b,ORERTE                                              01220000
+ORERT036 EQUOVR ,,b,ORERTE                                              01230000
+ORERT037 EQUOVR ,,b,ORERTE                                              01240000
+ORERT038 EQUOVR ,,b,ORERTE                                              01250000
+ORERT039 EQUOVR ,,b,ORERTE                                              01260000
+ORERT040 EQUOVR ,,b,ORERTE                                              01270000
+.*                                                                      01280000
+.* ORERTF - SIXTH BYTE OF ROUTING CODES                                 01290000
+ORERT041 EQUOVR ,,b,ORERTF                                              01300000
+ORERT042 EQUOVR ,,b,ORERTF                                              01310000
+ORERT043 EQUOVR ,,b,ORERTF                                              01320000
+ORERT044 EQUOVR ,,b,ORERTF                                              01330000
+ORERT045 EQUOVR ,,b,ORERTF                                              01340000
+ORERT046 EQUOVR ,,b,ORERTF                                              01350000
+ORERT047 EQUOVR ,,b,ORERTF                                              01360000
+ORERT048 EQUOVR ,,b,ORERTF                                              01370000
+.*                                                                      01380000
+.* ORERTG - SEVENTH BYTE OF ROUTING CODES                               01390000
+ORERT049 EQUOVR ,,b,ORERTG                                              01400000
+ORERT050 EQUOVR ,,b,ORERTG                                              01410000
+ORERT051 EQUOVR ,,b,ORERTG                                              01420000
+ORERT052 EQUOVR ,,b,ORERTG                                              01430000
+ORERT053 EQUOVR ,,b,ORERTG                                              01440000
+ORERT054 EQUOVR ,,b,ORERTG                                              01450000
+ORERT055 EQUOVR ,,b,ORERTG                                              01460000
+ORERT056 EQUOVR ,,b,ORERTG                                              01470000
+.*                                                                      01480000
+.* ORERTH - EIGHTH BYTE OF ROUTING CODES                                01490000
+ORERT057 EQUOVR ,,b,ORERTH                                              01500000
+ORERT058 EQUOVR ,,b,ORERTH                                              01510000
+ORERT059 EQUOVR ,,b,ORERTH                                              01520000
+ORERT060 EQUOVR ,,b,ORERTH                                              01530000
+ORERT061 EQUOVR ,,b,ORERTH                                              01540000
+ORERT062 EQUOVR ,,b,ORERTH                                              01550000
+ORERT063 EQUOVR ,,b,ORERTH                                              01560000
+ORERT064 EQUOVR ,,b,ORERTH                                              01570000
+.*                                                                      01580000
+.* ORERTI - NINTH BYTE OF ROUTING CODES                                 01590000
+ORERT065 EQUOVR ,,b,ORERTI                                              01600000
+ORERT066 EQUOVR ,,b,ORERTI                                              01610000
+ORERT067 EQUOVR ,,b,ORERTI                                              01620000
+ORERT068 EQUOVR ,,b,ORERTI                                              01630000
+ORERT069 EQUOVR ,,b,ORERTI                                              01640000
+ORERT070 EQUOVR ,,b,ORERTI                                              01650000
+ORERT071 EQUOVR ,,b,ORERTI                                              01660000
+ORERT072 EQUOVR ,,b,ORERTI                                              01670000
+.*                                                                      01680000
+.* ORERTJ - TENTH BYTE OF ROUTING CODES                                 01690000
+ORERT073 EQUOVR ,,b,ORERTJ                                              01700000
+ORERT074 EQUOVR ,,b,ORERTJ                                              01710000
+ORERT075 EQUOVR ,,b,ORERTJ                                              01720000
+ORERT076 EQUOVR ,,b,ORERTJ                                              01730000
+ORERT077 EQUOVR ,,b,ORERTJ                                              01740000
+ORERT078 EQUOVR ,,b,ORERTJ                                              01750000
+ORERT079 EQUOVR ,,b,ORERTJ                                              01760000
+ORERT080 EQUOVR ,,b,ORERTJ                                              01770000
+.*                                                                      01780000
+.* ORERTK - ELEVENTH BYTE OF ROUTING CODES                              01790000
+ORERT081 EQUOVR ,,b,ORERTK                                              01800000
+ORERT082 EQUOVR ,,b,ORERTK                                              01810000
+ORERT083 EQUOVR ,,b,ORERTK                                              01820000
+ORERT084 EQUOVR ,,b,ORERTK                                              01830000
+ORERT085 EQUOVR ,,b,ORERTK                                              01840000
+ORERT086 EQUOVR ,,b,ORERTK                                              01850000
+ORERT087 EQUOVR ,,b,ORERTK                                              01860000
+ORERT088 EQUOVR ,,b,ORERTK                                              01870000
+.*                                                                      01880000
+.* ORERTL - TWELFTH BYTE OF ROUTING CODES                               01890000
+ORERT089 EQUOVR ,,b,ORERTL                                              01900000
+ORERT090 EQUOVR ,,b,ORERTL                                              01910000
+ORERT091 EQUOVR ,,b,ORERTL                                              01920000
+ORERT092 EQUOVR ,,b,ORERTL                                              01930000
+ORERT093 EQUOVR ,,b,ORERTL                                              01940000
+ORERT094 EQUOVR ,,b,ORERTL                                              01950000
+ORERT095 EQUOVR ,,b,ORERTL                                              01960000
+ORERT096 EQUOVR ,,b,ORERTL                                              01970000
+.*                                                                      01980000
+.* ORERTM - THIRTEENTH BYTE OF ROUTING CODES                            01990000
+ORERT097 EQUOVR ,,b,ORERTM                                              02000000
+ORERT098 EQUOVR ,,b,ORERTM                                              02010000
+ORERT099 EQUOVR ,,b,ORERTM                                              02020000
+ORERT100 EQUOVR ,,b,ORERTM                                              02030000
+ORERT101 EQUOVR ,,b,ORERTM                                              02040000
+ORERT102 EQUOVR ,,b,ORERTM                                              02050000
+ORERT103 EQUOVR ,,b,ORERTM                                              02060000
+ORERT104 EQUOVR ,,b,ORERTM                                              02070000
+.*                                                                      02080000
+.* ORERTN - FOURTEENTH BYTE OF ROUTING CODES                            02090000
+ORERT105 EQUOVR ,,b,ORERTN                                              02100000
+ORERT106 EQUOVR ,,b,ORERTN                                              02110000
+ORERT107 EQUOVR ,,b,ORERTN                                              02120000
+ORERT108 EQUOVR ,,b,ORERTN                                              02130000
+ORERT109 EQUOVR ,,b,ORERTN                                              02140000
+ORERT110 EQUOVR ,,b,ORERTN                                              02150000
+ORERT111 EQUOVR ,,b,ORERTN                                              02160000
+ORERT112 EQUOVR ,,b,ORERTN                                              02170000
+.*                                                                      02180000
+.* ORERTO - FIFTEENTH BYTE OF ROUTING CODES                             02190000
+ORERT113 EQUOVR ,,b,ORERTO                                              02200000
+ORERT114 EQUOVR ,,b,ORERTO                                              02210000
+ORERT115 EQUOVR ,,b,ORERTO                                              02220000
+ORERT116 EQUOVR ,,b,ORERTO                                              02230000
+ORERT117 EQUOVR ,,b,ORERTO                                              02240000
+ORERT118 EQUOVR ,,b,ORERTO                                              02250000
+ORERT119 EQUOVR ,,b,ORERTO                                              02260000
+ORERT120 EQUOVR ,,b,ORERTO                                              02270000
+.*                                                                      02280000
+.* ORERTP - SIXTEENTH BYTE OF ROUTING CODES                             02290000
+ORERT121 EQUOVR ,,b,ORERTP                                              02300000
+ORERT122 EQUOVR ,,b,ORERTP                                              02310000
+ORERT123 EQUOVR ,,b,ORERTP                                              02320000
+ORERT124 EQUOVR ,,b,ORERTP                                              02330000
+ORERT125 EQUOVR ,,b,ORERTP                                              02340000
+ORERT126 EQUOVR ,,b,ORERTP                                              02350000
+ORERT127 EQUOVR ,,b,ORERTP                                              02360000
+ORERT128 EQUOVR ,,b,ORERTP                                              02370000
+.*                                                                      02380000
+         MNOTE *,'Including IHAORE mapping macro'                       02390000
+         IHAORE ,                      *                                02400000
+         EQUOVR *END                                                    02410000
+*                                                                       02420000
+OREF     DSECT ,                       * Resume ORE DSECT               02430000
+ORE      EQU   OREF                    * Label for USINGs               02440000
+         ORG   ,                                                        02450000
+ORE_LEN  EQU   *-ORE                   * Length of ORE                  02460000
+.*                                                                      02470000
+.* Return to our original CSECT name                                    02480000
+&SYSECT  &SYSSTYP                                                       02490000
+.*                                                                      02500000
+.MEND    MEND                                                           02520002

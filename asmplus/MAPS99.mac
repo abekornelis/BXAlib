@@ -1,0 +1,651 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Control Blocks used with SVC 99 (DYNALLOC)       00180000
+.*                                                                      00190000
+&LABEL   MAPS99 &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPS99                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPS99         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'EMDSECT1').EMBED                              00360000
+         AIF   ('&CB' EQ 'EMDSECT2').EMBED                              00370000
+         AIF   ('&CB' EQ 'EMDSECT3').EMBED                              00380000
+         AIF   ('&CB' EQ 'S99RB').EMBED                                 00390000
+         AIF   ('&CB' EQ 'S99RBP').EMBED                                00400000
+         AIF   ('&CB' EQ 'S99RBX').EMBED                                00410000
+         AIF   ('&CB' EQ 'S99TUFLD').EMBED                              00420000
+         AIF   ('&CB' EQ 'S99TUNIT').EMBED                              00430000
+         AIF   ('&CB' EQ 'S99TUPL').EMBED                               00440000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.* Generate embedded definition                                         00480000
+.EMBED   ANOP                                                           00490000
+&LABEL   NESTCB &CB,X,&PRFX                                             00500000
+         MEXIT                                                          00510000
+.*                                                                      00520000
+.DSECT   ANOP                                                           00530000
+         AIF   (&BXA_MAC_MAPS99).MEND                                   00540002
+&BXA_MAC_MAPS99 SETB 1                                                  00550000
+.* Set up translation from control block to macro for DCL               00560000
+         GBLC  &BXA_CB_EMDSECT1                                         00570000
+         GBLC  &BXA_CB_EMDSECT2                                         00580000
+         GBLC  &BXA_CB_EMDSECT3                                         00590000
+         GBLC  &BXA_CB_S99RB                                            00600000
+         GBLC  &BXA_CB_S99RBP                                           00610000
+         GBLC  &BXA_CB_S99RBX                                           00620000
+         GBLC  &BXA_CB_S99TUFLD                                         00630000
+         GBLC  &BXA_CB_S99TUNIT                                         00640000
+         GBLC  &BXA_CB_S99TUPL                                          00650000
+&BXA_CB_EMDSECT1 SETC 'S99'                                             00660000
+&BXA_CB_EMDSECT2 SETC 'S99'                                             00670000
+&BXA_CB_EMDSECT3 SETC 'S99'                                             00680000
+&BXA_CB_S99RB SETC 'S99'                                                00690000
+&BXA_CB_S99RBP SETC 'S99'                                               00700000
+&BXA_CB_S99RBX SETC 'S99'                                               00710000
+&BXA_CB_S99TUFLD SETC 'S99'                                             00720000
+&BXA_CB_S99TUNIT SETC 'S99'                                             00730000
+&BXA_CB_S99TUPL SETC 'S99'                                              00740000
+.*                                                                      00750000
+.* S99RBPTR - REQUEST BLOCK POINTER                                     00760000
+S99RBPTR DSOVR  A                                                       00770000
+S99RBPND EQUOVR ,,b,S99RBPTR                                            00780000
+.*                                                                      00790000
+.* S99VERB - VERB CODE                                                  00800000
+S99VRBAL EQUOVR ,,v,S99VERB                                             00810000
+S99VRBUN EQUOVR ,,v,S99VERB                                             00820000
+S99VRBCC EQUOVR ,,v,S99VERB                                             00830000
+S99VRBDC EQUOVR ,,v,S99VERB                                             00840000
+S99VRBRI EQUOVR ,,v,S99VERB                                             00850000
+S99VRBDN EQUOVR ,,v,S99VERB                                             00860000
+S99VRBIN EQUOVR ,,v,S99VERB                                             00870000
+.*                                                                      00880000
+.* S99FLG11 - FIRST FLAGS BYTE                                          00890000
+S99ONCNV EQUOVR ,,b,S99FLG11                                            00900000
+S99NOCNV EQUOVR ,,b,S99FLG11                                            00910000
+S99NOMNT EQUOVR ,,b,S99FLG11                                            00920000
+S99JBSYS EQUOVR ,,b,S99FLG11                                            00930000
+S99CNENQ EQUOVR ,,b,S99FLG11                                            00940000
+S99GDGNT EQUOVR ,,b,S99FLG11                                            00950000
+S99MSGL0 EQUOVR ,,b,S99FLG11                                            00960000
+S99NOMIG EQUOVR ,,b,S99FLG11                                            00970000
+.*                                                                      00980000
+.* S99FLG12 - SECOND BYTE OF FLAGS                                      00990000
+S99NOSYM EQUOVR ,,b,S99FLG12                                            01000000
+S99ACUCB EQUOVR ,,b,S99FLG12                                            01010000
+.*                                                                      01020000
+.* S99TXTPP - ADDR OF LIST OF TEXT UNIT PTRS                            01030000
+S99TXTPP DSOVR  A                                                       01040000
+.*                                                                      01050000
+.* S99S99X - ADDR OF REQ BLK EXTENSION                                  01060000
+S99S99X  DSOVR  A                                                       01070000
+.*                                                                      01080000
+.* S99FLG21 - FIRST BYTE OF FLAGS                                       01090000
+S99WTVOL EQUOVR ,,b,S99FLG21                                            01100000
+S99WTDSN EQUOVR ,,b,S99FLG21                                            01110000
+S99NORES EQUOVR ,,b,S99FLG21                                            01120000
+S99WTUNT EQUOVR ,,b,S99FLG21                                            01130000
+S99OFFLN EQUOVR ,,b,S99FLG21                                            01140000
+S99TIONQ EQUOVR ,,b,S99FLG21                                            01150000
+S99CATLG EQUOVR ,,b,S99FLG21                                            01160000
+S99MOUNT EQUOVR ,,b,S99FLG21                                            01170000
+.*                                                                      01180000
+.* S99FLG22 - SECOND BYTE OF FLAGS                                      01190000
+S99UDEVT EQUOVR ,,b,S99FLG22                                            01200000
+S99PCINT EQUOVR ,,b,S99FLG22                                            01210000
+S99DYNDI EQUOVR ,,b,S99FLG22                                            01220000
+S99TIOEX EQUOVR ,,b,S99FLG22                                            01230000
+.*                                                                      01240000
+.* Masks for defined bits in flag fields                                01250000
+S99MSK11 EQUOVR ,,b,S99FLG11                                            01260000
+S99MSK12 EQUOVR ,,b,S99FLG12                                            01270000
+S99MSK21 EQUOVR ,,b,S99FLG21                                            01280000
+S99MSK22 EQUOVR ,,b,S99FLG22                                            01290000
+S99MSK23 EQUOVR ,,v,S99FLG23                                            01300000
+S99MSK24 EQUOVR ,,v,S99FLG24                                            01310000
+.*                                                                      01320000
+S99NOT11 EQUOVR ,,v,S99FLG11                                            01330000
+S99NOT12 EQUOVR ,,b,S99FLG12                                            01340000
+S99NOT21 EQUOVR ,,v,S99FLG21                                            01350000
+S99NOT22 EQUOVR ,,b,S99FLG22                                            01360000
+S99NOT23 EQUOVR ,,b,S99FLG23                                            01370000
+S99NOT24 EQUOVR ,,b,S99FLG24                                            01380000
+.*                                                                      01390000
+.* S99TUPTR - TEXT UNIT POINTER                                         01400000
+S99TUPLN EQUOVR ,,b,S99TUPTR                                            01410000
+.*                                                                      01420000
+.* S99EVER - VERSION NUMBER                                             01430000
+S99EVER  DSOVR  XL1                                                     01440000
+S99RBXVR EQUOVR ,,v,S99EVER                                             01450000
+.*                                                                      01460000
+.* S99EOPTS - PROCESSING OPTIONS                                        01470000
+S99EIMSG EQUOVR ,,b,S99EOPTS                                            01480000
+S99ERMSG EQUOVR ,,b,S99EOPTS                                            01490000
+S99ELSTO EQUOVR ,,b,S99EOPTS                                            01500000
+S99EMKEY EQUOVR ,,b,S99EOPTS                                            01510000
+S99EMSUB EQUOVR ,,b,S99EOPTS                                            01520000
+S99EWTP  EQUOVR ,,b,S99EOPTS                                            01530000
+.*                                                                      01540000
+.* S99EMGSV - SEVERITY LEVEL FOR MESSAGES PROCESSING                    01550000
+S99XINFO EQUOVR ,,v,S99EMGSV                                            01560000
+S99XWARN EQUOVR ,,b,S99EMGSV                                            01570000
+S99XSEVE EQUOVR ,,b,S99EMGSV                                            01580000
+.*                                                                      01590000
+         MNOTE *,'Including IEFZB4D0 mapping macro'                     01600000
+         IEFZB4D0 ,                    *                                01610000
+         EQUOVR *END                                                    01620000
+         DSOVR *END                                                     01630000
+*                                                                       01640000
+S99RBP   DSECT ,                       *                                01650000
+         ORG   ,                       *                                01660000
+S99RBP_LEN EQU *-S99RBP                *                                01670000
+*                                                                       01680000
+S99RB    DSECT ,                       *                                01690000
+         ORG   ,                       *                                01700000
+S99RB_LEN EQU  *-S99RB                 *                                01710000
+*                                                                       01720000
+S99TUPL  DSECT ,                       *                                01730000
+         ORG   ,                       *                                01740000
+S99TUPL_LEN EQU *-S99TUPL              *                                01750000
+*                                                                       01760000
+S99TUNIT DSECT ,                       *                                01770000
+S99TUFIX_LEN EQU S99TUPAR-S99TUNIT     * Length of fixed part           01780000
+         ORG   ,                       *                                01790000
+S99TUNIT_LEN EQU *-S99TUNIT            *                                01800000
+*                                                                       01810000
+S99TUFLD DSECT ,                       *                                01820000
+         ORG   ,                       *                                01830000
+S99TUFLD_LEN EQU *-S99TUFLD            *                                01840000
+*                                                                       01850000
+S99RBX   DSECT ,                       *                                01860000
+         ORG   ,                       *                                01870000
+S99RBX_LEN EQU *-S99RBX                *                                01880000
+*                                                                       01890000
+         MNOTE *,'Including IEFZB4D2 mapping macro'                     01900000
+         IEFZB4D2 ,                    *                                01910000
+*                                                                       01920000
+SVC99KYS DSECT ,                       *                                01930000
+*                                                                       01940000
+* Constants missing in IEFZB4D2                                         01950000
+DALSTATS_OLD EQU X'01'                 * DISP=OLD                       01960000
+DALSTATS_MOD EQU X'02'                 * DISP=MOD                       01970000
+DALSTATS_NEW EQU X'04'                 * DISP=NEW                       01980000
+DALSTATS_SHR EQU X'08'                 * DISP=SHR                       01990000
+*                                                                       02000000
+DALNDISP_UNCATLG EQU X'01'             * DISP=(,UNCATLG)                02010000
+DALNDISP_CATLG   EQU X'02'             * DISP=(,CATLG)                  02020000
+DALNDISP_DELETE  EQU X'04'             * DISP=(,DELETE)                 02030000
+DALNDISP_KEEP    EQU X'08'             * DISP=(,KEEP)                   02040000
+*                                                                       02050000
+DALCDISP_UNCATLG EQU X'01'             * DISP=(,,UNCATLG)               02060000
+DALCDISP_CATLG   EQU X'02'             * DISP=(,,CATLG)                 02070000
+DALCDISP_DELETE  EQU X'04'             * DISP=(,,DELETE)                02080000
+DALCDISP_KEEP    EQU X'08'             * DISP=(,,KEEP)                  02090000
+*                                                                       02100000
+DALSPFRM_ALX    EQU X'02'              * Allow different areas of       02110000
+*                                      *  contiguous space              02120000
+DALSPFRM_MXIG   EQU X'04'              * Alloc max. contiguous          02130000
+DALSPFRM_CONTIG EQU X'08'              * Contiguous alloc required      02140000
+*                                                                       02150000
+DALLABEL_NL  EQU X'01'                 * No Label                       02160000
+DALLABEL_SL  EQU X'02'                 * Standard Label                 02170000
+DALLABEL_NSL EQU X'04'                 * Non-Standard Label             02180000
+DALLABEL_SUL EQU X'0A'                 * Standard & User Label          02190000
+DALLABEL_BLP EQU X'10'                 * Bypass Label Processing        02200000
+DALLABEL_LTM EQU X'21'                 * Check/bypass Leading Tape Mark 02210000
+DALLABEL_AL  EQU X'40'                 * ANSI Label                     02220000
+DALLABEL_AUL EQU X'48'                 * ANSI & User Label              02230000
+*                                                                       02240000
+DALPASPR_YES EQU X'10'                 * Password protected dataset     02250000
+DALPASPR_NO  EQU X'30'                 * Unprotected dataset            02260000
+*                                                                       02270000
+DALINOUT_OUT EQU X'40'                 * Output-only                    02280000
+DALINOUT_IN  EQU X'80'                 * Input-only                     02290000
+*                                                                       02300000
+DALFCBAV_VERIFY EQU X'04'              * Verigication                   02310000
+DALFCBAV_ALIGN  EQU X'08'              * Alignment                      02320000
+*                                                                       02330000
+DALBURST_BURST EQU X'02'               * Burster-Trimmer Stacker        02340000
+DALBURST_CONT  EQU X'04'               * Continuous Form Stacking       02350000
+*                                                                       02360000
+DALMTRC_1ST EQU X'00'                  * First char arrangement table   02370000
+DALMTRC_2ND EQU X'01'                  * Second table                   02380000
+DALMTRC_3ND EQU X'02'                  * Third table                    02390000
+DALMTRC_4ND EQU X'03'                  * Fourth table                   02400000
+*                                                                       02410000
+DALRECO_KSDS EQU X'80'                 * VSAM KSDS                      02420000
+DALRECO_ESDS EQU X'40'                 * VSAM ESDS                      02430000
+DALRECO_RRDS EQU X'20'                 * VSAM RRDS                      02440000
+DALRECO_LDS  EQU X'10'                 * VSAM LDS                       02450000
+*                                                                       02460000
+DALAVGR_U EQU X'80'                    * Allocate in units of 1 record  02470000
+DALAVGR_K EQU X'40'                    * Allocate per 1,000 records     02480000
+DALAVGR_M EQU X'20'                    * Allocate per 1,000,000 records 02490000
+*                                                                       02500000
+DALDSNT_PDSE EQU X'80'                 * PDSE dataset                   02510000
+DALDSNT_PDS  EQU X'40'                 * PDS dataset                    02520000
+DALDSNT_PIPE EQU X'20'                 * PIPE dataset                   02530000
+DALDSNT_HFS  EQU X'10'                 * HFS dataset                    02540000
+*                                                                       02550000
+DALSPIN_IMMED EQU X'80'                * Print on deallocation          02560000
+DALSPIN_EOJ   EQU X'40'                * Print at end-of-job            02570000
+*                                                                       02580000
+DALPOPT_OSYNC     EQU X'00000100'      * HFS data set open options      02590000
+DALPOPT_OCREAT    EQU X'00000080'      *                                02600000
+DALPOPT_OEXCL     EQU X'00000040'      *                                02610000
+DALPOPT_ONOCTTY   EQU X'00000020'      *                                02620000
+DALPOPT_OTRUNC    EQU X'00000010'      *                                02630000
+DALPOPT_OAPPEND   EQU X'00000008'      *                                02640000
+DALPOPT_ONONBLOCK EQU X'00000004'      *                                02650000
+DALPOPT_ORDWR     EQU X'00000003'      *                                02660000
+DALPOPT_ORDONLY   EQU X'00000002'      *                                02670000
+DALPOPT_OWRONLY   EQU X'00000001'      *                                02680000
+*                                                                       02690000
+DALPMDE_SISUID EQU X'00000800'         * HFS data set access attributes 02700000
+DALPMDE_SISGID EQU X'00000400'         *                                02710000
+DALPMDE_SIRUSR EQU X'00000100'         *                                02720000
+DALPMDE_SIWUSR EQU X'00000080'         *                                02730000
+DALPMDE_SIXUSR EQU X'00000040'         *                                02740000
+DALPMDE_SIRWXU EQU X'000001C0'         *                                02750000
+DALPMDE_SIRGRP EQU X'00000020'         *                                02760000
+DALPMDE_SIWGRP EQU X'00000010'         *                                02770000
+DALPMDE_SIXGRP EQU X'00000008'         *                                02780000
+DALPMDE_SIRWXG EQU X'00000038'         *                                02790000
+DALPMDE_SIROTH EQU X'00000004'         *                                02800000
+DALPMDE_SIWOTH EQU X'00000002'         *                                02810000
+DALPMDE_SIXOTH EQU X'00000001'         *                                02820000
+DALPMDE_SIRWXO EQU X'00000007'         *                                02830000
+*                                                                       02840000
+DALPNDS_DELETE EQU X'04'               * HFS normal disp: DELETE        02850000
+DALPNDS_KEEP   EQU X'08'               * HFS normal disp: KEEP          02860000
+*                                                                       02870000
+DALPCDS_DELETE EQU X'04'               * HFS cond.  disp: DELETE        02880000
+DALPCDS_KEEP   EQU X'08'               * HFS cond.  disp: KEEP          02890000
+*                                                                       02900000
+DALRLS_NRI EQU X'80'                   * No Read Integrity              02910000
+DALRLS_CR  EQU X'40'                   * Consistent Read                02920000
+*                                                                       02930000
+DALFDAT_BIN EQU X'80'                  * Binary HFS file                02940000
+DALFDAT_TXT EQU X'40'                  * Text HFS file                  02950000
+*                                                                       02960000
+DALBFALN_F EQU X'01'                   * Fullword alignment             02970000
+DALBFALN_D EQU X'02'                   * Doubleword alignment           02980000
+*                                                                       02990000
+DALBFTEK_D EQU X'80'                   * Dynamic buffering              03000000
+DALBFTEK_E EQU X'10'                   * Exchange buffering             03010000
+DALBFTEK_R EQU X'20'                   * Record buffering               03020000
+DALBFTEK_S EQU X'40'                   * Simple buffering               03030000
+DALBFTEK_A EQU X'60'                   * Record Area buffering          03040000
+*                                                                       03050000
+DALBUFOF_L EQU X'80'                   * Block prefix is 4 bytes and    03060000
+*                                      *  contains block length         03070000
+*                                                                       03080000
+DALCODE_T EQU X'02'                    * Teletype 5-track               03090000
+DALCODE_A EQU X'04'                    * USASCII 8-track                03100000
+DALCODE_C EQU X'08'                    * National Cash register 8-track 03110000
+DALCODE_B EQU X'10'                    * Burroughs 7-track              03120000
+DALCODE_F EQU X'20'                    * Friden 8-track                 03130000
+DALCODE_I EQU X'40'                    * IBM BCD 8-track                03140000
+DALCODE_N EQU X'80'                    * No conversion                  03150000
+*                                                                       03160000
+DALCPRI_S EQU X'01'                    * Send priority                  03170000
+DALCPRI_E EQU X'02'                    * Equal priority                 03180000
+DALCPRI_R EQU X'04'                    * Receiving priority             03190000
+*                                                                       03200000
+DALDEN_0 EQU X'03'                     * 200 bpi 7-track                03210000
+DALDEN_1 EQU X'43'                     * 556 bpi 7-track                03220000
+DALDEN_2 EQU X'83'                     * 800 bpi 7- or 9-track          03230000
+DALDEN_3 EQU X'C3'                     * 1600 bpi 9-track               03240000
+DALDEN_4 EQU X'D3'                     * 6250 bpi 9-track               03250000
+*                                                                       03260000
+DALDSORG_TR   EQU X'0004'              * TCAM 3705                      03270000
+DALDSORG_VSAM EQU X'0008'              * VSAM                           03280000
+DALDSORG_TQ   EQU X'0020'              * TCAM message queue             03290000
+DALDSORG_TX   EQU X'0040'              * TCAM line group                03300000
+DALDSORG_GS   EQU X'0080'              * Graphics                       03310000
+DALDSORG_PO   EQU X'0200'              * Partitioned                    03320000
+DALDSORG_POU  EQU X'0300'              * Partitioned Unmovable          03330000
+DALDSORG_MQ   EQU X'0400'              * Government of telecom msg xfer 03340000
+DALDSORG_CQ   EQU X'0800'              * Direct Access Message Queue    03350000
+DALDSORG_CX   EQU X'1000'              * Communication line group       03360000
+DALDSORG_DA   EQU X'2000'              * Direct Access                  03370000
+DALDSORG_DAU  EQU X'2100'              * Direct Access Unmovable        03380000
+DALDSORG_PS   EQU X'4000'              * Physical Sequential            03390000
+DALDSORG_PSU  EQU X'4100'              * Physical Sequential Unmovable  03400000
+*                                                                       03410000
+DALEROPT_T   EQU X'10'                 * Online BSAM testing            03420000
+DALEROPT_ABE EQU X'20'                 * Abend                          03430000
+DALEROPT_SKP EQU X'40'                 * Skip block                     03440000
+DALEROPT_ACC EQU X'80'                 * Accept block                   03450000
+*                                                                       03460000
+DALLRECL_X EQU X'8000'                 * Variable Spanned records,      03470000
+*                                      *  longer than 32,756 bytes      03480000
+*                                                                       03490000
+DALMODE_E  EQU X'40'                   * EBCDIC mode                    03500000
+DALMODE_ER EQU X'50'                   * EBCDIC read col.eliminate mode 03510000
+DALMODE_EO EQU X'60'                   * EBCDIC optical mark read mode  03520000
+DALMODE_C  EQU X'80'                   * Card image mode                03530000
+DALMODE_CR EQU X'90'                   * Card read col. eliminate mode  03540000
+DALMODE_CO EQU X'A0'                   * Card optical mark read mode    03550000
+*                                                                       03560000
+* Add required OPTCD-values                                             03570000
+DALOPTCD_R EQU X'01'                   * Relative block addressing      03580000
+DALOPTCD_J EQU X'01'                   * Char. arrangement tables       03590000
+DALOPTCD_T EQU X'02'                   * User Totalling facility        03600000
+DALOPTCD_Z EQU X'04'                   * Reduced tape error recovery    03610000
+*                                      *  or direct DASD search         03620000
+DALOPTCD_A EQU X'08'                   * Direct addressing              03630000
+DALOPTCD_Q EQU X'08'                   * Translate ASCII-EBCDIC         03640000
+DALOPTCD_F EQU X'10'                   * Feedback                       03650000
+DALOPTCD_H EQU X'10'                   * Hopper empty exit              03660000
+DALOPTCD_O EQU X'10'                   * Online corr.for optical reader 03670000
+DALOPTCD_C EQU X'20'                   * Chained scheduling or          03680000
+*                                      *  TCAM segement identification  03690000
+DALOPTCD_E EQU X'20'                   * Extended search                03700000
+DALOPTCD_B EQU X'40'                   * Disregard EOF for tape         03710000
+DALOPTCD_U EQU X'40'                   * Allow invalild character or    03720000
+*                                      *  handle TCAM workunit as MSG   03730000
+DALOPTCD_W EQU X'80'                   * Write validity check or        03740000
+*                                      *  put TCAM msg src in work area 03750000
+*                                                                       03760000
+DALPCIR_R EQU X'02'                    * PCI & no new buffer            03770000
+DALPCIR_N EQU X'08'                    * No PCI                         03780000
+DALPCIR_A EQU X'20'                    * PCI & new buffer               03790000
+DALPCIR_X EQU X'80'                    * PCI & new buffer, 1st buffer   03800000
+*                                      *  remains allocated             03810000
+*                                                                       03820000
+DALPCIS_R EQU X'01'                    * PCI & no new buffer            03830000
+DALPCIS_N EQU X'04'                    * No PCI                         03840000
+DALPCIS_A EQU X'10'                    * PCI & new buffer               03850000
+DALPCIS_X EQU X'40'                    * PCI & new buffer, 1st buffer   03860000
+*                                      *  remains allocated             03870000
+*                                                                       03880000
+DALPRTSP_0 EQU X'01'                   * No spacing                     03890000
+DALPRTSP_1 EQU X'09'                   * 1-line spacing                 03900000
+DALPRTSP_2 EQU X'11'                   * 2-line spacing                 03910000
+DALPRTSP_3 EQU X'19'                   * 3-line spacing                 03920000
+*                                                                       03930000
+* Add required RECFM-values                                             03940000
+DALRECFM_M EQU X'02'                   * Machine code printer control   03950000
+DALRECFM_R EQU X'02'                   * Complete QTAM record           03960000
+DALRECFM_A EQU X'04'                   * ASA printer control            03970000
+DALRECFM_G EQU X'04'                   * Complete QTAM message          03980000
+DALRECFM_S EQU X'08'                   * Standard fixed records or      03990000
+*                                      *  spanned variable records or   04000000
+*                                      *  segment of QTAM message       04010000
+DALRECFM_B EQU X'10'                   * Blocked                        04020000
+DALRECFM_D EQU X'20'                   * Variable ASCII                 04030000
+DALRECFM_T EQU X'20'                   * Track overflow                 04040000
+DALRECFM_V EQU X'40'                   * Variable records               04050000
+DALRECFM_F EQU X'80'                   * Fixed records                  04060000
+DALRECFM_U EQU X'C0'                   * Undiefined                     04070000
+*                                                                       04080000
+DALSTACK_1 EQU X'01'                   * Bin 1                          04090000
+DALSTACK_2 EQU X'02'                   * Bin 2                          04100000
+*                                                                       04110000
+DALTRTCH_NOCOMPACT EQU X'04'           * Non-compaction mode            04120000
+DALTRTCH_COMPACT   EQU X'08'           * Compaction mode                04130000
+DALTRTCH_C         EQU X'13'           * Data conversion                04140000
+DALTRTCH_E         EQU X'23'           * Even parity                    04150000
+DALTRTCH_ET        EQU X'2B'           * Even parity + BCD/EBCDIC xlate 04160000
+DALTRTCH_T         EQU X'3B'           * BCD/EBCDIC translation         04170000
+*                                                                       04180000
+DALFUNC_W     EQU X'10'                * Interpret codes as follows:    04190000
+DALFUNC_WT    EQU X'12'                * D=data protection for punch    04200000
+DALFUNC_WX    EQU X'14'                *        data set                04210000
+DALFUNC_WXT   EQU X'16'                * I=interpret punch data set     04220000
+DALFUNC_P     EQU X'20'                * P=punch                        04230000
+DALFUNC_PW    EQU X'30'                * R=read                         04240000
+DALFUNC_PWX   EQU X'34'                * T=two-line printer             04250000
+DALFUNC_PWXT  EQU X'36'                * W=print                        04260000
+DALFUNC_R     EQU X'40'                * X=printer                      04270000
+DALFUNC_RW    EQU X'50'                *                                04280000
+DALFUNC_RWT   EQU X'52'                *                                04290000
+DALFUNC_RWX   EQU X'54'                *                                04300000
+DALFUNC_RWXT  EQU X'56'                *                                04310000
+DALFUNC_RP    EQU X'60'                *                                04320000
+DALFUNC_RPD   EQU X'68'                *                                04330000
+DALFUNC_RPW   EQU X'70'                *                                04340000
+DALFUNC_RPWX  EQU X'74'                *                                04350000
+DALFUNC_RPWXT EQU X'76'                *                                04360000
+DALFUNC_RPWD  EQU X'78'                *                                04370000
+DALFUNC_I     EQU X'80'                *                                04380000
+*                                                                       04390000
+DALRTORG_UNK  EQU X'0000'              * Could not determine DSORG      04400000
+DALRTORG_TR   EQU X'0004'              * TCAM 3705                      04410000
+DALRTORG_VSAM EQU X'0008'              * VSAM                           04420000
+DALRTORG_TQ   EQU X'0020'              * TCAM message queue             04430000
+DALRTORG_TX   EQU X'0040'              * TCAM line group                04440000
+DALRTORG_GS   EQU X'0080'              * Graphics                       04450000
+DALRTORG_PO   EQU X'0200'              * Partitioned                    04460000
+DALRTORG_POU  EQU X'0300'              * Partitioned Unmovable          04470000
+DALRTORG_MQ   EQU X'0400'              * Government of telecom msg xfer 04480000
+DALRTORG_CQ   EQU X'0800'              * Direct Access Message Queue    04490000
+DALRTORG_CX   EQU X'1000'              * Communication line group       04500000
+DALRTORG_DA   EQU X'2000'              * Direct Access                  04510000
+DALRTORG_DAU  EQU X'2100'              * Direct Access Unmovable        04520000
+DALRTORG_PS   EQU X'4000'              * Physical Sequential            04530000
+DALRTORG_PSU  EQU X'4100'              * Physical Sequential Unmovable  04540000
+DALRTORG_IS   EQU X'8000'              * Indexed Sequential             04550000
+DALRTORG_ISU  EQU X'8100'              * Indexed Sequential Unmovable   04560000
+*                                                                       04570000
+DALINCHG_CST     EQU X'00'             * Cartridge System Tape (any)    04580000
+DALINCHG_CST18   EQU X'00'             * Cartridge System Tape 18-track 04590000
+DALINCHG_CST36   EQU X'00'             * Cartridge System Tape 36-track 04600000
+DALINCHG_ECCST36 EQU X'00'             * Enhanced Capacity CST 36-track 04610000
+DALINCHG_HPCT128 EQU X'00'             * High Performance Cartridge     04620000
+*                                      *  Tape 128-track                04630000
+*                                                                       04640000
+DUNOVDSP_UNCATLG EQU X'01'             * Uncatalog                      04650000
+DUNOVDSP_CATLG   EQU X'02'             * Catalog                        04660000
+DUNOVDSP_DELETE  EQU X'04'             * Delete                         04670000
+DUNOVDSP_KEEP    EQU X'08'             * Keep                           04680000
+*                                                                       04690000
+DUNSPIN_IMMED EQU X'80'                * Print on deallocation          04700000
+DUNSPIN_EOJ   EQU X'40'                * Print at end-of-job            04710000
+*                                                                       04720000
+DUNOVPDS_DELETE EQU X'04'              * Delete                         04730000
+DUNOVPDS_KEEP   EQU X'08'              * Keep                           04740000
+*                                                                       04750000
+DDNRTDUM_YES EQU X'80'                 * Dataset is a Dummy dataset     04760000
+DDNRTDUM_NO  EQU X'00'                 * Dataset is not a Dummy dataset 04770000
+*                                                                       04780000
+DINRTSTA_OLD EQU X'01'                 * OLD                            04790000
+DINRTSTA_MOD EQU X'02'                 * MOD                            04800000
+DINRTSTA_NEW EQU X'04'                 * NEW                            04810000
+DINRTSTA_SHR EQU X'08'                 * SHR                            04820000
+*                                                                       04830000
+DINRTNDP_UNCATLG EQU X'01'             * Uncatalog                      04840000
+DINRTNDP_CATLG   EQU X'02'             * Catalog                        04850000
+DINRTNDP_DELETE  EQU X'04'             * Delete                         04860000
+DINRTNDP_KEEP    EQU X'08'             * Keep                           04870000
+DINRTNDP_PASS    EQU X'10'             * Pass                           04880000
+*                                                                       04890000
+DINRTCDP_UNDEF   EQU X'00'             * Undefined                      04900000
+DINRTCDP_UNCATLG EQU X'01'             * Uncatalog                      04910000
+DINRTCDP_CATLG   EQU X'02'             * Catalog                        04920000
+DINRTCDP_DELETE  EQU X'04'             * Delete                         04930000
+DINRTCDP_KEEP    EQU X'08'             * Keep                           04940000
+DINRTCDP_PASS    EQU X'10'             * Pass                           04950000
+*                                                                       04960000
+DINRTORG_UNK  EQU X'0000'              * Could not determine DSORG      04970000
+DINRTORG_TR   EQU X'0004'              * TCAM 3705                      04980000
+DINRTORG_VSAM EQU X'0008'              * VSAM                           04990000
+DINRTORG_TQ   EQU X'0020'              * TCAM message queue             05000000
+DINRTORG_TX   EQU X'0040'              * TCAM line group                05010000
+DINRTORG_GS   EQU X'0080'              * Graphics                       05020000
+DINRTORG_PO   EQU X'0200'              * Partitioned                    05030000
+DINRTORG_POU  EQU X'0300'              * Partitioned Unmovable          05040000
+DINRTORG_MQ   EQU X'0400'              * Government of telecom msg xfer 05050000
+DINRTORG_CQ   EQU X'0800'              * Direct Access Message Queue    05060000
+DINRTORG_CX   EQU X'1000'              * Communication line group       05070000
+DINRTORG_DA   EQU X'2000'              * Direct Access                  05080000
+DINRTORG_DAU  EQU X'2100'              * Direct Access Unmovable        05090000
+DINRTORG_PS   EQU X'4000'              * Physical Sequential            05100000
+DINRTORG_PSU  EQU X'4100'              * Physical Sequential Unmovable  05110000
+DINRTORG_IS   EQU X'8000'              * Indexed Sequential             05120000
+DINRTORG_ISU  EQU X'8100'              * Indexed Sequential Unmovable   05130000
+*                                                                       05140000
+DINRTATT_PCON  EQU X'80'               * Permanently concatenated       05150000
+DINRTATT_INUSE EQU X'40'               * In use                         05160000
+DINRTATT_PALL  EQU X'20'               * Permanently allocated          05170000
+DINRTATT_CONV  EQU X'10'               * Convertible                    05180000
+DINRTATT_DYN   EQU X'08'               * Dynamically allocated          05190000
+*                                                                       05200000
+DINRTLST_LAST  EQU X'80'               * Last relative entry            05210000
+DINRTLST_NLAST EQU X'00'               * Not last relative entry        05220000
+*                                                                       05230000
+DINRTTYP_DUMMY EQU X'80'               * Dummy data set                 05240000
+DINRTTYP_TERM  EQU X'40'               * Terminal data set              05250000
+DINRTTYP_IN    EQU X'20'               * SYSIN                          05260000
+DINRTTYP_OUT   EQU X'10'               * SYSOUT                         05270000
+DINRTTYP_OTHER EQU X'00'               * Other                          05280000
+*                                                                       05290000
+DINRRECO_KSDS EQU X'80'                * KSDS                           05300000
+DINRRECO_ESDS EQU X'40'                * ESDS                           05310000
+DINRRECO_RRDS EQU X'20'                * RRDS                           05320000
+DINRRECO_LDS  EQU X'10'                * LDS                            05330000
+*                                                                       05340000
+DINRAVGR_U EQU X'80'                   * In record units                05350000
+DINRAVGR_K EQU X'40'                   * In units of 1,000 records      05360000
+DINRAVGR_M EQU X'20'                   * In units of 1,000,000 records  05370000
+*                                                                       05380000
+DINRDSNT_PDSE EQU X'80'                * PDSE data set                  05390000
+DINRDSNT_PDS  EQU X'40'                * PDS data set                   05400000
+DINRDSNT_PIPE EQU X'20'                * PIPE data set                  05410000
+DINRDSNT_HFS  EQU X'10'                * HFS data set                   05420000
+*                                                                       05430000
+DINSPIN_IMMED EQU X'80'                * Print on deallocation          05440000
+DINSPIN_EOJ   EQU X'40'                * Print at end-of-job            05450000
+*                                                                       05460000
+DINPOPT_OCREAT    EQU X'00000080'      * HFS data set open options      05470000
+DINPOPT_OEXCL     EQU X'00000040'      *                                05480000
+DINPOPT_ONOCTTY   EQU X'00000020'      *                                05490000
+DINPOPT_OTRUNC    EQU X'00000010'      *                                05500000
+DINPOPT_OAPPEND   EQU X'00000008'      *                                05510000
+DINPOPT_ONONBLOCK EQU X'00000004'      *                                05520000
+DINPOPT_ORDWR     EQU X'00000003'      *                                05530000
+DINPOPT_ORDONLY   EQU X'00000002'      *                                05540000
+DINPOPT_OWRONLY   EQU X'00000001'      *                                05550000
+*                                                                       05560000
+DINPMDE_SISUID EQU X'00000800'         * HFS data set access attributes 05570000
+DINPMDE_SISGID EQU X'00000400'         *                                05580000
+DINPMDE_SIRUSR EQU X'00000100'         *                                05590000
+DINPMDE_SIWUSR EQU X'00000080'         *                                05600000
+DINPMDE_SIXUSR EQU X'00000040'         *                                05610000
+DINPMDE_SIRWXU EQU X'000001C0'         *                                05620000
+DINPMDE_SIRGRP EQU X'00000020'         *                                05630000
+DINPMDE_SIWGRP EQU X'00000010'         *                                05640000
+DINPMDE_SIXGRP EQU X'00000008'         *                                05650000
+DINPMDE_SIRWXG EQU X'00000038'         *                                05660000
+DINPMDE_SIROTH EQU X'00000004'         *                                05670000
+DINPMDE_SIWOTH EQU X'00000002'         *                                05680000
+DINPMDE_SIXOTH EQU X'00000001'         *                                05690000
+DINPMDE_SIRWXO EQU X'00000007'         *                                05700000
+*                                                                       05710000
+DINPNDS_DELETE EQU X'04'               * HFS normal disp: DELETE        05720000
+DINPNDS_KEEP   EQU X'08'               * HFS normal disp: KEEP          05730000
+*                                                                       05740000
+DINPCDS_DELETE EQU X'04'               * HFS cond.  disp: DELETE        05750000
+DINPCDS_KEEP   EQU X'08'               * HFS cond.  disp: KEEP          05760000
+*                                                                       05770000
+DINFDAT_BIN EQU X'80'                  * Binary HFS file                05780000
+DINFDAT_TXT EQU X'40'                  * Text HFS file                  05790000
+*                                                                       05800000
+.*                                                                      05810000
+.* EMFUNCT - Function indicator flags                                   05820000
+EMPUTLIN EQUOVR ,,b,EMFUNCT                                             05830000
+EMWTP    EQUOVR ,,b,EMFUNCT                                             05840000
+EMRETURN EQUOVR ,,b,EMFUNCT                                             05850000
+EMKEEP   EQUOVR ,,b,EMFUNCT                                             05860000
+.*                                                                      05870000
+         MNOTE *,'Including IEFZB476 mapping macro'                     05880000
+         IEFZB476 EMDSEC1=YES,         * Generate DSECT statement 1    *05890000
+               EMDSEC2=YES             * Generate DSECT statement 2     05900000
+         EQUOVR *END                                                    05910000
+*                                                                       05920000
+EMDSECT1 DSECT ,                       *                                05930000
+         ORG   ,                       *                                05940000
+EMDSECT1_LEN EQU *-EMDSECT1            *                                05950000
+*                                                                       05960000
+EMDSECT2 DSECT ,                       *                                05970000
+         ORG   ,                       *                                05980000
+EMDSECT2_LEN EQU *-EMDSECT2            *                                05990000
+*                                                                       06000000
+EMDSECT3 DSECT ,                       *                                06010000
+         ORG   ,                       *                                06020000
+EMDSECT3_LEN EQU *-EMDSECT3            *                                06030000
+.*                                                                      06040000
+.* Return to our original CSECT name                                    06050000
+&SYSECT  &SYSSTYP                                                       06060000
+.*                                                                      06070000
+.MEND    MEND                                                           06090002

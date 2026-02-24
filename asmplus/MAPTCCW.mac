@@ -1,0 +1,132 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the EXCP Translation Control Block                   00180000
+.*                                                                      00190000
+&LABEL   MAPTCCW &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPTCCW                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPTCCW        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'TCCW').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPTCCW).MEND                                  00460002
+&BXA_MAC_MAPTCCW SETB 1                                                 00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_TCCW                                             00490000
+&BXA_CB_TCCW SETC 'TCCW'                                                00500000
+.*                                                                      00510000
+.* TCCWOPTN - CCW Translation option byte and TCCW error return codes   00520000
+TCCWXLAT EQUOVR ,,v,TCCWOPTN                                            00530000
+TCCWCSWX EQUOVR ,,v,TCCWOPTN                                            00540000
+TCCWUNFX EQUOVR ,,v,TCCWOPTN                                            00550000
+TCCWGTMN EQUOVR ,,v,TCCWOPTN                                            00560000
+TCCWSATR EQUOVR ,,v,TCCWOPTN                                            00570000
+TCCWPGER EQUOVR ,,v,TCCWOPTN                                            00580000
+TCCWTRER EQUOVR ,,v,TCCWOPTN                                            00590000
+TCCWIDAE EQUOVR ,,v,TCCWOPTN                                            00600000
+TCCWPRIV EQUOVR ,,v,TCCWOPTN                                            00610000
+TCCWERRC EQUOVR ,,v,TCCWOPTN                                            00620000
+TCCWVMER EQUOVR ,,v,TCCWOPTN                                            00630000
+TCCWVLER EQUOVR ,,v,TCCWOPTN                                            00640000
+TCCWERRF EQUOVR ,,v,TCCWOPTN                                            00650000
+.*                                                                      00660000
+.* TCCWMODB - Translator flag byte                                      00670000
+TCCWFCHN EQUOVR ,,b,TCCWMODB                                            00680000
+TCCWVLCK EQUOVR ,,b,TCCWMODB                                            00690000
+TCCWLBLK EQUOVR ,,b,TCCWMODB                                            00700000
+TCCWNVAL EQUOVR ,,b,TCCWMODB                                            00710000
+.* TCCWRSV5 EQUOVR ,,b,TCCWMODB        * Last seen in OS/390 V2R6       00720000
+TCCWIDAX EQUOVR ,,b,TCCWMODB           * First seen in z/OS V1R4        00721000
+TCCWPC10 EQUOVR ,,b,TCCWMODB                                            00730000
+TCCWPGCK EQUOVR ,,b,TCCWMODB                                            00740000
+TCCWVIDA EQUOVR ,,b,TCCWMODB                                            00750000
+.*                                                                      00760000
+         MNOTE *,'Including IECDTCCW mapping macro'                     00770000
+         IECDTCCW ,                                                     00780000
+         EQUOVR *END                                                    00790000
+*                                                                       00800000
+TCCW     DSECT ,                       * Resume TCCW DSECT              00810000
+         ORG                                                            00820000
+TCCW_LEN EQU   *-TCCW                  * Length of TCCW                 00830000
+.*                                                                      00840000
+.* Return to our original CSECT name                                    00850000
+&SYSECT  &SYSSTYP                                                       00860000
+.*                                                                      00870000
+.MEND    MEND                                                           00890002

@@ -1,0 +1,287 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Turn off a bit in a bit-field                                        00180000
+.*                                                                      00190000
+&LABEL   SETMODE &MODE,                * Mode indicator                *00200000
+               &OPTION,                * Option indicator              *00210000
+               &KEY=,                  * Desired storage key           *00220000
+               &SAVE=                  * (reg) to save current PSW key  00230000
+.*                                                                      00240000
+.* &MODE   specifies the desired mode. Valid values are:                00250000
+.*       - SUP    to switch to supervisor mode                          00260000
+.*       - PROB   to switch to problem program mode                     00270000
+.*       - AR     to switch to access register mode                     00280000
+.*       - PRIM   to switch to primary mode                             00290000
+.*       - PSWKEY to change the current PSW key                         00300000
+.*       - SMC    to switch to step-must-complete status                00310000
+.*       - NOSMC  to cancel step-must-complete status                   00320000
+.* &OPTION specifies an option for the specified MODE. Valid are:       00330000
+.*       - PSWKEY,SAVE to save the PSW key in R2                        00340000
+.*       - PSWKEY,RESET to reset the PSW key to its former value        00350000
+.* &KEY    specifies the desired storage key. Used with SUP/PROB/PSWKEY 00360000
+.*         For SUP the default is ZERO, for PROB the default is NZERO.  00370000
+.*         For PSWKEY there is no default.                              00380000
+.* &SAVE   Specifies a (reg) which must contain the current PSW key     00390000
+.*         Used with PSWKEY and SUP                                     00400000
+.*                                                                      00410000
+.********************************************************************** 00411001
+.*                                                                      00412001
+.*       IMPORTANT NOTICE                                               00413001
+.*       ========= ======                                               00414001
+.*                                                                      00415001
+.* Code below checks whether 'USER' accepted the terms and conditions   00416001
+.* of the license for the BXA macro library. This code is to be treated 00417001
+.* as part of the Copyright Notice and therefore may not be changed     00418001
+.* or disabled in any way.                                              00419001
+.*                                                                      00419101
+.********************************************************************** 00419201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00419301
+         CHKLIC SETMODE                * Check license acceptance       00419401
+         AIF   (&BXA_RC NE 0).MEND                                      00419502
+.********************************************************************** 00419601
+.*                                                                      00419701
+.* End of special code that is part of the Copyright Notice             00419801
+.*                                                                      00419901
+.********************************************************************** 00420001
+.*                                                                      00420101
+.* Declarations                                                         00421000
+         GBLC  &BXA_SETMODE_SAVE       * Register with saved PSW key    00430000
+         GBLB  &BXA_SETMODE            * On if SETMODE expanded before  00440000
+         GBLB  &BXA_SVCMODE            * On when in supervisor mode     00450000
+         GBLC  &SYSASCE                * Used by SYSSTATE               00460000
+.*                                                                      00470000
+         LCLC  &_KEY                                                    00480000
+         LCLC  &_SAVE                                                   00490000
+         LCLC  &_MODE                                                   00500000
+         LCLC  &_ASCE                  * Local copy of &SYSASCE         00510000
+.*                                                                      00520000
+.* Check the MODE parameter                                             00530000
+         AIF   (K'&MODE EQ 0 AND K'&KEY NE 0).ERR1DFT                   00540000
+&_MODE   SETC  '&MODE'                 * Copy supplied MODE value       00550000
+         AIF   (K'&MODE EQ 0).ERR1A                                     00560000
+         AIF   ('&MODE' EQ 'SUP').NOERR1                                00570000
+         AIF   ('&MODE' EQ 'PROB').NOERR1                               00580000
+         AIF   ('&MODE' EQ 'AR').NOERR1                                 00590000
+         AIF   ('&MODE' EQ 'PRIM').NOERR1                               00600000
+         AIF   ('&MODE' EQ 'PSWKEY').NOERR1                             00610000
+         AIF   ('&MODE' EQ 'SMC').NOERR1                                00620000
+         AIF   ('&MODE' EQ 'NOSMC').NOERR1                              00630000
+         AGO   .ERR1B                                                   00640000
+.ERR1A   MNOTE 8,'First positional parameter must specify desired mode' 00650000
+         MEXIT                                                          00660000
+.ERR1B   MNOTE 8,'Unknown mode specified on first positional parameter' 00670000
+         MEXIT                                                          00680000
+.ERR1DFT ANOP                                                           00690000
+&_MODE   SETC  'PSWKEY'                * Supply default for KEY=        00700000
+.NOERR1  ANOP                                                           00710000
+.*                                                                      00720000
+.* Check the KEY parameter                                              00730000
+         AIF   (K'&KEY EQ 0 AND '&_MODE' EQ 'PSWKEY' AND '&OPTION' NE '*00740000
+               RESET').ERR2B                                            00750000
+         AIF   (K'&KEY EQ 0).NOERR2                                     00760000
+         AIF   ('&_MODE' NE 'SUP' AND '&_MODE' NE 'PROB' AND '&_MODE' N*00770000
+               E 'PSWKEY').ERR2A                                        00780000
+&_KEY    SETC  '&KEY'                                                   00790000
+         AGO   .NOERR2                                                  00800000
+.ERR2A   MNOTE 4,'KEY parameter ignored: valid only with SUP, PROB, or *00810000
+               PSWKEY'                                                  00820000
+         AGO   .NOERR2                                                  00830000
+.ERR2B   MNOTE 8,'Key parameter missing: required with PSWKEY'          00840000
+.NOERR2  ANOP                                                           00850000
+.*                                                                      00860000
+.* Check the SAVE parameter                                             00870000
+         AIF   (K'&SAVE EQ 0).NOERR3                                    00880000
+         AIF   ('&_MODE' NE 'PSWKEY' AND '&_MODE' NE 'SUP').ERR3A       00890000
+         AIF   ('&SAVE'(1,1) NE '(').ERR3B                              00900000
+&_SAVE   SETC  '&SAVE(1)'                                               00910000
+         AGO   .NOERR3                                                  00920000
+.ERR3A   MNOTE 4,'SAVE parameter ignored: valid only with PSWKEY/SUP'   00930000
+         AGO   .NOERR3                                                  00940000
+.ERR3B   MNOTE 8,'SAVE parameter must specify a (register)'             00950000
+.NOERR3  ANOP                                                           00960000
+.*                                                                      00970000
+.* Check the OPTION parameter                                           00980000
+         AIF   (K'&OPTION EQ 0).NOERR4                                  00990000
+         AIF   ('&OPTION' NE 'RESET' AND '&OPTION' NE 'SAVE').ERR4A     01000000
+         AIF   ('&OPTION' EQ 'RESET' AND '&_MODE' NE 'PSWKEY').ERR4B    01010000
+         AIF   ('&OPTION' EQ 'SAVE' AND '&_MODE' NE 'PSWKEY' AND '&_MOD*01020000
+               E' NE 'SUP').ERR4B                                       01030000
+         AIF   ('&OPTION' EQ 'RESET' AND K'&SAVE NE 0).ERR4C            01040000
+         AIF   ('&OPTION' EQ 'RESET' AND '&BXA_SETMODE_SAVE' EQ '').ERR*01050000
+               4D                                                       01060000
+         AGO   .NOERR4                                                  01070000
+.ERR4A   MNOTE 8,'Second positional parameter must be omitted or ''RESE*01080000
+               T'' or ''SAVE'''                                         01090000
+         AGO   .NOERR4                                                  01100000
+.ERR4B   MNOTE 4,'&OPTION ignored: not valid with &_MODE'               01110000
+         AGO   .NOERR4                                                  01120000
+.ERR4C   MNOTE 4,'SAVE-parameter must not be specified for PSWKEY,RESET*01130000
+               : ignored'                                               01140000
+         AGO   .NOERR4                                                  01150000
+.ERR4D   MNOTE 8,'Cannot RESET: previous operation did not SAVE'        01160000
+.NOERR4  ANOP                                                           01170000
+.*                                                                      01180000
+.* Define sub-macro SAVE_PSWKEY                                         01190000
+         SETMODE0 ,                    * Define inner macro             01200000
+.*                                                                      01210000
+.* Select the correct expansion                                         01220000
+         AIF   ('&_MODE' EQ 'SUP').SUP                                  01230000
+         AIF   ('&_MODE' EQ 'PROB').PROB                                01240000
+         AIF   ('&_MODE' EQ 'AR').AR                                    01250000
+         AIF   ('&_MODE' EQ 'PRIM').PRIM                                01260000
+         AIF   ('&_MODE' EQ 'PSWKEY').PSWKEY                            01270000
+         AIF   ('&_MODE' EQ 'SMC').SMC                                  01280000
+         AIF   ('&_MODE' EQ 'NOSMC').NOSMC                              01290000
+         MNOTE 12,'Internal error'                                      01300000
+         MEXIT                                                          01310000
+.*                                                                      01320000
+.* Switch to supervisor mode                                            01330000
+.SUP     ANOP                                                           01340000
+         AIF   (K'&KEY NE 0).SUPKEY    * If key parm not specified      01350000
+&_KEY    SETC  'ZERO'                  * Use default                    01360000
+.SUPKEY  ANOP                                                           01370000
+         AIF   (NOT &BXA_SVCMODE).SUPNMSG                               01380000
+         MNOTE 4,'You are in supervisor mode. Why switch to it?'        01390000
+.SUPNMSG ANOP                                                           01400000
+.*                                                                      01410000
+.* Generate code                                                        01420000
+&LABEL   LABEL                                                          01430000
+&BXA_SETMODE_SAVE SETC ''              * Reset saved-pswkey register    01440000
+         AIF   ('&OPTION' EQ 'SAVE').SUPSAVE                            01450000
+         AIF   (K'&SAVE NE 0).SUPSAVE                                   01460000
+         AGO   .SUPNSAV                                                 01470000
+.SUPSAVE ANOP                                                           01480000
+         SAVE_PSWKEY &_SAVE            * Insert current PSW key in reg  01490000
+.SUPNSAV ANOP                                                           01500000
+&_ASCE   SETC  '&SYSASCE'              * Copy current ASC AR mode       01510000
+         AIF   ('&_ASCE' EQ 'P').SUPGO * Primary: ok issue MODESET      01520000
+         SETMODE PRIM                  * Switch to primary mode, then   01530000
+.SUPGO   ANOP                                                           01540000
+         MODESET MODE=SUP,             * Switch to supervisor mode     *01550000
+               KEY=&_KEY               *                                01560000
+         AIF   ('&_ASCE' EQ 'P').SUPOK * Primary: ok terminate          01570000
+         SETMODE AR                    * And back again to primary mode 01580000
+.SUPOK   ANOP                                                           01590000
+&BXA_SVCMODE SETB 1                    * Signal we're in SVC mode       01600000
+         MEXIT                                                          01610000
+.*                                                                      01620000
+.* Switch to problem program mode                                       01630000
+.PROB    ANOP                                                           01640000
+         AIF   (K'&KEY NE 0).PRBKEY    * If key parm not specified      01650000
+&_KEY    SETC  'NZERO'                 * Use default                    01660000
+.PRBKEY  ANOP                                                           01670000
+         AIF   (&BXA_SVCMODE).PRBNMSG                                   01680000
+         MNOTE 4,'You are in problem mode. Why switch to it?'           01690000
+.PRBNMSG ANOP                                                           01700000
+.* Generate code                                                        01710000
+&LABEL   LABEL                                                          01720000
+&_ASCE   SETC  '&SYSASCE'              * Copy current ASC AR mode       01730000
+         AIF   ('&_ASCE' EQ 'P').PRBGO * Primary: ok issue MODESET      01740000
+         SETMODE PRIM                  * Switch to primary mode, then   01750000
+.PRBGO   ANOP                                                           01760000
+         MODESET MODE=PROB,            * Switch to problem mode        *01770000
+               KEY=&_KEY               *                                01780000
+         AIF   ('&_ASCE' EQ 'P').PRBOK * Primary: ok terminate          01790000
+         SETMODE AR                    * And back again to primary mode 01800000
+.PRBOK   ANOP                                                           01810000
+&BXA_SVCMODE SETB 0                    * Signal we're in problem mode   01820000
+&BXA_SETMODE_SAVE SETC ''              * Reset saved-pswkey register    01830000
+         MEXIT                                                          01840000
+.*                                                                      01850000
+.* Switch to ASC AR mode (Access Register mode)                         01860000
+.AR      ANOP                                                           01870000
+         AIF   ('&SYSASCE' NE 'AR').ARNMSG                              01880000
+         MNOTE 4,'You are in ASC AR mode. Why switch to it?'            01890000
+.ARNMSG  ANOP                                                           01900000
+         SAC   512                     * Switch to AR mode              01910000
+         SYSSTATE ASCENV=AR            * Signal we're in AR mode        01920000
+         MEXIT                                                          01930000
+.*                                                                      01940000
+.* Switch to Primary mode (Non-Access Register mode)                    01950000
+.PRIM    ANOP                                                           01960000
+         AIF   ('&SYSASCE' NE 'P').PRMNMSG                              01970000
+         MNOTE 4,'You are in primary mode. Why switch to it?'           01980000
+.PRMNMSG ANOP                                                           01990000
+         SAC   0                       * Switch to primary mode         02000000
+         SYSSTATE ASCENV=P             * Signal we're in primary mode   02010000
+         MEXIT                                                          02020000
+.*                                                                      02030000
+.* Set new PSW key                                                      02040000
+.PSWKEY  ANOP                                                           02050000
+&LABEL   LABEL                                                          02060000
+         AIF   ('&OPTION' EQ 'RESET').PSWRESET                          02070000
+&BXA_SETMODE_SAVE SETC ''              * Reset saved-pswkey register    02080000
+         AIF   ('&OPTION' EQ 'SAVE').PSWSAVE                            02090000
+         AIF   (K'&SAVE NE 0).PSWSAVE                                   02100000
+         AGO   .PSWNSAV                                                 02110000
+.PSWSAVE ANOP                                                           02120000
+         SAVE_PSWKEY &_SAVE            * Insert current PSW key in reg  02130000
+.PSWNSAV ANOP                                                           02140000
+.*                                                                      02150000
+.* Set new PSW key from literal or from (reg)                           02160000
+         AIF   ('&KEY'(1,1) NE '(').PSWLIT                              02170000
+&_KEY    SETC  '&KEY(1)'                                                02180000
+         SPKA  0(&_KEY)                * Set new PSW key value          02190000
+         MEXIT                                                          02200000
+.*                                                                      02210000
+.PSWLIT  ANOP                                                           02220000
+         SPKA  16*&KEY                 * Set new PSW key value          02230000
+         MEXIT                                                          02240000
+.*                                                                      02250000
+.* Reset PSW key to saved value                                         02260000
+.PSWRESET ANOP                                                          02270000
+         SPKA  0(&BXA_SETMODE_SAVE)    * Reset PSW key to saved value   02280000
+&BXA_SETMODE_SAVE SETC ''              * Reset saved-pswkey register    02290000
+         MEXIT                                                          02300000
+.*                                                                      02310000
+.* Set Step-Must-Complete mode                                          02320000
+.SMC     ANOP  ,                                                        02330000
+         STATUS SET,MC,PROCESS         * Set step-must-complete status  02340000
+         MEXIT                                                          02350000
+.*                                                                      02360000
+.* Reset Step-Must-Complete mode                                        02370000
+.NOSMC   ANOP  ,                                                        02380000
+         STATUS RESET,MC,PROCESS       * Cancel SMC status              02390000
+         MEXIT                                                          02400000
+.*                                                                      02410000
+.MEND    MEND                                                           02420002

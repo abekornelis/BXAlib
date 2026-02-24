@@ -1,0 +1,203 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Call a program that may have another AMODE                           00180000
+.*                                                                      00190000
+.* This macro is intended for calling a program that may or may not     00200000
+.* be in another AMODE. Registers R0 thru R13 arer supposed to be       00210000
+.* set up for interfacing with the target program, and will therefore   00220000
+.* not be modified by this program.                                     00230000
+.*                                                                      00240000
+&LABEL   GLUE  &DEST,                  * Destination register          *00250000
+               &AMODE,                 * Desired AMODE                 *00260000
+               &MF=                    * Macro form                     00270000
+.*                                                                      00280000
+.* &DEST specifies the register containing the destination address      00290000
+.*       which is the entry point address of the program to be          00300000
+.*       invoked.                                                       00310000
+.* &AMODE specifies the AMODE for the called program, used only on MF=E 00320000
+.*     - 31: Makes sure the destination pgm is called with AMODE=31     00330000
+.*     - 24: Makes sure the destination pgm is called with AMODE=24     00340000
+.*     - Omitted: Amode is taken from &DEST-register:                   00350000
+.*       AMODE 24 if bit0 is 0, AMODE 31 if bit0 is 1                   00360000
+.* &MF   Specifies the macro form:                                      00370000
+.*     - L specifies the list form                                      00380000
+.*     - (E,addr) or (E,(reg)) specifies the execute form               00390000
+.*       addr must be a location, that is addressed thru R13, and       00400000
+.*       must reside below the 16M-line                                 00410000
+.*                                                                      00420000
+.********************************************************************** 00421001
+.*                                                                      00422001
+.*       IMPORTANT NOTICE                                               00423001
+.*       ========= ======                                               00424001
+.*                                                                      00425001
+.* Code below checks whether 'USER' accepted the terms and conditions   00426001
+.* of the license for the BXA macro library. This code is to be treated 00427001
+.* as part of the Copyright Notice and therefore may not be changed     00428001
+.* or disabled in any way.                                              00429001
+.*                                                                      00429101
+.********************************************************************** 00429201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00429301
+         CHKLIC GLUE                   * Check license acceptance       00429401
+         AIF   (&BXA_RC NE 0).MEND                                      00429502
+.********************************************************************** 00429601
+.*                                                                      00429701
+.* End of special code that is part of the Copyright Notice             00429801
+.*                                                                      00429901
+.********************************************************************** 00430001
+.*                                                                      00430101
+.* Declare variables                                                    00431000
+         LCLC  &_MF                    * E or L                         00440000
+         LCLC  &_MF2                   * Plist address of MF=(E,addr)   00450000
+         LCLC  &_REG                   * Plist ptr if MF=(E,(reg))      00460000
+         LCLC  &EPA_OFFSET             * Offset of EPA in PLIST         00470000
+&EPA_OFFSET SETC '8'                   * Length of code before EPA      00480000
+.*                                                                      00490000
+.* Check the DEST parameter                                             00500000
+         AIF   (K'&DEST NE 0).NOERR1   * If specified: OK               00510000
+         AIF   ('&MF' EQ 'L').NOERR1   * Optional for MF=L              00520000
+.ERR1    MNOTE 8,'No destination register specified'                    00530000
+.NOERR1  ANOP                                                           00540000
+.*                                                                      00550000
+.* Check AMODE parameter                                                00560000
+         AIF   ('&_MF' EQ 'L' AND T'&AMODE EQ 'O').NOERR2               00570000
+         AIF   ('&_MF' EQ 'L').ERR2A                                    00580000
+         AIF   (T'&AMODE EQ 'O').NOERR2                                 00590000
+         AIF   ('&AMODE' EQ '31').NOERR2                                00600000
+         AIF   ('&AMODE' EQ '24').NOERR2                                00610000
+         AGO   .ERR2B                                                   00620000
+.ERR2A   MNOTE 4,'AMODE parameter ignored: not allowed with MF=L'       00630000
+         AGO   .NOERR2                                                  00640000
+.ERR2B   MNOTE 8,'If specified, AMODE parameter must be 24 or 31'       00650000
+.NOERR2  ANOP                                                           00660000
+.*                                                                      00670000
+.* Check the MF parameter                                               00680000
+         AIF   (K'&MF EQ 0).ERR3A      * Must be specified              00690000
+&_MF     SETC  '&MF'                   * Assume MF=x                    00700000
+         AIF   ('&MF' EQ 'L').NOERR3   * Ok if MF=L                     00710000
+         AIF   ('&MF'(1,1) NE '(').ERR3B * MF<>L: must be sublist       00720000
+         AIF   (N'&MF NE 2).ERR3B      * Must be two subparms           00730000
+&_MF     SETC  '&MF(1)'                * Assume MF=(x,...)              00740000
+&_MF2    SETC  '&MF(2)'                * Extract plist address          00750000
+         AIF   ('&MF(1)' NE 'E').ERR3B * Must be MF=(E,...)             00760000
+         AIF   ('&_MF2'(1,1) NE '(').NOERR3 * Plist not a (reg)         00770000
+&_REG    SETC  '&MF(2,1)'              * Extract register               00780000
+         AIF   ('&_REG' EQ 'R14').ERR3C                                 00790000
+         AIF   ('&_REG' EQ 'R15').ERR3C                                 00800000
+         AIF   ('&_REG' EQ '14').ERR3C                                  00810000
+         AIF   ('&_REG' EQ '15').ERR3C                                  00820000
+         AGO   .NOERR3                                                  00830000
+.ERR3A   MNOTE 8,'MF parameter not specified'                           00840000
+         AGO   .NOERR3                                                  00850000
+.ERR3B   MNOTE 8,'MF parameter must be L, (E,addr), or (E,(reg))'       00860000
+         AGO   .NOERR3                                                  00870000
+.ERR3C   MNOTE 8,'Plist address cannot be passed in R14 or R15'         00880000
+.NOERR3  ANOP                                                           00890000
+.*                                                                      00900000
+.* Check the number of parameters                                       00910000
+         AIF   ('&_MF' EQ 'L' AND N'&SYSLIST GT 1).ERR4                 00920000
+         AIF   ('&_MF' EQ 'E' AND N'&SYSLIST GT 2).ERR4                 00930000
+         AGO   .NOERR4                                                  00940000
+.ERR4    MNOTE 4,'Too many parameters specified: ignored'               00950000
+.NOERR4  ANOP                                                           00960000
+.*                                                                      00970000
+.* Select the right MF                                                  00980000
+         AIF   ('&_MF' EQ 'E').MFE                                      00990000
+         AIF   ('&_MF' EQ 'L').MFL                                      01000000
+         MNOTE 12,'Internal error'                                      01010000
+.*                                                                      01020000
+.MFE     ANOP                                                           01030000
+.*                                                                      01040000
+.* Put destination address into plist                                   01050000
+         AIF   ('&_REG' NE '').PUTR    * Plist addressed by reg?        01060000
+         ST    &DEST,&EPA_OFFSET+&_MF2 * Store address into plist       01070000
+         AGO   .PUTOK                                                   01080000
+.PUTR    ANOP  ,                       * Use reg to address plist       01090000
+         ST    &DEST,&EPA_OFFSET.(,R15) * Store address into plist      01100000
+.PUTOK   ANOP                                                           01110000
+.*                                                                      01120000
+.* If AMODE specified: insert it into the destination address           01130000
+         AIF   (T'&AMODE EQ 'O').AMOK  * No amode specified             01140000
+         AIF   ('&AMODE' EQ '31').AM31 * Check AMODE                    01150000
+.AM24    ANOP  ,                       * Insert zeros in bits 0-7       01160000
+         AIF   ('&_REG' NE '').AM24R   * Plist addressed by reg?        01170000
+         MVI   &EPA_OFFSET+&_MF2,X'00' * Make it a clean 24-bit address 01180000
+         AGO   .AMOK                                                    01190000
+.AM24R   ANOP  ,                       * Use _reg to address plist      01200000
+         MVI   &EPA_OFFSET.(&_REG),X'00' * Insert 8 zero-bits           01210000
+         AGO   .AMOK                                                    01220000
+.*                                                                      01230000
+.AM31    ANOP  ,                       * Insert 1 into bit 0            01240000
+         AIF   ('&_REG' NE '').AM31R   * Plist addressed by reg?        01250000
+         OI    &EPA_OFFSET+&_MF2,BIT0  * Turn on high-order bit         01260000
+         AGO   .AMOK                                                    01270000
+.AM31R   ANOP  ,                       * Use _reg to address plist      01280000
+         OI    &EPA_OFFSET.(&_REG),BIT0 * Insert a single 1-bit         01290000
+.AMOK    ANOP  ,                       * AMode in EPA now ok            01300000
+.*                                                                      01310000
+.* Form the return address, with high-order bit set                     01320000
+         BASR  R14,R0                  * R14 now points to this address 01330000
+_GLUE1&SYSNDX EQU *                    *                                01340000
+         LA    R15,_GLUE2&SYSNDX-_GLUE1&SYSNDX * offset to ret-point    01350000
+         ALR   R14,R15                 * Point to ret-addr with amode  *01360000
+                                       *       preserved                01370000
+         AIF   ('&_REG' NE '').PLISTR  * Plist pointered by reg?        01380000
+         LA    R15,&_MF2               * Point to plist                 01390000
+         AGO   .PLISTOK                                                 01400000
+.PLISTR  ANOP                                                           01410000
+         LR    R15,&_REG               * Copy plist-addr to R15         01420000
+.PLISTOK ANOP  ,                       * R15 now ptr to plist           01430000
+.*                                                                      01440000
+.* Call the 'plist' - which actually is a mini-routine.                 01450000
+         BAKR  R14,R15                 * Call program through glue-mod  01460000
+_GLUE2&SYSNDX EQU *                    * Return-point after BAKR        01470000
+         MEXIT                                                          01480000
+.*                                                                      01490000
+.MFL     ANOP                                                           01500000
+&LABEL   LABEL H                                                        01510000
+         L     R15,&EPA_OFFSET.(,R15)  * Load AMODE + dest.address      01520000
+         BASSM R14,R15                 * Call intended program          01530000
+         PR    ,                       * Reset AMODE & return to caller 01540000
+         DS    F                       * Destination addr, bit 0=AMODE  01550000
+         MEXIT                                                          01560000
+.*                                                                      01570000
+.MEND    MEND                                                           01580002

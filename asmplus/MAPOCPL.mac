@@ -1,0 +1,151 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for parameter list entries used by OPEN/CLOSE SVC's    00180000
+.* This parameter list is used by:                                      00190000
+.*   SVC 19 = OPEN                                                      00200000
+.*   SVC 20 = CLOSE                                                     00210000
+.*   SVC 22 = OPEN,TYPE=J                                               00220000
+.*   SVC 23 = CLOSE,TYPE=T                                              00230000
+.*                                                                      00240000
+&LABEL   MAPOCPL &DSECT=YES,           * YES or NO                     *00250000
+               &CB=,                   * Control block to generate     *00260000
+               &PRFX=                  * Prefix to use                  00270000
+.********************************************************************** 00271001
+.*                                                                      00272001
+.*       IMPORTANT NOTICE                                               00273001
+.*       ========= ======                                               00274001
+.*                                                                      00275001
+.* Code below checks whether 'USER' accepted the terms and conditions   00276001
+.* of the license for the BXA macro library. This code is to be treated 00277001
+.* as part of the Copyright Notice and therefore may not be changed     00278001
+.* or disabled in any way.                                              00279001
+.*                                                                      00279101
+.********************************************************************** 00279201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00279301
+         CHKLIC MAPOCPL                * Check license acceptance       00279401
+         AIF   (&BXA_RC NE 0).MEND                                      00279502
+.********************************************************************** 00279601
+.*                                                                      00279701
+.* End of special code that is part of the Copyright Notice             00279801
+.*                                                                      00279901
+.********************************************************************** 00280001
+.*                                                                      00281000
+.* Declare variables                                                    00290000
+         GBLB  &BXA_MAC_MAPOCPL        * Map has been generated?        00300000
+.*                                                                      00320000
+.* Check parameters                                                     00330000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00340000
+               CB=&CB,                 *                               *00350000
+               PRFX=&PRFX              *                                00360000
+         AIF   (&BXA_RC GT 4).MEND                                      00370002
+.*                                                                      00380000
+.* Check the CB parameter                                               00390000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00400000
+         AIF   ('&CB' EQ 'OC24').EMBED                                  00410000
+         AIF   ('&CB' EQ 'OC31').EMBED                                  00420000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.* Generate embedded definition                                         00460000
+.EMBED   ANOP                                                           00470000
+&LABEL   NESTCB &CB,X,&PRFX                                             00480000
+         MEXIT                                                          00490000
+.*                                                                      00500000
+.DSECT   ANOP                                                           00510000
+         AIF   (&BXA_MAC_MAPOCPL).MEND                                  00520002
+&BXA_MAC_MAPOCPL SETB 1                                                 00530000
+.* Set up translation from control block to macro for DCL               00540000
+         GBLC  &BXA_CB_OC24                                             00550000
+         GBLC  &BXA_CB_OC31                                             00560000
+&BXA_CB_OC24 SETC 'OCPL'                                                00570000
+&BXA_CB_OC31 SETC 'OCPL'                                                00580000
+.*                                                                      00590000
+         MNOTE *,'Generating DSECT for Open/Close parameter list entry' 00600000
+*                                                                       00610000
+* DSECT for OPEN/CLOSE parameter list entries                           00620000
+* If R1 contains an address it points to a MODE=24 parmlist             00630000
+* If R1 contains 0, R0 points to a MODE=31 parmlist                     00640000
+*                                                                       00650000
+* The option byte is divided into three parts:                          00660000
+* - Bit 0  : Contains the end-of-list indicator                         00670000
+* - Bit 1-3: Contain the second option. These three bits must be        00680000
+*            tested together                                            00690000
+* - Bit 4-7: Contain the first option. These four bits must be          00700000
+*            tested together                                            00710000
+*                                                                       00720000
+OCPL     DSECT ,                       * MODE=24 version                00730000
+OC24     DS    0F                      * Each entry is an aligned word  00740000
+OC24OPT  DS    XL1                     * Option byte: see below         00750000
+OC24DCB  DS    AL3                     * Pointer to DCB                 00760000
+OC24_LEN EQU   *-OC24                                                   00770000
+*                                                                       00780000
+         ORG   OC24                    * MODE=31 version                00790000
+OC31     DS    0FL8                    * Two words on word boundary     00800000
+OC31OPT  DS    XL1                     * Option byte                    00810000
+OC31NULL DS    AL3                     * Contains zeroes                00820000
+OC31DCB  DS    AL4                     * Pointer to DCB                 00830000
+OC31_LEN EQU   *-OC31                                                   00840000
+*                                                                       00850000
+* Following is a list of bit-definitions for the OPT byte:              00860000
+* See SYS1.MODGEN(IECEQU) for the official definitions                  00870000
+*   End-of-list-indicator  BIT0                                         00880000
+*   2nd option=DISP        NOBITS (bits 1-3 off)                        00890000
+*   2nd option=REWIND      BIT1                                         00900000
+*   2nd option=FREE/IDLE   BIT2                                         00910000
+*   2nd option=REREAD      BIT3                                         00920000
+*   2nd option=LEAVE       BIT2+BIT3                                    00930000
+*   1st option=INPUT       NOBITS (bits 4-7 off)                        00940000
+*   1st option=RDBACK      BIT7                                         00950000
+*   1st option=UPDAT       BIT5                                         00960000
+*   1st option=INOUT       BIT6+BIT7                                    00970000
+*   1st option=OUTIN       BIT5+BIT6+BIT7                               00980000
+*   1st option=OUTINX      BIT5+BIT6                                    00990000
+*   1st option=EXTEND      BIT4+BIT5+BIT6                               01000000
+*   1st option=OUTPUT      BIT4+BIT5+BIT6+BIT7                          01010000
+.*                                                                      01020000
+.* Return to our original CSECT name and include IECEQU                 01030000
+&SYSECT  &SYSSTYP                                                       01040000
+.*                                                                      01050000
+         GENMAPS IECEQ                 * Include Open/Close/EOV equates 01060000
+.*                                                                      01070000
+.MEND    MEND                                                           01090002

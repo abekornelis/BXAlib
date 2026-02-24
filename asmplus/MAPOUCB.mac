@@ -1,0 +1,264 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the resOurces manager User Control Block             00180000
+.*                                                                      00190000
+&LABEL   MAPOUCB &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPOUCB                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPOUCB        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'OUCB').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPOUCB).MEND                                  00460002
+&BXA_MAC_MAPOUCB SETB 1                                                 00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_OUCB                                             00490000
+&BXA_CB_OUCB SETC 'OUCB'                                                00500000
+.*                                                                      00510000
+.* OUCBQFL - SWAPPABILITY TRANSITION FLAGS                              00520000
+OUCBGOO  EQUOVR ,,b,OUCBQFL                                             00530000
+OUCBGOI  EQUOVR ,,b,OUCBQFL                                             00540000
+OUCBGOB  EQUOVR ,,b,OUCBQFL                                             00550000
+OUCBQSFL EQUOVR ,,b,OUCBQFL                                             00560000
+OUCBOFF  EQUOVR ,,b,OUCBQFL                                             00570000
+OUCBOUT  EQUOVR ,,b,OUCBQFL                                             00580000
+OUCBLSW  EQUOVR ,,b,OUCBQFL                                             00590000
+OUCBDLYB EQUOVR ,,b,OUCBQFL                                             00600000
+.*                                                                      00610000
+.* OUCBSFL - SWAPOUT CONTINUATION FLAGS                                 00620000
+OUCBNSW  EQUOVR ,,b,OUCBSFL                                             00630000
+OUCBCTI  EQUOVR ,,b,OUCBSFL                                             00640000
+OUCBBIB  EQUOVR ,,b,OUCBSFL                                             00650000
+OUCBINV  EQUOVR ,,b,OUCBSFL                                             00660000
+OUCBNSWI EQUOVR ,,b,OUCBSFL                                             00670000
+OUCBPVL  EQUOVR ,,b,OUCBSFL                                             00680000
+OUCBENQ  EQUOVR ,,b,OUCBSFL                                             00690000
+OUCBSCN  EQUOVR ,,b,OUCBSFL                                             00700000
+.*                                                                      00710000
+.* OUCBYFL - USER TYPE FLAGS                                            00720000
+OUCBPSTE EQUOVR ,,b,OUCBYFL                                             00730000
+OUCBSTT  EQUOVR ,,b,OUCBYFL                                             00740000
+OUCBLOG  EQUOVR ,,b,OUCBYFL                                             00750000
+OUCBMNT  EQUOVR ,,b,OUCBYFL                                             00760000
+OUCBAXS  EQUOVR ,,b,OUCBYFL                                             00770000
+OUCBDTA  EQUOVR ,,b,OUCBYFL                                             00780000
+OUCBFXS  EQUOVR ,,b,OUCBYFL                                             00790000
+.*                                                                      00800000
+.* OUCBAFL - ALGORITHM STATUS FLAGS                                     00810000
+OUCBAPG  EQUOVR ,,b,OUCBAFL                                             00820000
+OUCBREPT EQUOVR ,,b,OUCBAFL                                             00830000
+OUCBENQI EQUOVR ,,b,OUCBAFL                                             00840000
+OUCBJSR  EQUOVR ,,b,OUCBAFL                                             00850000
+OUCBNWT  EQUOVR ,,b,OUCBAFL                                             00860000
+OUCBASW  EQUOVR ,,b,OUCBAFL                                             00870000
+.*                                                                      00880000
+.* OUCBTFL - TRANSACTION STATUS FLAGS                                   00890000
+OUCBATR  EQUOVR ,,b,OUCBTFL                                             00900000
+OUCBSTR  EQUOVR ,,b,OUCBTFL                                             00910000
+OUCBNTR  EQUOVR ,,b,OUCBTFL                                             00920000
+OUCBRTR  EQUOVR ,,b,OUCBTFL                                             00930000
+OUCBPCH  EQUOVR ,,b,OUCBTFL                                             00940000
+OUCBMAR  EQUOVR ,,b,OUCBTFL                                             00950000
+OUCBINP  EQUOVR ,,b,OUCBTFL                                             00960000
+OUCBINC  EQUOVR ,,b,OUCBTFL                                             00970000
+.*                                                                      00980000
+.* OUCBEFL - EVENT STATUS FALGS                                         00990000
+OUCBLWT  EQUOVR ,,b,OUCBEFL                                             01000000
+.* OUCBNQF  EQUOVR ,,b,OUCBEFL         * Last seen in OS/390 V2R6       01010000
+OUCBQSC  EQUOVR ,,b,OUCBEFL                                             01020000
+OUCBMWT  EQUOVR ,,b,OUCBEFL                                             01030000
+.*                                                                      01040000
+.* OUCBUFL - USER TYPE FLAGS                                            01050000
+OUCBJSFS EQUOVR ,,b,OUCBUFL                                             01060000
+OUCBJSAS EQUOVR ,,b,OUCBUFL                                             01070000
+OUCBRSWP EQUOVR ,,b,OUCBUFL                                             01080000
+OUCBTSWP EQUOVR ,,b,OUCBUFL                                             01090000
+OUCBTSWC EQUOVR ,,b,OUCBUFL                                             01100000
+OUCBSI   EQUOVR ,,b,OUCBUFL                                             01110000
+OUCBENQR EQUOVR ,,b,OUCBUFL                                             01120000
+OUCBSIFX EQUOVR ,,b,OUCBUFL                                             01130000
+.*                                                                      01140000
+.* OUCBLFL - ALGORITHM STATUS FLAGS                                     01150000
+OUCBEAS  EQUOVR ,,b,OUCBLFL                                             01160000
+OUCBQSRV EQUOVR ,,b,OUCBLFL                                             01170000
+OUCBRQSC EQUOVR ,,b,OUCBLFL                                             01180000
+OUCBFWA  EQUOVR ,,b,OUCBLFL                                             01190000
+OUCBTET  EQUOVR ,,b,OUCBLFL                                             01200000
+OUCBREDP EQUOVR ,,b,OUCBLFL                                             01210000
+OUCBPRF  EQUOVR ,,b,OUCBLFL                                             01220000
+OUCBSTGI EQUOVR ,,b,OUCBLFL                                             01230000
+.*                                                                      01240000
+.* OUCBRFL - MORE USER FLAGS                                            01250000
+OUCBCSFS EQUOVR ,,b,OUCBRFL                                             01260000
+OUCBCSFM EQUOVR ,,b,OUCBRFL                                             01270000
+OUCBEASI EQUOVR ,,b,OUCBRFL                                             01280000
+OUCBHIDP EQUOVR ,,b,OUCBRFL                                             01290000
+OUCBBJOB EQUOVR ,,b,OUCBRFL                                             01300000
+OUCBSTFX EQUOVR ,,b,OUCBRFL                                             01310000
+OUCBDFSW EQUOVR ,,b,OUCBRFL                                             01320000
+OUCBLLSW EQUOVR ,,b,OUCBRFL                                             01330000
+.*                                                                      01340000
+.* OUCBMFL - MISCELLANEOUS FLAGS                                        01350000
+OUCBSBT  EQUOVR ,,b,OUCBMFL                                             01360000
+OUCBAFAP EQUOVR ,,b,OUCBMFL                                             01370000
+OUCBDFS2 EQUOVR ,,b,OUCBMFL                                             01380000
+OUCBMGSW EQUOVR ,,b,OUCBMFL                                             01390000
+OUCBDISC EQUOVR ,,b,OUCBMFL                                             01400000
+OUCBASAP EQUOVR ,,b,OUCBMFL                                             01410000
+OUCBMPUR EQUOVR ,,b,OUCBMFL                                             01420000
+OUCBACNT EQUOVR ,,b,OUCBMFL                                             01430000
+.*                                                                      01440000
+.* OUCBMFL2 - More miscellaneous flags.                                 01450000
+OUCBVFMG EQUOVR ,,b,OUCBMFL2                                            01460000
+OUCBMGIN EQUOVR ,,b,OUCBMFL2                                            01470000
+OUCBAFPD EQUOVR ,,b,OUCBMFL2                                            01480000
+OUCBDFDR EQUOVR ,,b,OUCBMFL2                                            01490000
+OUCBDFDE EQUOVR ,,b,OUCBMFL2                                            01500000
+OUCBMIGP EQUOVR ,,b,OUCBMFL2                                            01510000
+OUCBRPT1 EQUOVR ,,b,OUCBMFL2                                            01520000
+OUCBERST EQUOVR ,,b,OUCBMFL2                                            01530000
+.*                                                                      01540000
+.* OUCBMFL3 - More miscellaneous flags                                  01550000
+OUCBAPPC EQUOVR ,,b,OUCBMFL3                                            01560000
+OUCBPMON EQUOVR ,,b,OUCBMFL3                                            01570000
+OUCBVALV EQUOVR ,,b,OUCBMFL3                                            01580000
+OUCBOMVS EQUOVR ,,b,OUCBMFL3                                            01590000
+OUCBTBMN EQUOVR ,,b,OUCBMFL3                                            01600000
+OUCBSTTA EQUOVR ,,b,OUCBMFL3                                            01610000
+OUCBGWRK EQUOVR ,,b,OUCBMFL3                                            01620000
+OUCBINIT EQUOVR ,,b,OUCBMFL3                                            01630000
+.*                                                                      01640000
+.* OUCBCFL - MULTIPROCESS CONDITION FLAGS                               01650000
+OUCBRDY  EQUOVR ,,b,OUCBCFL                                             01660000
+OUCBRSM  EQUOVR ,,b,OUCBCFL                                             01670000
+OUCBESSS EQUOVR ,,b,OUCBCFL                                             01680000
+OUCBESSW EQUOVR ,,b,OUCBCFL                                             01690000
+OUCBASSW EQUOVR ,,b,OUCBCFL                                             01700000
+OUCBCSMF EQUOVR ,,b,OUCBCFL                                             01710000
+OUCBSHBN EQUOVR ,,b,OUCBCFL                                             01720000
+OUCBHITR EQUOVR ,,b,OUCBCFL                                             01730000
+.*                                                                      01740000
+.* OUCBCSBT - Compare and swap bits                                     01750000
+OUCBTRM  EQUOVR ,,b,OUCBCSBT                                            01760000
+OUCBOWT  EQUOVR ,,b,OUCBCSBT                                            01770000
+OUCBCIM  EQUOVR ,,b,OUCBCSBT                                            01780000
+OUCBPSTR EQUOVR ,,b,OUCBCSBT                                            01790000
+OUCBSTA  EQUOVR ,,b,OUCBCSBT                                            01800000
+OUCBQSS  EQUOVR ,,b,OUCBCSBT                                            01810000
+OUCBOIW  EQUOVR ,,b,OUCBCSBT                                            01820000
+OUCBOOW  EQUOVR ,,b,OUCBCSBT                                            01830000
+.*                                                                      01840000
+.* OUCBPFL - Processing flags                                           01850000
+OUCBFTDN EQUOVR ,,b,OUCBPFL                                             01860000
+OUCBPSD  EQUOVR ,,b,OUCBPFL                                             01870000
+OUCBDPSW EQUOVR ,,b,OUCBPFL                                             01880000
+OUCBSRP  EQUOVR ,,b,OUCBPFL                                             01890000
+OUCBPTDN EQUOVR ,,b,OUCBPFL                                             01900000
+.*                                                                      01910000
+.* OUCBDSPC - CURRENT DISPATCHING CONTROL                               01920000
+OUCBMTW  EQUOVR ,,b,OUCBDSPC                                            01930000
+OUCBTS   EQUOVR ,,b,OUCBDSPC                                            01940000
+OUCBTSC3 EQUOVR ,,b,OUCBDSPC                                            01950000
+OUCBTSC4 EQUOVR ,,b,OUCBDSPC                                            01960000
+OUCBTSC5 EQUOVR ,,b,OUCBDSPC                                            01970000
+OUCBTSC6 EQUOVR ,,b,OUCBDSPC                                            01980000
+OUCBTSC7 EQUOVR ,,b,OUCBDSPC                                            01990000
+.*                                                                      02000000
+.* OUCBDSPN - NEW DISPATCHING CONTROL                                   02010000
+OUCBNMTW EQUOVR ,,b,OUCBDSPN                                            02020000
+OUCBNTS  EQUOVR ,,b,OUCBDSPN                                            02030000
+OUCBTSN3 EQUOVR ,,b,OUCBDSPN                                            02040000
+OUCBTSN4 EQUOVR ,,b,OUCBDSPN                                            02050000
+OUCBTSN5 EQUOVR ,,b,OUCBDSPN                                            02060000
+OUCBTSN6 EQUOVR ,,b,OUCBDSPN                                            02070000
+OUCBTSN7 EQUOVR ,,b,OUCBDSPN                                            02080000
+.*                                                                      02090000
+         MNOTE *,'Including IRAOUCB mapping macro'                      02100000
+         IRAOUCB ,                                                      02110000
+         EQUOVR *END                                                    02120000
+*                                                                       02130000
+OUCB     DSECT ,                       * Resume OUCB DSECT              02140000
+         ORG                                                            02150000
+OUCB_LEN EQU   *-OUCB                  * Length of OUCB                 02160000
+.*                                                                      02170000
+.* Return to our original CSECT name                                    02180000
+&SYSECT  &SYSSTYP                                                       02190000
+.*                                                                      02200000
+.MEND    MEND                                                           02220002

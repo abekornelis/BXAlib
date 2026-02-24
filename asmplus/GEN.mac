@@ -1,0 +1,284 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro generates a replaced machine instruction                  00180000
+.*                                                                      00190000
+&LABEL   GEN   &X                      * &X must be a valid instruction 00200000
+.*                                     * Other operands in SYSLIST      00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC GEN                    * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLA  &BXA_STK                * Stack pointer                  00240000
+         GBLA  &BXA_STK_LVL(5)         * Nesting levels                 00250000
+         LCLA  &LVL                    * Current nesting level          00260000
+         LCLA  &OPS                    * Nr of operands on instruction  00270000
+.*                                                                      00280000
+.* Determine current nesting level                                      00290000
+         AIF   (&BXA_STK EQ 0).LVLOK   * &LVL remains zero              00300000
+&LVL     SETA  (&BXA_STK_LVL(&BXA_STK)) * Current nesting level         00310000
+.LVLOK   ANOP  ,                       *                                00320000
+.*                                                                      00330000
+.* Determine nr of operands                                             00340000
+&OPS     SETA  N'&SYSLIST              *                                00350000
+         AIF   (&OPS LT 1).ERR1A       * Missing opcode                 00360000
+         AIF   ('&X'(1,1) NE '_').ERR1B * Invalid instruction           00370000
+&OPS     SETA  &OPS-1                  * Nr of operands for &X          00380000
+         AIF   (&OPS GT 3).ERR1C       * Too many arguments             00390000
+         AGO   .NOERR1                 *                                00400000
+.ERR1A   MNOTE 8,'No instruction specified'                             00410000
+         MEXIT ,                       *                                00420000
+.ERR1B   MNOTE 8,'Invalid instruction specified: &X'                    00430000
+         MEXIT ,                       *                                00440000
+.ERR1C   MNOTE 4,'More than three operands specified: remainder ignored*00450000
+               '                       *                                00460000
+.NOERR1  ANOP  ,                       *                                00470000
+.*                                                                      00480000
+.* Generate code with indentation                                       00490000
+         AIF   (&LVL EQ 0).GEN0        *                                00500000
+         AIF   (&LVL EQ 1).GEN1        *                                00510000
+         AIF   (&LVL EQ 2).GEN2        *                                00520000
+         AIF   (&LVL EQ 3).GEN3        *                                00530000
+         AIF   (&LVL EQ 4).GEN4        *                                00540000
+         AIF   (&LVL EQ 5).GEN5        *                                00550000
+         AIF   (&LVL EQ 6).GEN6        *                                00560000
+         AIF   (&LVL EQ 7).GEN7        *                                00570000
+         AIF   (&LVL EQ 8).GEN8        *                                00580000
+         AIF   (&LVL EQ 9).GEN9        *                                00590000
+.ERR2A   MNOTE 4,'&LVL nesting levels of structured programming'        00600000
+         AGO   .GEN10                  *                                00610000
+.*                                                                      00620000
+.* Generate code                                                        00630000
+.GEN0    ANOP  ,                       *                                00640000
+         AIF   (&OPS EQ 2).GEN0_2      *                                00650000
+         AIF   (&OPS EQ 3).GEN0_3      *                                00660000
+         AIF   (&OPS EQ 1).GEN0_1      *                                00670000
+&LABEL   &X    ,                       *                                00680000
+         MEXIT ,                       *                                00690000
+.GEN0_1  ANOP  ,                       *                                00700000
+&LABEL   &X    &SYSLIST(2)             *                                00710000
+         MEXIT ,                       *                                00720000
+.GEN0_2  ANOP  ,                       *                                00730000
+&LABEL   &X    &SYSLIST(2),&SYSLIST(3) *                                00740000
+         MEXIT ,                       *                                00750000
+.GEN0_3  ANOP  ,                       *                                00760000
+&LABEL   &X    &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                      00770000
+         MEXIT ,                       *                                00780000
+.*                                                                      00790000
+.GEN1    ANOP  ,                       *                                00800000
+         AIF   (&OPS EQ 2).GEN1_2      *                                00810000
+         AIF   (&OPS EQ 3).GEN1_3      *                                00820000
+         AIF   (&OPS EQ 1).GEN1_1      *                                00830000
+&LABEL    &X   ,                       *                                00840000
+          MEXIT ,                      *                                00850000
+.GEN1_1   ANOP ,                       *                                00860000
+&LABEL    &X   &SYSLIST(2)             *                                00870000
+          MEXIT ,                      *                                00880000
+.GEN1_2   ANOP ,                       *                                00890000
+&LABEL    &X   &SYSLIST(2),&SYSLIST(3) *                                00900000
+          MEXIT ,                      *                                00910000
+.GEN1_3   ANOP ,                       *                                00920000
+&LABEL    &X   &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                      00930000
+          MEXIT ,                      *                                00940000
+.*                                                                      00950000
+.GEN2    ANOP  ,                       *                                00960000
+         AIF   (&OPS EQ 2).GEN2_2      *                                00970000
+         AIF   (&OPS EQ 3).GEN2_3      *                                00980000
+         AIF   (&OPS EQ 1).GEN2_1      *                                00990000
+&LABEL     &X  ,                       *                                01000000
+           MEXIT ,                     *                                01010000
+.GEN2_1    ANOP ,                      *                                01020000
+&LABEL     &X  &SYSLIST(2)             *                                01030000
+           MEXIT ,                     *                                01040000
+.GEN2_2    ANOP ,                      *                                01050000
+&LABEL     &X  &SYSLIST(2),&SYSLIST(3) *                                01060000
+           MEXIT ,                     *                                01070000
+.GEN2_3    ANOP ,                      *                                01080000
+&LABEL     &X  &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                      01090000
+           MEXIT ,                     *                                01100000
+.*                                                                      01110000
+.GEN3    ANOP  ,                       *                                01120000
+         AIF   (&OPS EQ 2).GEN3_2      *                                01130000
+         AIF   (&OPS EQ 3).GEN3_3      *                                01140000
+         AIF   (&OPS EQ 1).GEN3_1      *                                01150000
+&LABEL      &X ,                       *                                01160000
+            MEXIT ,                    *                                01170000
+.GEN3_1     ANOP ,                     *                                01180000
+&LABEL      &X &SYSLIST(2)             *                                01190000
+            MEXIT ,                    *                                01200000
+.GEN3_2     ANOP ,                     *                                01210000
+&LABEL      &X &SYSLIST(2),&SYSLIST(3) *                                01220000
+            MEXIT ,                    *                                01230000
+.GEN3_3     ANOP ,                     *                                01240000
+&LABEL      &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                      01250000
+            MEXIT ,                    *                                01260000
+.*                                                                      01270000
+.GEN4    ANOP  ,                       *                                01280000
+         AIF   (&OPS EQ 2).GEN4_2      *                                01290000
+         AIF   (&OPS EQ 3).GEN4_3      *                                01300000
+         AIF   (&OPS EQ 1).GEN4_1      *                                01310000
+&LABEL       &X ,                      *                                01320000
+             MEXIT ,                   *                                01330000
+.GEN4_1      ANOP ,                    *                                01340000
+&LABEL       &X &SYSLIST(2)            *                                01350000
+             MEXIT ,                   *                                01360000
+.GEN4_2      ANOP ,                    *                                01370000
+&LABEL       &X &SYSLIST(2),&SYSLIST(3)                                 01380000
+             MEXIT ,                   *                                01390000
+.GEN4_3      ANOP ,                    *                                01400000
+&LABEL       &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                     01410000
+             MEXIT ,                   *                                01420000
+.*                                                                      01430000
+.GEN5    ANOP  ,                       *                                01440000
+         AIF   (&OPS EQ 2).GEN5_2      *                                01450000
+         AIF   (&OPS EQ 3).GEN5_3      *                                01460000
+         AIF   (&OPS EQ 1).GEN5_1      *                                01470000
+&LABEL        &X ,                     *                                01480000
+              MEXIT ,                  *                                01490000
+.GEN5_1       ANOP ,                   *                                01500000
+&LABEL        &X &SYSLIST(2)           *                                01510000
+              MEXIT ,                  *                                01520000
+.GEN5_2       ANOP ,                   *                                01530000
+&LABEL        &X &SYSLIST(2),&SYSLIST(3)                                01540000
+              MEXIT ,                  *                                01550000
+.GEN5_3       ANOP ,                   *                                01560000
+&LABEL        &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                    01570000
+              MEXIT ,                  *                                01580000
+.*                                                                      01590000
+.GEN6    ANOP  ,                       *                                01600000
+         AIF   (&OPS EQ 2).GEN6_2      *                                01610000
+         AIF   (&OPS EQ 3).GEN6_3      *                                01620000
+         AIF   (&OPS EQ 1).GEN6_1      *                                01630000
+&LABEL         &X ,                    *                                01640000
+               MEXIT ,                 *                                01650000
+.GEN6_1        ANOP ,                  *                                01660000
+&LABEL         &X &SYSLIST(2)          *                                01670000
+               MEXIT ,                 *                                01680000
+.GEN6_2        ANOP ,                  *                                01690000
+&LABEL         &X &SYSLIST(2),&SYSLIST(3)                               01700000
+               MEXIT ,                 *                                01710000
+.GEN6_3        ANOP ,                  *                                01720000
+&LABEL         &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                   01730000
+               MEXIT ,                 *                                01740000
+.*                                                                      01750000
+.GEN7    ANOP  ,                       *                                01760000
+         AIF   (&OPS EQ 2).GEN7_2      *                                01770000
+         AIF   (&OPS EQ 3).GEN7_3      *                                01780000
+         AIF   (&OPS EQ 1).GEN7_1      *                                01790000
+&LABEL          &X ,                   *                                01800000
+                MEXIT ,                *                                01810000
+.GEN7_1         ANOP ,                 *                                01820000
+&LABEL          &X &SYSLIST(2)         *                                01830000
+                MEXIT ,                *                                01840000
+.GEN7_2         ANOP ,                 *                                01850000
+&LABEL          &X &SYSLIST(2),&SYSLIST(3)                              01860000
+                MEXIT ,                *                                01870000
+.GEN7_3         ANOP ,                 *                                01880000
+&LABEL          &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                  01890000
+                MEXIT ,                *                                01900000
+.*                                                                      01910000
+.GEN8    ANOP  ,                       *                                01920000
+         AIF   (&OPS EQ 2).GEN8_2      *                                01930000
+         AIF   (&OPS EQ 3).GEN8_3      *                                01940000
+         AIF   (&OPS EQ 1).GEN8_1      *                                01950000
+&LABEL           &X ,                  *                                01960000
+                 MEXIT ,               *                                01970000
+.GEN8_1          ANOP ,                *                                01980000
+&LABEL           &X &SYSLIST(2)        *                                01990000
+                 MEXIT ,               *                                02000000
+.GEN8_2          ANOP ,                *                                02010000
+&LABEL           &X &SYSLIST(2),&SYSLIST(3)                             02020000
+                 MEXIT ,               *                                02030000
+.GEN8_3          ANOP ,                *                                02040000
+&LABEL           &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                 02050000
+                 MEXIT ,               *                                02060000
+.*                                                                      02070000
+.GEN9    ANOP  ,                       *                                02080000
+         AIF   (&OPS EQ 2).GEN9_2      *                                02090000
+         AIF   (&OPS EQ 3).GEN9_3      *                                02100000
+         AIF   (&OPS EQ 1).GEN9_1      *                                02110000
+&LABEL            &X ,                 *                                02120000
+                  MEXIT ,              *                                02130000
+.GEN9_1           ANOP ,               *                                02140000
+&LABEL            &X &SYSLIST(2)       *                                02150000
+                  MEXIT ,              *                                02160000
+.GEN9_2           ANOP ,               *                                02170000
+&LABEL            &X &SYSLIST(2),&SYSLIST(3)                            02180000
+                  MEXIT ,              *                                02190000
+.GEN9_3           ANOP ,               *                                02200000
+&LABEL            &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)                02210000
+                  MEXIT ,              *                                02220000
+.*                                                                      02230000
+.GEN10   ANOP  ,                       *                                02240000
+         AIF   (&OPS EQ 2).GEN10_2     *                                02250000
+         AIF   (&OPS EQ 3).GEN10_3     *                                02260000
+         AIF   (&OPS EQ 1).GEN10_1     *                                02270000
+&LABEL             &X ,                *                                02280000
+                   MEXIT ,             *                                02290000
+.GEN10_1           ANOP ,              *                                02300000
+&LABEL             &X &SYSLIST(2)      *                                02310000
+                   MEXIT ,             *                                02320000
+.GEN10_2           ANOP ,              *                                02330000
+&LABEL             &X &SYSLIST(2),&SYSLIST(3)                           02340000
+                   MEXIT ,             *                                02350000
+.GEN10_3           ANOP ,              *                                02360000
+&LABEL             &X &SYSLIST(2),&SYSLIST(3),&SYSLIST(4)               02370000
+                   MEXIT ,             *                                02380000
+.*                                                                      02390000
+.MEND    MEND                                                           02400002

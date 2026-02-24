@@ -1,0 +1,93 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Execute an TRanslate-and-Test instruction with variable length       00180000
+.*                                                                      00190000
+&LABEL   EXTRT &SRC,                   * Source for TRanslate and test *00200000
+               &TABLE,                 * Translate table               *00210000
+               &DECR                   * Decrement indicator            00220000
+.*                                                                      00230000
+.* &SRC   specifies the source field for the translate and test.        00240000
+.*        In stead of a length, a register containing the length must   00250000
+.*        be specified.                                                 00260000
+.* &TABLE specifies the translate table to be used.                     00270000
+.* &DECR  a value of NODEC indicates that the length in the register    00280000
+.*        specified in the TO length field, contains the length of      00290000
+.*        the translate and test minus 1 for the EX instruction.        00300000
+.*                                                                      00310000
+.********************************************************************** 00311001
+.*                                                                      00312001
+.*       IMPORTANT NOTICE                                               00313001
+.*       ========= ======                                               00314001
+.*                                                                      00315001
+.* Code below checks whether 'USER' accepted the terms and conditions   00316001
+.* of the license for the BXA macro library. This code is to be treated 00317001
+.* as part of the Copyright Notice and therefore may not be changed     00318001
+.* or disabled in any way.                                              00319001
+.*                                                                      00319101
+.********************************************************************** 00319201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00319301
+         CHKLIC EXTRT                  * Check license acceptance       00319401
+         AIF   (&BXA_RC NE 0).MEND                                      00319503
+.********************************************************************** 00319601
+.*                                                                      00319701
+.* End of special code that is part of the Copyright Notice             00319801
+.*                                                                      00319901
+.********************************************************************** 00320001
+.*                                                                      00320102
+.* Declare variables                                                    00320202
+         GBLB  &BXA_USED_REGS(16)      * USE status of regs 0-15        00321000
+.*                                                                      00330000
+.* Check availability or R1 and R2                                      00340000
+         AIF   (NOT &BXA_USED_REGS(2)).NOERR1                           00350000
+.ERR1    MNOTE 4,'EXTRT will modify register R1, which is currently in *00360000
+               USE'                    *                                00370000
+.NOERR1  ANOP  ,                       *                                00380000
+.*                                                                      00390000
+         AIF   (NOT &BXA_USED_REGS(3)).NOERR2                           00400000
+.ERR2    MNOTE 4,'EXTRT will modify register R2, which is currently in *00410000
+               USE'                    *                                00420000
+.NOERR2  ANOP  ,                       *                                00430000
+.*                                                                      00440000
+&LABEL   EXQ   &SRC,&TABLE,TRT,&DECR                                    00450000
+.*                                                                      00460000
+.MEND    MEND                                                           00470003

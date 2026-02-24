@@ -1,0 +1,475 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro generates debugging code.                                 00180000
+.*                                                                      00190000
+&LABEL   DBG   &TYPE,                  * LOAD, FIND, SNAP, CLOSE, ABEND*00200000
+               &TITLE,                 * SNAP: title for SNAP dump     *00210000
+               &EP=,                   * LOAD: entrypoint name         *00220000
+               &PTR=,                  * LOAD: pointer to debug module *00230000
+               &PLIST=,                * LOAD: fieldnames for plist    *00240000
+               &CB=,                   * SNAP: control blocks to dump  *00250000
+               &NTRT=,                 * FIND: NTRT field names        *00260000
+               &SAVE=                  * SNAP: YES/NO save/restore regs 00270000
+.*                                                                      00280000
+.* &TYPE  specifies the type of code to generate:                       00290000
+.*        LOAD : loads and initializes the debug module                 00300000
+.*        FIND : retrieves existing DBG environment (if any)            00310000
+.*        CLOSE: terminates and removes the debug module                00320000
+.*        SNAP : generates a call to the debug module                   00330000
+.*        ABEND: forces an immediate S0C1-abend                         00340000
+.* &TITLE used only with TYPE=SNAP. Specifies the title of the snapdump 00350000
+.*        used only with TYPE=ABND. Specifies NOWARN to suppress the    00360000
+.*        warning message normally issued for a deliberate S0C1-abend.  00370000
+.* &EP    used only with TYPE=LOAD. Specifies the entry point name      00380000
+.*        of the debugging module.                                      00390000
+.* &PTR   used only with TYPE=LOAD and TYPE=FIND.                       00400000
+.*        Specifies the name of a field that                            00410000
+.*        will be used to hold the entry point address to the debug     00420000
+.*        module. This fieldname is set on the TYPE=LOAD/FIND expansion 00430000
+.*        and subsequently used on all TYPE=SNAP and TYPE=CLOSE         00440000
+.*        expansions.                                                   00450000
+.* &PLIST used only with TYPE=LOAD and TYPE=FIND.                       00460000
+.*        Specifies the names of two fields:                            00470000
+.*        - PLIST area for debug module, mapped by MAPDBG macro         00480000
+.*        - An area for the function code                               00490000
+.* &CB    used only with TYPE=SNAP. Specifies which control blocks      00500000
+.*        will be snapped. Valid values for CB are:                     00510000
+.*        - USER all user control blocks will be SNAPped: SCB and       00520000
+.*               anything pointed to by the SCB                         00530000
+.*        - SYS  a variety of system control blocks will be SNAPped:    00540000
+.*          CVT, SCVT, SVC-table, SVC update table, etc.                00550000
+.*        - DSPC the contents of dataspace BXADSPC will be SNAPped      00560000
+.*        - TASK the contents of TCB and related control blocks will be 00570000
+.*               SNAPped                                                00580000
+.* &NTRT  used only with TYPE=FIND.                                     00590000
+.*        Specifies the name of three fields:                           00600000
+.*        - Plist area for NTRT macro                                   00610000
+.*        - An area for the retrieved token                             00620000
+.*        - An area for the returncode from NTRT                        00630000
+.* &SAVE  used only with TYPE=SNAP. Defaults to yes if omitted.         00640000
+.*        If YES all GPRs and all ARs will be stored in the DBG         00650000
+.*        dynamic area before DBG is invoked. Upon return, all 32       00660000
+.*        registers will be restored.                                   00670000
+.*                                                                      00680000
+.********************************************************************** 00681001
+.*                                                                      00682001
+.*       IMPORTANT NOTICE                                               00683001
+.*       ========= ======                                               00684001
+.*                                                                      00685001
+.* Code below checks whether 'USER' accepted the terms and conditions   00686001
+.* of the license for the BXA macro library. This code is to be treated 00687001
+.* as part of the Copyright Notice and therefore may not be changed     00688001
+.* or disabled in any way.                                              00689001
+.*                                                                      00689101
+.********************************************************************** 00689201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00689301
+         CHKLIC DBG                    * Check license acceptance       00689401
+         AIF   (&BXA_RC NE 0).MEND                                      00689503
+.********************************************************************** 00689601
+.*                                                                      00689701
+.* End of special code that is part of the Copyright Notice             00689801
+.*                                                                      00689901
+.********************************************************************** 00690001
+.*                                                                      00690101
+.* Declare global and local variables                                   00691000
+         GBLB  &SP_DBG                 * Debugging enablement           00700000
+         GBLC  &BXA_DBG_PTR            * pointer to loadmod             00710000
+         GBLC  &BXA_DBG_EP             * entry point name               00720000
+         GBLC  &BXA_DBG_PLIST          * plist field name               00730000
+         GBLA  &BXA_DBG_SKIP           * Nr of skipped operations       00740000
+         GBLC  &SYSASCE                * Address space control setting  00750000
+.*                                                                      00760000
+         LCLC  &_PTR                   * from PTR or BXA_DBG_PTR        00770000
+         LCLC  &_CB                    * defaults to USER if CB empty   00780000
+         LCLC  &ASCMODE                * ASC mode at entry              00790000
+.*                                                                      00800000
+.* Debugging enabled?                                                   00810000
+         AIF   (&SP_DBG).DBGOK         * Enabled: expand this macro     00820000
+&BXA_DBG_SKIP SETA &BXA_DBG_SKIP+1     * Disabled: increment count      00830000
+         MEXIT ,                       *   of skipped DBG-operations    00840000
+.DBGOK   ANOP                                                           00850000
+.*                                                                      00860000
+.* Check validity of the Type parameter                                 00870000
+         AIF   ('&TYPE' EQ 'SNAP').NOERR1                               00880000
+         AIF   ('&TYPE' EQ 'LOAD').NOERR1                               00890000
+         AIF   ('&TYPE' EQ 'FIND').NOERR1                               00900000
+         AIF   ('&TYPE' EQ 'CLOSE').NOERR1                              00910000
+         AIF   ('&TYPE' EQ 'ABEND').NOERR1                              00920000
+         AIF   ('&TYPE' EQ 'ABND').NOERR1                               00930000
+.ERR1    MNOTE 8,'Invalid value supplied for first positional parameter*00940000
+               '                                                        00950000
+         MEXIT                                                          00960000
+.NOERR1  ANOP                                                           00970000
+.*                                                                      00980000
+.* Check validity of the EP parameter                                   00990000
+         AIF   ('&TYPE' EQ 'LOAD').ERR2_RQ                              01000000
+         AIF   (K'&EP EQ 0).NOERR2                                      01010000
+.ERR2A   MNOTE 4,'Entry-point name specified: ignored'                  01020000
+         AGO   .NOERR2                                                  01030000
+.ERR2_RQ ANOP                                                           01040000
+         AIF   (K'&EP EQ 0).ERR2B                                       01050000
+         AIF   (K'&EP GT 8).ERR2C                                       01060000
+         AGO   .NOERR2                                                  01070000
+.ERR2B   MNOTE 8,'Missing entry-point name for DBG TYPE=LOAD'           01080000
+         AGO   .NOERR2                                                  01090000
+.ERR2C   MNOTE 8,'Entry-point name exceeds 8 chars on DBG TYPE=LOAD'    01100000
+.NOERR2  ANOP                                                           01110000
+.*                                                                      01120000
+.* Check validity of the PTR parameter                                  01130000
+         AIF   ('&TYPE' EQ 'LOAD').ERR3_RQ                              01140000
+         AIF   ('&TYPE' EQ 'FIND').ERR3_RQ                              01150000
+         AIF   ('&TYPE' EQ 'SNAP').ERR3_OP                              01160000
+         AIF   ('&TYPE' EQ 'CLOSE').ERR3_OP                             01170000
+         AIF   (K'&PTR EQ 0).NOERR3                                     01180000
+         AGO   .NOERR3                                                  01190000
+.ERR3_RQ ANOP                                                           01200000
+         AIF   (K'&PTR EQ 0).ERR3B                                      01210000
+         AGO   .NOERR3                                                  01220000
+.ERR3_OP ANOP                                                           01230000
+         AIF   (K'&PTR NE 0).NOERR3                                     01240000
+         AIF   (K'&BXA_DBG_PTR NE 0).NOERR3                             01250000
+         AGO   .ERR3B                                                   01260000
+.ERR3A   MNOTE 4,'Pointer field name specified: ignored'                01270000
+         AGO   .NOERR3                                                  01280000
+.ERR3B   MNOTE 8,'Missing pointer field name for DBG TYPE=&TYPE'        01290000
+         MEXIT                                                          01300000
+.NOERR3  ANOP                                                           01310000
+.*                                                                      01320000
+.* Set PTR-field to the required value                                  01330000
+&_PTR    SETC  '&PTR'                                                   01340000
+         AIF   (K'&PTR NE 0).SNAP_PTR                                   01350000
+&_PTR    SETC  '&BXA_DBG_PTR'                                           01360000
+.SNAP_PTR ANOP                                                          01370000
+.*                                                                      01380000
+.* Check validity of the CB parameter                                   01390000
+         AIF   (K'&CB EQ 0).NOERR4                                      01400000
+         AIF   ('&CB' EQ 'USER').NOERR4                                 01410000
+         AIF   ('&CB' EQ 'SYS').NOERR4                                  01420000
+         AIF   ('&CB' EQ 'DSPC').NOERR4                                 01430000
+         AIF   ('&CB' EQ 'TASK').NOERR4                                 01440000
+.ERR4    MNOTE 8,'Invalid value specified on CB parameter'              01450000
+.NOERR4  ANOP                                                           01460000
+.*                                                                      01470000
+         AIF   ('&TYPE' EQ 'SNAP').ERR5_RQ                              01480000
+         AIF   (K'&CB EQ 0).NOERR5                                      01490000
+.ERR5A   MNOTE 4,'CB parameter specified: ignored'                      01500000
+         AGO   .NOERR5                                                  01510000
+.ERR5_RQ ANOP                                                           01520000
+.* Set &_CB to default if &CB not specified for TYPE=SNAP               01530000
+&_CB     SETC  '&CB'                                                    01540000
+         AIF   (K'&CB EQ 0).NOERR5                                      01550000
+&_CB     SETC  'USER'                                                   01560000
+.NOERR5  ANOP                                                           01570000
+.*                                                                      01580000
+.* Check validity of the Title parameter                                01590000
+         AIF   ('&TYPE' EQ 'SNAP').ERR6_RQ                              01600000
+         AIF   (('&TYPE' EQ 'ABND' OR '&TYPE' EQ 'ABEND')              *01610000
+               AND '&TITLE' NE '' AND '&TITLE' NE 'NOWARN').ERR6E       01620000
+         AIF   ('&TYPE' EQ 'ABND' OR '&TYPE' EQ 'ABEND').NOERR6         01630000
+         AIF   (K'&TITLE EQ 0).NOERR6                                   01640000
+.ERR6A   MNOTE 4,'Title specified: ignored'                             01650000
+         AGO   .NOERR6                                                  01660000
+.ERR6_RQ ANOP                                                           01670000
+         AIF   (K'&TITLE EQ 0).ERR6B                                    01680000
+         AIF   ('&TITLE'(1,1) NE '''').ERR6C                            01690000
+         AIF   ('&TITLE'(K'&TITLE,1) NE '''').ERR6C                     01700000
+         AIF   (K'&TITLE GT 240).ERR6D                                  01710000
+         AGO   .NOERR6                                                  01720000
+.ERR6B   MNOTE 4,'Missing title for DBG TYPE=SNAP'                      01730000
+         AGO   .NOERR6                                                  01740000
+.ERR6C   MNOTE 8,'Title must be specified in single quotes'             01750000
+         AGO   .NOERR6                                                  01760000
+.ERR6D   MNOTE 8,'Title must not exceed 240 characters'                 01770000
+         AGO   .NOERR6                                                  01780000
+.ERR6E   MNOTE 4,'Second parameter for DBG &TYPE not NOWARN: ignored'   01790000
+.NOERR6  ANOP                                                           01800000
+.*                                                                      01810000
+.* Check validity of the PLIST parameter                                01820000
+         AIF   ('&TYPE' EQ 'LOAD').ERR7_RQ                              01830000
+         AIF   ('&TYPE' EQ 'FIND').ERR7_RQ                              01840000
+         AIF   (K'&PLIST EQ 0).NOERR7                                   01850000
+.ERR7A   MNOTE 4,'PLIST parameter specified: ignored'                   01860000
+         AGO   .NOERR7                                                  01870000
+.ERR7_RQ ANOP                                                           01880000
+         AIF   (K'&PLIST EQ 0).ERR7B                                    01890000
+         AIF   ('&PLIST'(1,1) NE '(').ERR7C                             01900000
+         AIF   (N'&PLIST EQ 0).ERR7D                                    01910000
+         AIF   (N'&PLIST EQ 1).ERR7D                                    01920000
+         AIF   (N'&PLIST GT 2).ERR7D                                    01930000
+         AIF   ('&PLIST(1)'(1,1) EQ '(').ERR7E                          01940000
+         AIF   ('&PLIST(2)'(1,1) EQ '(').ERR7E                          01950000
+         AGO   .NOERR7                                                  01960000
+.ERR7B   MNOTE 8,'Missing parameter PLIST for DBG TYPE=&TYPE'           01970000
+         AGO   .NOERR7                                                  01980000
+.ERR7C   MNOTE 8,'Missing parentheses on parameter PLIST'               01990000
+         AGO   .NOERR7                                                  02000000
+.ERR7D   MNOTE 8,'PLIST parameter must contain two field-names'         02010000
+         AGO   .NOERR7                                                  02020000
+.ERR7E   MNOTE 8,'PLIST sub-parameter must not specify (register)'      02030000
+.NOERR7  ANOP                                                           02040000
+.*                                                                      02050000
+.* Check validity of the NTRT parameter                                 02060000
+         AIF   ('&TYPE' EQ 'FIND').ERR8_RQ                              02070000
+         AIF   (K'&NTRT EQ 0).NOERR8                                    02080000
+.ERR8A   MNOTE 4,'NTRT parameter specified: ignored'                    02090000
+         AGO   .NOERR8                                                  02100000
+.ERR8_RQ ANOP                                                           02110000
+         AIF   (K'&NTRT EQ 0).ERR8B                                     02120000
+         AIF   ('&NTRT'(1,1) NE '(').ERR8C                              02130000
+         AIF   (N'&NTRT LT 3).ERR8D                                     02140000
+         AIF   (N'&NTRT GT 3).ERR8D                                     02150000
+         AIF   ('&NTRT(1)'(1,1) EQ '(').ERR8E                           02160000
+         AIF   ('&NTRT(2)'(1,1) EQ '(').ERR8E                           02170000
+         AIF   ('&NTRT(3)'(1,1) EQ '(').ERR8E                           02180000
+         AGO   .NOERR8                                                  02190000
+.ERR8B   MNOTE 8,'Missing parameter NTRT for DBG TYPE=&TYPE'            02200000
+         AGO   .NOERR8                                                  02210000
+.ERR8C   MNOTE 8,'Missing parentheses on parameter NTRT'                02220000
+         AGO   .NOERR8                                                  02230000
+.ERR8D   MNOTE 8,'NTRT parameter must contain three field-names'        02240000
+         AGO   .NOERR8                                                  02250000
+.ERR8E   MNOTE 8,'NTRT sub-parameter must not specify (register)'       02260000
+.NOERR8  ANOP                                                           02270000
+.*                                                                      02280000
+.* Check SAVE parameter                                                 02290000
+         AIF   ('&TYPE' EQ 'SNAP').ERR9_RQ                              02300000
+         AIF   (K'&SAVE EQ 0).NOERR9                                    02310000
+.ERR9A   MNOTE 4,'SAVE parameter specified: ignored'                    02320000
+         AGO   .NOERR9                                                  02330000
+.ERR9_RQ ANOP                                                           02340000
+         AIF   (K'&SAVE EQ 0).NOERR9                                    02350000
+         AIF   ('&SAVE' EQ 'NO').NOERR9                                 02360000
+         AIF   ('&SAVE' EQ 'YES').NOERR9                                02370000
+.ERR9B   MNOTE 8,'SAVE parameter must specify either YES or NO'         02380000
+.NOERR9  ANOP  ,                                                        02390000
+.*                                                                      02400000
+.* Generate label                                                       02410000
+&LABEL   LABEL ,                                                        02420000
+.*                                                                      02430000
+.* Include required section, depending on TYPE parameter                02440000
+         AIF   ('&TYPE' EQ 'ABEND').ABEND                               02450000
+         AIF   ('&TYPE' EQ 'ABND').ABEND                                02460000
+.*                                                                      02470000
+         GENMAPS (MAP$DBG)             * Mapping macro for debug plist  02480000
+         AIF   ('&TYPE' EQ 'SNAP').SNAP                                 02490000
+         AIF   ('&TYPE' EQ 'LOAD').LOAD                                 02500000
+         AIF   ('&TYPE' EQ 'FIND').FIND                                 02510000
+         AIF   ('&TYPE' EQ 'CLOSE').CLOSE                               02520000
+         MNOTE 12,'Internal error'                                      02530000
+         MEXIT                                                          02540000
+.*                                                                      02550000
+.LOAD    ANOP                                                           02560000
+.*                                                                      02570000
+.* Generate code for loading the debug module                           02580000
+*                                                                       02590000
+* Load the debug module into storage                                    02600000
+         LOAD  EP=&EP                  * Abend on error                 02610000
+         LR    R1,R0                   * Copy entry point address       02620000
+         LA    R1,0(,R1)               * Remove garbage bits            02630000
+         ST    R1,&PTR                 * Set pointer to routine         02640000
+*                                                                       02650000
+* Initialize the parameter list and the debug routine itself            02660000
+         LA    R1,&PLIST(1)            * Retrieve address of plist      02670000
+PL       USE   DBGPL,R1                * And set addressable            02680000
+         CLEAR (PL.DBGPL,DBGPL_LEN)    * Wipe area clean                02690000
+         LA    R15,&PLIST(2)           * Get address of function code   02700000
+         ST    R15,PL.DBGFUNPT         * Store into plist               02710000
+*                                                                       02720000
+         MVI   0(R15),DBGINIT          * Set parm-value to init         02730000
+         L     R15,&PTR                * Load debug-routine address     02740000
+         BASR  R14,R15                 * Call BXADBG00                  02750000
+         DROP  PL                      * DBGPL,R1                       02760000
+*                                                                       02770000
+* On error during init, set debug mode inactive                         02780000
+         LTR   R15,R15                 * Everything was ok?             02790000
+         BZ    _LOAD&SYSNDX            * Yes: continue                  02800000
+         DELETE EP=&EP                 * Remove debug module from stor  02810000
+         ABND  TSTRC,RCD=IGNORE        * On error abend program         02820000
+         XC    &PTR,&PTR               * Reset debug-mod pointer        02830000
+_LOAD&SYSNDX LABEL ,                   * Init was ok: keep DBG-routine  02840000
+.*                                                                      02850000
+.* Put supplied values into Globals                                     02860000
+&BXA_DBG_PTR SETC '&PTR'                                                02870000
+&BXA_DBG_EP SETC '&EP'                                                  02880000
+&BXA_DBG_PLIST SETC '&PLIST(1)'                                         02890000
+         MEXIT                                                          02900000
+.*                                                                      02910000
+.FIND    ANOP                                                           02920000
+*                                                                       02930000
+* Retrieve the Named token for debugging options                        02940000
+         XC    &PTR.(4),&PTR           * Clear module pointer field     02950000
+         XC    &PLIST(1),&PLIST(1)     * Clear plist pointer field      02960000
+         NTRT  ,,&NTRT(2),&NTRT(3),    * Create                        *02970000
+               LVL=IEANT_TASK_LEVEL,   *  plist                        *02980000
+               NAME='BIXXAMS.DBG',     *   for token                   *02990000
+               MF=(G,&NTRT(1))         *    retrieval                   03000000
+         NTRT  MF=(E,&NTRT(1))         * Retrieve token value           03010000
+         LTR   R15,R15                 * Token was found?               03020000
+         BNZ   _DBG&SYSNDX             * No: do not set up for DBG      03030000
+         LA    R1,&PLIST(1)            * Point to plist                 03040000
+PL       USE   DBGPL,R1                * And set it addressable         03050000
+         L     R14,&NTRT(2)            * Retrieve DBG epa from token    03060000
+         ST    R14,&PTR                * And put it into a safe place   03070000
+         L     R14,&NTRT(2)+4          * Retrieve DBG workarea address  03080000
+         ST    R14,PL.DBGWRKPT         * And put it into our plist      03090000
+         LA    R14,&PLIST(2)           * Point to function code         03100000
+         ST    R14,PL.DBGFUNPT         * And put it into our plist      03110000
+         DROP  PL                      * DBGPL,R1 no longer needed      03120000
+_DBG&SYSNDX LABEL                                                       03130000
+.*                                                                      03140000
+.* Put supplied values into Globals                                     03150000
+&BXA_DBG_PTR SETC '&PTR'                                                03160000
+&BXA_DBG_PLIST SETC '&PLIST(1)'                                         03170000
+         MEXIT                                                          03180000
+.*                                                                      03190000
+.SNAP    ANOP                                                           03200000
+.*                                                                      03210000
+.* Generate code for calling the debug module                           03220000
+&ASCMODE SETC  '&SYSASCE'              * Keep current ASC mode setting  03230000
+.*                                                                      03240000
+         AIF   ('&SAVE' EQ 'NO').NOSAVE0                                03250000
+         CLC   &_PTR,=F'0'             * Debug-routine loaded?          03260000
+         BE    _DBG&SYSNDX             * No: skip call of module        03270000
+         AIF   ('&ASCMODE' EQ 'P').PRIMOK0                              03280000
+         SETMODE PRIM                  * Switch to primary              03290000
+.PRIMOK0 ANOP                                                           03300000
+         ST    R1,SAVEHDR              * Temp save for R1               03310000
+         LA    R1,&BXA_DBG_PLIST       * Get address of plist           03320000
+PL       USE   DBGPL,R1                * And set addressable            03330000
+         L     R1,PL.DBGWRKPT          * Point to DBG area              03340000
+         DROP  PL                      * Parmlist no longer addressable 03350000
+         USE   DBG,R1,                 * And set it addressable        *03360000
+               OVR=((DBGSAVE,*NOUSE),(DBGBDST,*NOUSE))                  03370000
+         STM   R0,R15,DBGREGS          * Save all registers             03380000
+         MVC   DBGREGS+4(4),SAVEHDR    *   add original R1-value        03390000
+         STAM  AR0,AR15,DBGAREGS       *   and all access registers     03400000
+         XC    SAVEHDR,SAVEHDR         * Reset header field to zeroes   03410000
+         DROP  R1                      * DBG no longer needed           03420000
+         L     R15,&_PTR               * Load ptr to debug routine      03430000
+         AGO   .GETPLST                                                 03440000
+.*                                                                      03450000
+.NOSAVE0 ANOP  ,                                                        03460000
+         LT    R15,&_PTR               * Debug-routine loaded?          03470000
+         BZ    _DBG&SYSNDX             * No: skip call of module        03480000
+         AIF   ('&ASCMODE' EQ 'P').PRIMOK1                              03490000
+         SETMODE PRIM                  * Switch to primary              03500000
+.PRIMOK1 ANOP                                                           03510000
+.*                                                                      03520000
+.GETPLST ANOP  ,                                                        03530000
+         LA    R1,&BXA_DBG_PLIST       * Get address of plist           03540000
+PL       USE   DBGPL,R1                * And set addressable            03550000
+.*                                                                      03560000
+         AIF   (K'&TITLE EQ 0).NOTITLE                                  03570000
+_TIT&SYSNDX RDATA SNAPHDR,&TITLE       * Define title text              03580000
+         L     R0,=AL4(_TIT&SYSNDX)    * Point to header title          03590000
+         AGO   .BLDPL                                                   03600000
+.NOTITLE ANOP                                                           03610000
+         XR    R0,R0                   * No pointer to title            03620000
+.*                                                                      03630000
+.BLDPL   ANOP                                                           03640000
+         ST    R0,PL.DBGTITPT          * Store pointer to title         03650000
+         L     R14,PL.DBGFUNPT         * Retrieve ptr to function code  03660000
+.*                                                                      03670000
+         AIF   ('&CB' EQ 'SYS').SNAPSYS                                 03680000
+         AIF   ('&CB' EQ 'DSPC').SNAPDSP                                03690000
+         AIF   ('&CB' EQ 'TASK').SNAPTCB                                03700000
+         MVI   0(R14),DBGSNAPU         * Set function code to user CBs  03710000
+         AGO   .SNAPIT                                                  03720000
+.SNAPSYS ANOP                                                           03730000
+         MVI   0(R14),DBGSNAPS         * Set function code to sys CBs   03740000
+         AGO   .SNAPIT                                                  03750000
+.SNAPTCB ANOP                                                           03760000
+         MVI   0(R14),DBGSNAPT         * Set function code to task CBs  03770000
+         AGO   .SNAPIT                                                  03780000
+.SNAPDSP ANOP                                                           03790000
+         MVI   0(R14),DBGSNAPD         * Set function code to dataspace 03800000
+.SNAPIT  ANOP                                                           03810000
+         BASR  R14,R15                 * Call BXADBG00                  03820000
+.*                                                                      03830000
+         AIF   ('&SAVE' EQ 'NO').NOSAVE2                                03840000
+         L     R14,PL.DBGWRKPT         * Point to DBG area              03850000
+         USE   DBG,R14,                * And set it addressable        *03860000
+               OVR=((DBGSAVE,*NOUSE),(DBGBDST,*NOUSE))                  03870000
+         LAM   AR0,AR15,DBGAREGS       * Restore all access registers   03880000
+         LM    R0,R15,DBGREGS          *  and all registers             03890000
+         DROP  R14                     * DBG no longer needed           03900000
+.NOSAVE2 ANOP  ,                                                        03910000
+.*                                                                      03920000
+         DROP  PL                      * DBGPL,R1 no longer needed      03930000
+.*                                                                      03940000
+         AIF   ('&ASCMODE' EQ 'P').PRIMOK                               03950000
+         SETMODE AR                    * Resume AR mode                 03960000
+.PRIMOK  ANOP                                                           03970000
+_DBG&SYSNDX LABEL ,                    * No debug-routine to invoke     03980000
+.*                                                                      03990000
+         MEXIT                                                          04000000
+.*                                                                      04010000
+.CLOSE   ANOP                                                           04020000
+.*                                                                      04030000
+.* Generate code for closing the debug module                           04040000
+         LT    R15,&_PTR               * Debug-routine loaded?          04050000
+         BZ    _DBG&SYSNDX             * No: skip delete of module      04060000
+         LA    R1,&BXA_DBG_PLIST       * Get address of plist           04070000
+PL       USE   DBGPL,R1                * And set addressable            04080000
+         L     R14,PL.DBGFUNPT         * Point to function code         04090000
+         MVI   0(R14),DBGTERM          * Set to terminate               04100000
+*                                                                       04110000
+         BASR  R14,R15                 * Let BXADBG00 terminate         04120000
+         DROP  PL                      * DBGPL,R1 no longer needed      04130000
+         DELETE EP=&BXA_DBG_EP         * Remove debug module from stor  04140000
+         ABND  TSTRC,RCD=IGNORE        * On error abend program         04150000
+         XC    &_PTR,&_PTR             * Reset debug-mod pointer        04160000
+_DBG&SYSNDX LABEL ,                    * No debug-routine to mop up     04170000
+.*                                                                      04180000
+         MEXIT                                                          04190000
+.*                                                                      04200000
+.ABEND   ANOP                                                           04210000
+.*                                                                      04220000
+.* Generate code for forcing an immediate abend                         04230000
+         DC    X'0000'                 * Force S0C1-abend               04240000
+         AIF   ('&TITLE' EQ 'NOWARN').NOWARN                            04250000
+         AIF   ('&SYSSTYP' EQ 'DSECT').NOWARN                           04260000
+         MNOTE 1,'Deliberate S0C1-ABEND included'                       04270000
+.NOWARN  ANOP                                                           04280000
+.*                                                                      04290000
+.MEND    MEND                                                           04300003

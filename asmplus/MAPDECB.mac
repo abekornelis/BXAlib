@@ -1,0 +1,263 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Data Event Control Block                         00180000
+.* The DECB must be located below 16M                                   00190000
+.*                                                                      00200000
+&LABEL   MAPDECB &DSECT=YES,           * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPDECB                * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLB  &BXA_MAC_MAPDECB        * Map has been generated?        00260000
+.*                                                                      00280000
+.* Check parameters                                                     00290000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00300000
+               CB=&CB,                 *                               *00310000
+               PRFX=&PRFX              *                                00320000
+         AIF   (&BXA_RC GT 4).MEND                                      00330002
+.*                                                                      00340000
+.* Check the CB parameter                                               00350000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00360000
+         AIF   ('&CB' EQ 'DECB').EMBED                                  00370000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00380000
+         MEXIT                                                          00390000
+.*                                                                      00400000
+.* Generate embedded definition                                         00410000
+.EMBED   ANOP                                                           00420000
+&LABEL   NESTCB &CB,X,&PRFX                                             00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.DSECT   ANOP                                                           00460000
+         AIF   (&BXA_MAC_MAPDECB).MEND                                  00470002
+&BXA_MAC_MAPDECB SETB 1                                                 00480000
+.* Set up translation from control block to macro for DCL               00490000
+         GBLC  &BXA_CB_DECB                                             00500000
+&BXA_CB_DECB SETC 'DECB'                                                00510000
+.*                                                                      00520000
+.* DECTYPE1 - TYPE OF LENGTH OPERAND                                    00530000
+DECLNS   EQUOVR ,,b,DECTYPE1                                            00540000
+DECRSV01 EQUOVR ,,b,DECTYPE1                                            00550000
+DECRSV02 EQUOVR ,,b,DECTYPE1                                            00560000
+DECRSV03 EQUOVR ,,b,DECTYPE1                                            00570000
+DECRSV04 EQUOVR ,,b,DECTYPE1                                            00580000
+DECRSV05 EQUOVR ,,b,DECTYPE1                                            00590000
+DECRSV06 EQUOVR ,,b,DECTYPE1                                            00600000
+DECRSV07 EQUOVR ,,b,DECTYPE1                                            00610000
+.*                                                                      00620000
+.* DECTYPE2 - TYPE OF OPERATION                                         00630000
+DECRDSF  EQUOVR ,,b,DECTYPE2                                            00640000
+DECRDSB  EQUOVR ,,b,DECTYPE2                                            00650000
+DECWRSF  EQUOVR ,,b,DECTYPE2                                            00660000
+DECWRSD  EQUOVR ,,b,DECTYPE2                                            00670000
+DECRSV08 EQUOVR ,,b,DECTYPE2                                            00680000
+DECWRSZ  EQUOVR ,,b,DECTYPE2                                            00690000
+DECRSV09 EQUOVR ,,b,DECTYPE2                                            00700000
+DECWRSFR EQUOVR ,,b,DECTYPE2                                            00710000
+.*                                                                      00720000
+.* DECBECBF - FLAG FIELD                                                00730000
+DECBWAIT EQUOVR ,,b,DECBECBF                                            00740000
+DECBPOST EQUOVR ,,b,DECBECBF                                            00750000
+DECRSV11 EQUOVR ,,b,DECBECBF                                            00760000
+DECRSV12 EQUOVR ,,b,DECBECBF                                            00770000
+DECRSV13 EQUOVR ,,b,DECBECBF                                            00780000
+DECRSV14 EQUOVR ,,b,DECBECBF                                            00790000
+DECRSV15 EQUOVR ,,b,DECBECBF                                            00800000
+DECRSV16 EQUOVR ,,b,DECBECBF                                            00810000
+.*                                                                      00820000
+.* DECBTYP1 - OPTION BYTE                                               00830000
+DECRSV17 EQUOVR ,,b,DECBTYP1                                            00840000
+DECRSV18 EQUOVR ,,b,DECBTYP1                                            00850000
+DECRSV19 EQUOVR ,,b,DECBTYP1                                            00860000
+DECRSV20 EQUOVR ,,b,DECBTYP1                                            00870000
+DECRSV21 EQUOVR ,,b,DECBTYP1                                            00880000
+DECRSV22 EQUOVR ,,b,DECBTYP1                                            00890000
+DECBLNS  EQUOVR ,,b,DECBTYP1                                            00900000
+DECBARS  EQUOVR ,,b,DECBTYP1                                            00910000
+.*                                                                      00920000
+.* DECBTYP2 - TYPE OF I/O REQUEST                                       00930000
+DECBRDK  EQUOVR ,,b,DECBTYP2                                            00940000
+DECRSV23 EQUOVR ,,b,DECBTYP2                                            00950000
+DECBRDKU EQUOVR ,,b,DECBTYP2                                            00960000
+DECRSV24 EQUOVR ,,b,DECBTYP2                                            00970000
+DECBWRK  EQUOVR ,,b,DECBTYP2                                            00980000
+DECBWRKN EQUOVR ,,b,DECBTYP2                                            00990000
+DECRSV25 EQUOVR ,,b,DECBTYP2                                            01000000
+DECRSV26 EQUOVR ,,b,DECBTYP2                                            01010000
+.*                                                                      01020000
+.* DECBEXC1 - EXCEPTIONAL CONDITION CODE BYTE 1                         01030000
+DECEXRNF EQUOVR ,,b,DECBEXC1                                            01040000
+DECEXRLC EQUOVR ,,b,DECBEXC1                                            01050000
+DECEXNSP EQUOVR ,,b,DECBEXC1                                            01060000
+DECEXINV EQUOVR ,,b,DECBEXC1                                            01070000
+DECEXERR EQUOVR ,,b,DECBEXC1                                            01080000
+DECEXUBK EQUOVR ,,b,DECBEXC1                                            01090000
+DECEXOFL EQUOVR ,,b,DECBEXC1                                            01100000
+DECEXDUP EQUOVR ,,b,DECBEXC1                                            01110000
+.*                                                                      01120000
+.* DECBEXC2 - EXCEPTIONAL CONDITION CODE BYTE 2                         01130000
+DECRSV27 EQUOVR ,,b,DECBEXC2                                            01140000
+DECRSV28 EQUOVR ,,b,DECBEXC2                                            01150000
+DECRSV29 EQUOVR ,,b,DECBEXC2                                            01160000
+DECRSV30 EQUOVR ,,b,DECBEXC2                                            01170000
+DECRSV31 EQUOVR ,,b,DECBEXC2                                            01180000
+DECRSV32 EQUOVR ,,b,DECBEXC2                                            01190000
+DECEXASR EQUOVR ,,b,DECBEXC2                                            01200000
+DECEXRKU EQUOVR ,,b,DECBEXC2                                            01210000
+.*                                                                      01220000
+.* DECCC2 - COMPLETION CODE BYTE 2                                      01230000
+DECCCRNF EQUOVR ,,b,DECCC2                                              01240000
+DECCCRLC EQUOVR ,,b,DECCC2                                              01250000
+DECCCNSP EQUOVR ,,b,DECCC2                                              01260000
+DECCCINV EQUOVR ,,b,DECCC2                                              01270000
+DECCCERR EQUOVR ,,b,DECCC2                                              01280000
+DECCCEOD EQUOVR ,,b,DECCC2                                              01290000
+DECCCUER EQUOVR ,,b,DECCC2                                              01300000
+DECCCREX EQUOVR ,,b,DECCC2                                              01310000
+.*                                                                      01320000
+.* DECCC3 - COMPLETION CODE BYTE 3                                      01330000
+DECRSV33 EQUOVR ,,b,DECCC3                                              01340000
+DECCCWRI EQUOVR ,,b,DECCC3                                              01350000
+DECCCEXS EQUOVR ,,b,DECCC3                                              01360000
+DECCCNBK EQUOVR ,,b,DECCC3                                              01370000
+DECCCWDI EQUOVR ,,b,DECCC3                                              01380000
+DECCCSDK EQUOVR ,,b,DECCC3                                              01390000
+DECCCOPT EQUOVR ,,b,DECCC3                                              01400000
+DECCCKFF EQUOVR ,,b,DECCC3                                              01410000
+.*                                                                      01420000
+.* DECTYPE1 - TYPE OF LENGTH OPERAND                                    01430000
+DECVERFY EQUOVR ,,b,DECTYPE1                                            01440000
+DECOFLOW EQUOVR ,,b,DECTYPE1                                            01450000
+DECEXSRC EQUOVR ,,b,DECTYPE1                                            01460000
+DECFDBCK EQUOVR ,,b,DECTYPE1                                            01470000
+DECACTAD EQUOVR ,,b,DECTYPE1                                            01480000
+DECDYNBF EQUOVR ,,b,DECTYPE1                                            01490000
+DECRDEX  EQUOVR ,,b,DECTYPE1                                            01500000
+DECRELBA EQUOVR ,,b,DECTYPE1                                            01510000
+.*                                                                      01520000
+.* DECTYPE2 - TYPE OF OPERATION                                         01530000
+DECKEYS  EQUOVR ,,b,DECTYPE2                                            01540000
+DECBKLNS EQUOVR ,,b,DECTYPE2                                            01550000
+DECTYPRU EQUOVR ,,b,DECTYPE2                                            01560000
+DECTYPR  EQUOVR ,,b,DECTYPE2                                            01570000
+DECOPRD  EQUOVR ,,b,DECTYPE2                                            01580000
+DECSRKEY EQUOVR ,,b,DECTYPE2                                            01590000
+DECWRADD EQUOVR ,,b,DECTYPE2                                            01600000
+DECRSV35 EQUOVR ,,b,DECTYPE2                                            01610000
+.*                                                                      01620000
+.* DECTYPE1 - TYPE OF LENGTH OPERAND                                    01630000
+DECRDAPL EQUOVR ,,b,DECTYPE1                                            01640000
+DECRSV43 EQUOVR ,,b,DECTYPE1                                            01650000
+DECRSV44 EQUOVR ,,b,DECTYPE1                                            01660000
+DECRSV45 EQUOVR ,,b,DECTYPE1                                            01670000
+DECRSV46 EQUOVR ,,b,DECTYPE1                                            01680000
+DECSTRME EQUOVR ,,b,DECTYPE1                                            01690000
+DECSAREA EQUOVR ,,b,DECTYPE1                                            01700000
+DECSLNTH EQUOVR ,,b,DECTYPE1                                            01710000
+.*                                                                      01720000
+.* DECONLTT - FLAG BYTE FOR BSC AND 2760 ONLINE TEST                    01730000
+DECONLTS EQUOVR ,,b,DECONLTT                                            01740000
+DECRCVMS EQUOVR ,,b,DECONLTT                                            01750000
+DECRSV47 EQUOVR ,,b,DECONLTT                                            01760000
+DECRSV48 EQUOVR ,,b,DECONLTT                                            01770000
+DECRSV49 EQUOVR ,,b,DECONLTT                                            01780000
+DECRSV50 EQUOVR ,,b,DECONLTT                                            01790000
+DECRSV51 EQUOVR ,,b,DECONLTT                                            01800000
+DECRSV52 EQUOVR ,,b,DECONLTT                                            01810000
+.*                                                                      01820000
+.* DECFLAGS - OPERATION STATUS                                          01830000
+DECWACK  EQUOVR ,,b,DECFLAGS                                            01840000
+DECERRMS EQUOVR ,,b,DECFLAGS                                            01850000
+DECDIFAC EQUOVR ,,b,DECFLAGS                                            01860000
+DECALTAC EQUOVR ,,b,DECFLAGS                                            01870000
+DECBADID EQUOVR ,,b,DECFLAGS                                            01880000
+DECNOBUF EQUOVR ,,b,DECFLAGS                                            01890000
+DECNEGRP EQUOVR ,,b,DECFLAGS                                            01900000
+DECREVRS EQUOVR ,,b,DECFLAGS                                            01910000
+DECSSMSG EQUOVR ,,b,DECFLAGS                                            01920000
+DECSTXNQ EQUOVR ,,b,DECFLAGS                                            01930000
+.*                                                                      01940000
+.* DECERRST - I/O ERROR STATUS FLAGS                                    01950000
+DECSIO3  EQUOVR ,,b,DECERRST                                            01960000
+DECUNDEF EQUOVR ,,b,DECERRST                                            01970000
+DECERPER EQUOVR ,,b,DECERRST                                            01980000
+DECDIAGN EQUOVR ,,b,DECERRST                                            01990000
+DECDSABL EQUOVR ,,b,DECERRST                                            02000000
+DECRSV53 EQUOVR ,,b,DECERRST                                            02010000
+DECRSV54 EQUOVR ,,b,DECERRST                                            02020000
+DECRSV55 EQUOVR ,,b,DECERRST                                            02030000
+.*                                                                      02040000
+         MNOTE *,'Including IHADECB mapping macro'                      02050000
+         IHADECB ,                                                      02060000
+         EQUOVR *END                                                    02070000
+*                                                                       02080000
+         ORG   ,                       *                                02090000
+DECB_LEN EQU   *-DECB                  * Length of DECB                 02100000
+DECB_BSAM_LEN  EQU L'DECBLFMT+DECBLFMT-DECB * Length of DECB for BSAM   02110000
+DECB_BISAM_LEN EQU L'DECBEXC2+DECBEXC2-DECB * Length of DECB for BISAM  02120000
+DECB_BDAM_LEN  EQU L'DECNAA+DECNAA-DECB     * Length of DECB for BDAM   02130000
+DECB_QTAM_LEN  EQU L'DECPOLPA+DECPOLPA-DECB * Length of DECB for QTAM   02140000
+DECB_BTAM_LEN  EQU L'DECWAREA+DECWAREA-DECB * Length of DECB for BTAM   02150000
+.*                                                                      02160000
+.* Return to our original CSECT name                                    02170000
+&SYSECT  &SYSSTYP                                                       02180000
+.*                                                                      02190000
+.MEND    MEND                                                           02210002

@@ -1,0 +1,172 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Task I/O Table                                   00180000
+.*                                                                      00190000
+&LABEL   MAPTIOT &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPTIOT                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPTIOT        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'TIOENTRY').EMBED                              00360000
+         AIF   ('&CB' EQ 'TIOTHDR').EMBED                               00370000
+         AIF   ('&CB' EQ 'TIOTPOOL').EMBED                              00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPTIOT).MEND                                  00480002
+&BXA_MAC_MAPTIOT SETB 1                                                 00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_TIOENTRY                                         00510000
+         GBLC  &BXA_CB_TIOTHDR                                          00520000
+         GBLC  &BXA_CB_TIOTPOOL                                         00530000
+&BXA_CB_TIOENTRY SETC 'TIOT'                                            00540000
+&BXA_CB_TIOTHDR SETC 'TIOT'                                             00550000
+&BXA_CB_TIOTPOOL SETC 'TIOT'                                            00560000
+.*                                                                      00570000
+.* TIOELNGH - LENGTH, IN BYTES, OF THIS ENTRY                           00580000
+TIOELNGH DSOVR AL1                                                      00590000
+.*                                                                      00600000
+.* TIOESTTA - STATUS BYTE A                                             00610000
+TIOSLTYP EQUOVR ,,b,TIOESTTA                                            00620000
+TIOSPLTP EQUOVR ,,b,TIOESTTA                                            00630000
+TIOSPLTS EQUOVR ,,b,TIOESTTA                                            00640000
+TIOSJBLB EQUOVR ,,b,TIOESTTA                                            00650000
+TIOSDADS EQUOVR ,,b,TIOESTTA                                            00660000
+TIOSLABL EQUOVR ,,b,TIOESTTA                                            00670000
+TIOSDSP1 EQUOVR ,,b,TIOESTTA                                            00680000
+TIOSDSP2 EQUOVR ,,b,TIOESTTA                                            00690000
+.*                                                                      00700000
+.* TIOELINK - DURING ALLOCATION                                         00710000
+TIOSYOUT EQUOVR ,,b,TIOELINK                                            00720000
+TIOTRV01 EQUOVR ,,b,TIOELINK                                            00730000
+TIOTTERM EQUOVR ,,b,TIOELINK                                            00740000
+TIOEDYNM EQUOVR ,,b,TIOELINK                                            00750000
+TIOEQNAM EQUOVR ,,b,TIOELINK                                            00760000
+TIOESYIN EQUOVR ,,b,TIOELINK                                            00770000
+TIOESYOT EQUOVR ,,b,TIOELINK                                            00780000
+TIOESSDS EQUOVR ,,b,TIOELINK                                            00790000
+TIOTREM  EQUOVR ,,b,TIOELINK                                            00800000
+.*                                                                      00810000
+.* TIOESTTC - STATUS BYTE C.                                            00820000
+TIOSDKCR EQUOVR ,,b,TIOESTTC                                            00830000
+TIOSDEFR EQUOVR ,,b,TIOESTTC                                            00840000
+TIOSAFFP EQUOVR ,,b,TIOESTTC                                            00850000
+TIOSAFFS EQUOVR ,,b,TIOESTTC                                            00860000
+TIOSVOLP EQUOVR ,,b,TIOESTTC                                            00870000
+TIOSVOLS EQUOVR ,,b,TIOESTTC                                            00880000
+TIOSBALP EQUOVR ,,b,TIOESTTC                                            00890000
+TIOSBALS EQUOVR ,,b,TIOESTTC                                            00900000
+.*                                                                      00910000
+.* TIOESTTB - STATUS BYTE B                                             00920000
+TIOSUSED EQUOVR ,,b,TIOESTTB                                            00930000
+TIOSREQD EQUOVR ,,b,TIOESTTB                                            00940000
+TIOSPVIO EQUOVR ,,b,TIOESTTB                                            00950000
+TIOSVLSR EQUOVR ,,b,TIOESTTB                                            00960000
+TIOSSETU EQUOVR ,,b,TIOESTTB                                            00970000
+TIOSMNTD EQUOVR ,,b,TIOESTTB                                            00980000
+TIOSUNLD EQUOVR ,,b,TIOESTTB                                            00990000
+TIOSVERF EQUOVR ,,b,TIOESTTB                                            01000000
+.*                                                                      01010000
+.* IEFTIOT1 does not generate a DSECT-statement                         01020000
+         MNOTE *,'Including IEFTIOT1 mapping macro'                     01030000
+TIOT     DSECT ,                       * Start of TIOT                  01040000
+         IEFTIOT1 ,                    *                                01050000
+         DSOVR  *END                                                    01060000
+         EQUOVR *END                                                    01070000
+*                                                                       01080000
+* Notes:                                                                01090000
+* - TIOT DSECT contains several parts, that should have been coded as   01100000
+*   separate DSECTs. Alas IBM has chosen not to.                        01110000
+* - TIOT header      : USING TIOT              24 bytes                 01120000
+* - TIOT entry       : USING TIOENTRY          Length in first byte     01130000
+* - TIOT pool entry  : USING POOLSTAR          20 bytes                 01140000
+* - Last TIOT entry is marked by 4 hex zeroes in the first 4 bytes,     01150000
+*   including the length byte                                           01160000
+* - Concatenated data sets have a ddname only in the first TIOT entry,  01170000
+*   all other entries contain blanks for their ddname                   01180000
+* - Bit TIOSLTYP in TIOESTTA is on, when a TIOT entry has been freed    01190000
+*                                                                       01200000
+         ORG                                                            01210000
+TIOT_LEN EQU   TIOENTRY-TIOT           * Length of TIOT                 01220000
+TIOE_LEN EQU   POOLSTAR-TIOENTRY       * Length of TIOT entry           01230000
+TIOP_LEN EQU   *-POOLSTAR              * Length of TIOT pool entry      01240000
+.*                                                                      01250000
+.* Return to our original CSECT name                                    01260000
+&SYSECT  &SYSSTYP                                                       01270000
+.*                                                                      01280000
+.MEND    MEND                                                           01300002

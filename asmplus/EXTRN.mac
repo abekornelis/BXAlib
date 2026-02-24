@@ -1,0 +1,147 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro replaces the assembler's EXTRN statement                  00180000
+.*                                                                      00190000
+&LABEL   EXTRN ,                       * Control block names are in    *00200000
+                                       *    &SYSLIST                    00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC EXTRN                  * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLA  &BXA_EXTRNOVR           * Ptr to last valid              00240000
+         GBLC  &BXA_EXTRNOVR_LAB(50)   * Labels                         00250000
+         GBLC  &BXA_EXTRNOVR_NAM(50)   * New names                      00260000
+         LCLC  &NAM                    * New name for current entry     00270000
+         LCLB  &RESET                  * On if last entry removed       00280000
+         LCLA  &I                      * Index for override tables      00290000
+         LCLA  &S                      * Index for &SYSLIST             00300000
+         LCLC  &EXTRN                  * 1 EXTRN name from SYSLIST      00310000
+         LCLC  &EXTRNS                 * Modified list of EXTRN names   00320000
+         LCLC  &WXTRNS                 * List of WXTRN names            00330000
+.*                                                                      00340000
+.* Check LABEL parameter                                                00350000
+         AIF   (K'&LABEL EQ 0).NOERR1                                   00360000
+.ERR1    MNOTE 8,'Label parameter not valid for EXTRN statement'        00370000
+         MEXIT                                                          00380000
+.NOERR1  ANOP                                                           00390000
+.*                                                                      00400000
+.* Build &EXTRNS and &WXTRNS from &SYSLIST                              00410000
+&S       SETA  0                       * S indexes &SYSLIST             00420000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     00430000
+&S       SETA  &S+1                    * Point next entry               00440000
+         AIF   (&S GT N'&SYSLIST).LOOP1OK * At end: quit loop           00450000
+&EXTRN   SETC  '&SYSLIST(&S)'          * Extract external name          00460000
+&I       SETA  0                       * I indexes override tables      00470000
+.LOOP2   ANOP  ,                       * Search for matching name       00480000
+&I       SETA  &I+1                    * Point next override entry      00490000
+         AIF   (&I GT &BXA_EXTRNOVR).LOOP2NF * Not found                00500000
+         AIF   ('&EXTRN' NE '&BXA_EXTRNOVR_LAB(&I)').LOOP2 * Mismatch   00510000
+.* Found override entry, remove it from override tables                 00520000
+&NAM     SETC  '&BXA_EXTRNOVR_NAM(&I)' * Extract *option or new name    00530000
+         AIF   (&I EQ &BXA_EXTRNOVR).NOCOPY                             00540000
+&BXA_EXTRNOVR_LAB(&I) SETC '&BXA_EXTRNOVR_LAB(&BXA_EXTRNOVR)'           00550000
+&BXA_EXTRNOVR_NAM(&I) SETC '&BXA_EXTRNOVR_NAM(&BXA_EXTRNOVR)'           00560000
+.NOCOPY  ANOP  ,                       *                                00570000
+&BXA_EXTRNOVR SETA &BXA_EXTRNOVR-1     * Remove copied entry            00580000
+         AIF   (&BXA_EXTRNOVR GT 0).NORESET                             00590000
+&RESET   SETB  1                       *                                00600000
+.NORESET ANOP  ,                       *                                00610000
+.*                                                                      00620000
+.* Check for suppress option                                            00630000
+         AIF   ('&NAM' EQ '*SUPPRESS').LOOP1 * No action needed         00640000
+.*                                                                      00650000
+.* Check for weak external option                                       00660000
+         AIF   ('&NAM' EQ '*WXTRN').LOOP2WX * No action needed          00670000
+.*                                                                      00680000
+.* Must be a *NEWNAME option                                            00690000
+&EXTRNS  SETC  '&EXTRNS'.','.'&NAM'    * Add new name to EXTRNS         00700000
+         AGO   .LOOP1                  * Go process next SYSLIST entry  00710000
+.*                                                                      00720000
+.* *WXTRN specified: add entry to &WXTRNS                               00730000
+.LOOP2WX ANOP  ,                       *                                00740000
+&WXTRNS  SETC  '&WXTRNS'.','.'&EXTRN'  * Add name to WXTRNS             00750000
+         AGO   .LOOP1                  * Go process next SYSLIST entry  00760000
+.*                                                                      00770000
+.* No override found                                                    00780000
+.LOOP2NF ANOP  ,                       * No override:                   00790000
+&EXTRNS  SETC  '&EXTRNS'.','.'&EXTRN'  *   add name to EXTRNS           00800000
+         AGO   .LOOP1                  * Go process next SYSLIST entry  00810000
+.LOOP1OK ANOP  ,                       *                                00820000
+.*                                                                      00830000
+.* Remove leading comma from EXTRNS and/or WXTRNS                       00840000
+         AIF   (K'&EXTRNS EQ 0).EXTRNSOK * No EXTRNs left               00850000
+&EXTRNS  SETC  '&EXTRNS'(2,*)          * Remove leading comma           00860000
+.EXTRNSOK ANOP ,                       *                                00870000
+         AIF   (K'&WXTRNS EQ 0).WXTRNSOK * No weak externals created    00880000
+&WXTRNS  SETC  '&WXTRNS'(2,*)          * Remove leading comma           00890000
+.WXTRNSOK ANOP ,                       *                                00900000
+.*                                                                      00910000
+.* Generate _EXTRN and/or WXTRN statements                              00920000
+         AIF   (K'&EXTRNS EQ 0).NOEXTRN * No EXTRNs left                00930000
+         _EXTRN &EXTRNS                *                                00940000
+.NOEXTRN ANOP  ,                       *                                00950000
+         AIF   (K'&WXTRNS EQ 0).NOWXTRN * No WXTRNs created             00960000
+         WXTRN &WXTRNS                 *                                00970000
+.NOWXTRN ANOP  ,                       *                                00980000
+.*                                                                      00990000
+         AIF   (NOT &RESET).MEND       *                                01000002
+         OPSYNS _EXTRN                 * Reset EXTRN opcode             01010000
+.*                                                                      01020000
+.MEND    MEND                                                           01040002

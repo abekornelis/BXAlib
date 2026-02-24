@@ -1,0 +1,133 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro describing SNAP storage areas list and headers list    00180000
+.* The SNAP Plist itself is described in macro's                        00190000
+.*     IHASNAP, IHASNAPX, and IHASNP                                    00200000
+.*                                                                      00210000
+&LABEL   MAPSNAP &DSECT=YES,           * YES or NO                     *00220000
+               &CB=,                   * Control block to generate     *00230000
+               &PRFX=                  * Prefix to use                  00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC MAPSNAP                * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00251000
+.* Declare variables                                                    00260000
+         GBLB  &BXA_MAC_MAPSNAP        * Map has been generated?        00270000
+.*                                                                      00290000
+.* Check parameters                                                     00300000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00310000
+               CB=&CB,                 *                               *00320000
+               PRFX=&PRFX              *                                00330000
+         AIF   (&BXA_RC GT 4).MEND                                      00340002
+.*                                                                      00350000
+.* Check the CB parameter                                               00360000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00370000
+         AIF   ('&CB' EQ 'SNAPDLIST').EMBED                             00380000
+         AIF   ('&CB' EQ 'SNAPHLIST').EMBED                             00390000
+         AIF   ('&CB' EQ 'SNAPLIST').EMBED                              00400000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00410000
+         MEXIT                                                          00420000
+.*                                                                      00430000
+.* Generate embedded definition                                         00440000
+.EMBED   ANOP                                                           00450000
+&LABEL   NESTCB &CB,X,&PRFX                                             00460000
+         MEXIT                                                          00470000
+.*                                                                      00480000
+.DSECT   ANOP                                                           00490000
+         AIF   (&BXA_MAC_MAPSNAP).MEND                                  00500002
+&BXA_MAC_MAPSNAP SETB 1                                                 00510000
+.* Set up translation from control block to macro for DCL               00520000
+         GBLC  &BXA_CB_SNAPDLIST                                        00530000
+         GBLC  &BXA_CB_SNAPHLIST                                        00540000
+         GBLC  &BXA_CB_SNAPLIST                                         00550000
+&BXA_CB_SNAPDLIST SETC 'SNAP'                                           00560000
+&BXA_CB_SNAPHLIST SETC 'SNAP'                                           00570000
+&BXA_CB_SNAPLIST SETC 'SNAP'                                            00580000
+.*                                                                      00590000
+         MNOTE *,'Generating BXASNAP Dsects'                            00600000
+*                                                                       00610000
+SNAPLIST DSECT                                                          00620000
+SNAPFROM DS    A                       * Start address of dump-range    00630000
+SNAPSTAT DS    0X                      * Bit0 on to mark end-of-list    00640000
+SNAPTO   DS    A                       * End address of dump-range      00650000
+*                                                                       00660000
+         ORG   ,                       *                                00670000
+SNAPLIST_LEN EQU *-SNAPLIST            *                                00680000
+*                                                                       00690000
+SNAPHLIST DSECT                                                         00700000
+SNAPHSTAT DS   0X                      * Bit0 on to mark end-of-list    00710000
+SNAPHPTR DS    A                       * Pointer to header text         00720000
+*                                                                       00730000
+         ORG   ,                       * Reset to end of dsect          00740000
+SNAPHLIST_LEN EQU *-SNAPHLIST                                           00750000
+*                                                                       00760000
+SNAPDLIST DSECT                                                         00770000
+SNAPDFROM DS   A                       * Start address of dump-range    00780000
+SNAPDSTAT DS   0X                      * Bit0 on to mark end-of-list    00790000
+SNAPDTO  DS    A                       * End address of dump-range      00800000
+SNAPDSTK DS    XL8                     * STOKEN of dataspace            00810000
+*                                                                       00820000
+         ORG   ,                       *                                00830000
+SNAPDLIST_LEN EQU *-SNAPDLIST          *                                00840000
+*                                                                       00850000
+.*                                                                      00860000
+.* Return to our original CSECT name                                    00870000
+&SYSECT  &SYSSTYP                                                       00880000
+.*                                                                      00890000
+.MEND    MEND                                                           00910002

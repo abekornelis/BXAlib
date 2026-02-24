@@ -1,0 +1,300 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Access Control Block                             00180000
+.*                                                                      00190000
+&LABEL   MAPACB &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPACB                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPACB         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'ACB').EMBED                                   00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPACB).MEND                                   00460002
+&BXA_MAC_MAPACB SETB 1                                                  00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_ACB                                              00490000
+&BXA_CB_ACB SETC 'ACB'                                                  00500000
+.*                                                                      00510000
+.* ACBID - ACB IDENTIFIER                                               00520000
+ACBIDVAL EQUOVR ,,v,ACBID                                               00530000
+.*                                                                      00540000
+.* ACBSTYP - ACB SUBTYPE                                                00550000
+ACBSVSAM EQUOVR ,,v,ACBSTYP                                             00560000
+ACBSVRP  EQUOVR ,,v,ACBSTYP                                             00570000
+ACBSCNTL EQUOVR ,,v,ACBSTYP                                             00580000
+ACBSVTAM EQUOVR ,,v,ACBSTYP                                             00590000
+ACBS3540 EQUOVR ,,v,ACBSTYP                                             00600000
+.*                                                                      00610000
+.* ACBMACR1 - MACRF FIRST BYTE                                          00620000
+ACBKEY   EQUOVR ,,b,ACBMACR1                                            00630000
+ACBADR   EQUOVR ,,b,ACBMACR1                                            00640000
+ACBADD   EQUOVR ,,b,ACBMACR1                                            00650000
+ACBCNV   EQUOVR ,,b,ACBMACR1                                            00660000
+ACBBLK   EQUOVR ,,b,ACBMACR1                                            00670000
+ACBSEQ   EQUOVR ,,b,ACBMACR1                                            00680000
+ACBDIR   EQUOVR ,,b,ACBMACR1                                            00690000
+ACBIN    EQUOVR ,,b,ACBMACR1                                            00700000
+ACBOUT   EQUOVR ,,b,ACBMACR1                                            00710000
+ACBUBF   EQUOVR ,,b,ACBMACR1                                            00720000
+.*                                                                      00730000
+.* ACBMACR2 - MACRF SECOND BYTE                                         00740000
+ACBNTRUN EQUOVR ,,b,ACBMACR2                                            00750000
+ACBCCANY EQUOVR ,,b,ACBMACR2                                            00760000
+ACBBWO   EQUOVR ,,b,ACBMACR2                                            00770000
+ACBSKP   EQUOVR ,,b,ACBMACR2                                            00780000
+ACBLOGON EQUOVR ,,b,ACBMACR2                                            00790000
+ACBRST   EQUOVR ,,b,ACBMACR2                                            00800000
+ACBDSN   EQUOVR ,,b,ACBMACR2                                            00810000
+ACBAIX   EQUOVR ,,b,ACBMACR2                                            00820000
+.*                                                                      00830000
+.* ACBMACR3 - MACRF THIRD BYTE                                          00840000
+ACBNLW   EQUOVR ,,b,ACBMACR3                                            00850000
+ACBLSR   EQUOVR ,,b,ACBMACR3                                            00860000
+ACBGSR   EQUOVR ,,b,ACBMACR3                                            00870000
+ACBICI   EQUOVR ,,b,ACBMACR3                                            00880000
+ACBDFR   EQUOVR ,,b,ACBMACR3                                            00890000
+ACBSIS   EQUOVR ,,b,ACBMACR3                                            00900000
+ACBNCFX  EQUOVR ,,b,ACBMACR3                                            00910000
+ACBMODE  EQUOVR ,,b,ACBMACR3                                            00920000
+.*                                                                      00930000
+.* ACBMACR4 - ACB MACRF BYTE 4                                          00940000
+ACBRLS   EQUOVR ,,b,ACBMACR4                                            00950000
+ACBSNP   EQUOVR ,,b,ACBMACR4                                            00960000
+.*                                                                      00970000
+.* ACBRECFM - RECORD FORMAT                                             00980000
+ACBRECAF EQUOVR ,,b,ACBRECFM                                            00990000
+.*                                                                      01000000
+.* ACBCCTYP - CONTROL CHARACTER TYPE                                    01010000
+ACBTRCID EQUOVR ,,b,ACBCCTYP                                            01020000
+ACBDLIXI EQUOVR ,,b,ACBCCTYP                                            01030000
+ACBCCASA EQUOVR ,,b,ACBCCTYP                                            01040000
+ACBCCMCH EQUOVR ,,b,ACBCCTYP                                            01050000
+ACBCCDSI EQUOVR ,,b,ACBCCTYP                                            01060000
+.*                                                                      01070000
+.* ACBFLGS - MISC VSAM FLAGS                                            01080000
+ACBNOJCL EQUOVR ,,b,ACBFLGS                                             01090000
+ACBRDI   EQUOVR ,,b,ACBFLGS                                             01100000
+ACBCNRD  EQUOVR ,,b,ACBFLGS                                             01110000
+.*                                                                      01120000
+.* ACBDSOR1 - DSORG FIRST BYTE                                          01130000
+ACBCRNCK EQUOVR ,,b,ACBDSOR1                                            01140000
+ACBCRNRE EQUOVR ,,b,ACBDSOR1                                            01150000
+ACBDVIND EQUOVR ,,b,ACBDSOR1                                            01160000
+ACBOPTJ  EQUOVR ,,b,ACBDSOR1                                            01170000
+.*                                                                      01180000
+.* ACBDSOR2 - DSORG SECOND BYTE                                         01190000
+ACBDORGA EQUOVR ,,b,ACBDSOR2                                            01200000
+.*                                                                      01210000
+.* ACBAMETH - ACCESS METHOD TYPE                                        01220000
+ACBVTAM  EQUOVR ,,v,ACBAMETH                                            01230000
+ACBSUBS  EQUOVR ,,v,ACBAMETH                                            01240000
+ACBTCAM  EQUOVR ,,v,ACBAMETH                                            01250000
+ACBRCI   EQUOVR ,,v,ACBAMETH                                            01260000
+ACBRTAM  EQUOVR ,,v,ACBAMETH                                            01270000
+ACBJAM   EQUOVR ,,v,ACBAMETH                                            01280000
+ACBVSAM  EQUOVR ,,v,ACBAMETH                                            01290000
+.*                                                                      01300000
+.* ACBOFLGS - OPEN / CLOSE FLAGS                                        01310000
+ACBR31B  EQUOVR ,,b,ACBOFLGS                                            01320000
+ACBR31C  EQUOVR ,,b,ACBOFLGS                                            01330000
+ACBEOV   EQUOVR ,,b,ACBOFLGS                                            01340000
+ACBOPEN  EQUOVR ,,b,ACBOFLGS                                            01350000
+ACBDSERR EQUOVR ,,b,ACBOFLGS                                            01360000
+ACBRECOV EQUOVR ,,b,ACBOFLGS                                            01370000
+ACBEXFG  EQUOVR ,,b,ACBOFLGS                                            01380000
+ACBLOCK  EQUOVR ,,b,ACBOFLGS                                            01390000
+ACBIOSFG EQUOVR ,,b,ACBOFLGS                                            01400000
+ACBBUSY  EQUOVR ,,b,ACBOFLGS                                            01410000
+.*                                                                      01420000
+.* ACBERFLG - ERROR FLAGS                                               01430000
+ACBOALR  EQUOVR ,,v,ACBERFLG                                            01440000
+ACBCALR  EQUOVR ,,v,ACBERFLG                                            01450000
+.*                                                                      01460000
+.* ACBINFL1 - FIRST IND FLAGS                                           01470000
+ACBJEPS  EQUOVR ,,b,ACBINFL1                                            01480000
+ACBIJRQE EQUOVR ,,b,ACBINFL1                                            01490000
+ACBCAT   EQUOVR ,,b,ACBINFL1                                            01500000
+ACBSCRA  EQUOVR ,,b,ACBINFL1                                            01510000
+ACBUCRA  EQUOVR ,,b,ACBINFL1                                            01520000
+ACBVVIC  EQUOVR ,,b,ACBINFL1                                            01530000
+ACBSDS   EQUOVR ,,b,ACBINFL1                                            01540000
+ACBBYPSS EQUOVR ,,b,ACBINFL1                                            01550000
+.*                                                                      01560000
+.* ACBINFL2 - 2ND IND FLAGS                                             01570000
+ACBSWARN EQUOVR ,,b,ACBINFL2                                            01580000
+ACBSOPEN EQUOVR ,,b,ACBINFL2                                            01590000
+ACBCBIC  EQUOVR ,,b,ACBINFL2                                            01600000
+ACBCATX  EQUOVR ,,b,ACBINFL2                                            01610000
+ACBCASRS EQUOVR ,,b,ACBINFL2                                            01620000
+ACBISHRD EQUOVR ,,b,ACBINFL2                                            01630000
+ACBSHROP EQUOVR ,,b,ACBINFL2                                            01640000
+ACBSHR02 EQUOVR ,,b,ACBINFL2                                            01650000
+ACBSHR01 EQUOVR ,,b,ACBINFL2                                            01660000
+.*                                                                      01670000
+         MNOTE *,'Including IFGACB mapping macro'                       01680000
+         IFGACB DSECT=YES                                               01690000
+         EQUOVR *END                                                    01700000
+*                                                                       01710000
+IFGACB   DSECT ,                       * Resume ACB dsect               01720000
+ACB      EQU   IFGACB                  * Name for USINGs                01730000
+         ORG   ,                       *                                01740000
+ACB_LEN  EQU   *-ACB                   * Length of ACB                  01750000
+.*                                                                      01760000
+.* Adding overrides for 3540 extension                                  01770000
+.* ACB35IND - 3540 INDICATORS                                           01780000
+ACBFEED  EQUOVR ,,b,ACB35IND                                            01790000
+ACBSECUR EQUOVR ,,b,ACB35IND                                            01800000
+.*                                                                      01810000
+         MNOTE *,'Including IFGACB35 mapping macro'                     01820000
+IFGACB   DSECT ,                       * Resume ACB dsect               01830000
+         ORG   ACB+ACB_LEN             * At end of base ACB             01840000
+         IFGACB35 ,                    *                                01850000
+         EQUOVR *END                                                    01860000
+*                                                                       01870000
+IFGACB   DSECT ,                       * Resume ACB dsect               01880000
+         ORG   ,                       *                                01890000
+ACB3540_LEN EQU *-ACB                  * Length of 3540 ACB             01900000
+.*                                                                      01910000
+.* Adding overrides for VTAM extension                                  01920000
+.* ACBOPT1 - ACB OPTION FLAGS                                           01930000
+ACBKPFRR EQUOVR ,,b,ACBOPT1                                             01940000
+ACBSRBEX EQUOVR ,,b,ACBOPT1                                             01950000
+ACBSRBSP EQUOVR ,,b,ACBOPT1                                             01960000
+ACBPLUSC EQUOVR ,,b,ACBOPT1                                             01970000
+ACBPSINS EQUOVR ,,b,ACBOPT1                                             01980000
+ACBNQNAM EQUOVR ,,b,ACBOPT1                                             01990000
+ACBNMMST EQUOVR ,,b,ACBOPT1                                             02000000
+ACBVFRR  EQUOVR ,,b,ACBOPT1                                             02010000
+.*                                                                      02020000
+.* ACBOPT2 - ACB OPTION FLAGS                                           02030000
+ACBAFDX  EQUOVR ,,b,ACBOPT2                                             02040000
+ACBPFMON EQUOVR ,,b,ACBOPT2                                             02050000
+ACBCMIP  EQUOVR ,,b,ACBOPT2                                             02060000
+ACBEXFRR EQUOVR ,,b,ACBOPT2                                             02070000
+.*                                                                      02080000
+.* ACBERFLG ERROR CODES SPECIFIC TO VTAM                                02090000
+ACBNORM  EQUOVR ,,v,ACBERFLG                                            02100000
+ACBONVRT EQUOVR ,,v,ACBERFLG                                            02110000
+ACBCAQNR EQUOVR ,,v,ACBERFLG                                            02120000
+ACBCDSNR EQUOVR ,,v,ACBERFLG                                            02130000
+ACBRNOCF EQUOVR ,,v,ACBERFLG                                            02140000
+ACBOANAT EQUOVR ,,v,ACBERFLG                                            02150000
+ACBOAHLT EQUOVR ,,v,ACBERFLG                                            02160000
+ACBOAVFY EQUOVR ,,v,ACBERFLG                                            02170000
+ACBOANSN EQUOVR ,,v,ACBERFLG                                            02180000
+ACBOAPAA EQUOVR ,,v,ACBERFLG                                            02190000
+ACBOAPNM EQUOVR ,,v,ACBERFLG                                            02200000
+ACBOVINA EQUOVR ,,v,ACBERFLG                                            02210000
+ACBOAPSE EQUOVR ,,v,ACBERFLG                                            02220000
+ACBOUNDF EQUOVR ,,v,ACBERFLG                                            02230000
+ACBOAPLE EQUOVR ,,v,ACBERFLG                                            02240000
+ACBOPWSE EQUOVR ,,v,ACBERFLG                                            02250000
+ACBOPWLE EQUOVR ,,v,ACBERFLG                                            02260000
+ACBRNOOF EQUOVR ,,v,ACBERFLG                                            02270000
+ACBOAVSE EQUOVR ,,v,ACBERFLG                                            02280000
+ACBOAVLE EQUOVR ,,v,ACBERFLG                                            02290000
+ACBTVTCL EQUOVR ,,v,ACBERFLG                                            02300000
+ACBESME  EQUOVR ,,v,ACBERFLG                                            02310000
+ACBOPSNE EQUOVR ,,v,ACBERFLG                                            02320000
+ACBOPSNC EQUOVR ,,v,ACBERFLG                                            02330000
+ACBOPSMM EQUOVR ,,v,ACBERFLG                                            02340000
+ACBMOPEN EQUOVR ,,v,ACBERFLG                                            02350000
+ACBNAUTH EQUOVR ,,v,ACBERFLG                                            02360000
+ACBOACT  EQUOVR ,,v,ACBERFLG                                            02370000
+ACBCBUSY EQUOVR ,,v,ACBERFLG                                            02380000
+ACBTANAE EQUOVR ,,v,ACBERFLG                                            02390000
+ACBTNBSE EQUOVR ,,v,ACBERFLG                                            02400000
+ACBTNBOE EQUOVR ,,v,ACBERFLG                                            02410000
+ACBTRTTE EQUOVR ,,v,ACBERFLG                                            02420000
+.*                                                                      02430000
+         MNOTE *,'Including ISTACBEX mapping macro'                     02440000
+IFGACB   DSECT ,                       * Resume ACB dsect               02450000
+         ORG   ACB+ACB_LEN             * At end of base ACB             02460000
+         ISTACBEX ,                    *                                02470000
+         EQUOVR *END                                                    02480000
+*                                                                       02490000
+IFGACB   DSECT ,                       * Resume ACB dsect               02500000
+         ORG   ,                       *                                02510000
+VTAMACB_LEN EQU *-ACB                  * Length of VTAM ACB             02520000
+.*                                                                      02530000
+.* Return to our original CSECT name                                    02540000
+&SYSECT  &SYSSTYP                                                       02550000
+.*                                                                      02560000
+.MEND    MEND                                                           02580002

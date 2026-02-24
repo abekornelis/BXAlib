@@ -1,0 +1,138 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro checks if the argument given is a register                00180000
+.*                                                                      00190000
+.* &BXA_RC will contain 0 if &REG is an EQUated register                00200000
+.* &BXA_RC will contain 4 if &REG is a valid number 0-15                00210000
+.* &BXA_RC will contain 8 if &REG is not a valid register               00220000
+.* &BXA_NUMVAL will contain the register number if &BXA_RC is 0 or 4    00230000
+.*                                                                      00240000
+         CHKREG &REG,                  * Value to be tested            *00250000
+               &TYPE                   * Type of register required      00260000
+.*                                                                      00270000
+.* &REG   Name or number to be tested for valid register number         00280000
+.*                                                                      00290000
+.********************************************************************** 00291001
+.*                                                                      00292001
+.*       IMPORTANT NOTICE                                               00293001
+.*       ========= ======                                               00294001
+.*                                                                      00295001
+.* Code below checks whether 'USER' accepted the terms and conditions   00296001
+.* of the license for the BXA macro library. This code is to be treated 00297001
+.* as part of the Copyright Notice and therefore may not be changed     00298001
+.* or disabled in any way.                                              00299001
+.*                                                                      00299101
+.********************************************************************** 00299201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00299301
+         CHKLIC CHKREG                 * Check license acceptance       00299401
+         AIF   (&BXA_RC NE 0).MEND                                      00299503
+.********************************************************************** 00299601
+.*                                                                      00299701
+.* End of special code that is part of the Copyright Notice             00299801
+.*                                                                      00299901
+.********************************************************************** 00300001
+.*                                                                      00300101
+.* Declare variables                                                    00301000
+         GBLA  &BXA_NUMVAL             * Register number                00310000
+         LCLA  &I                                                       00330000
+.*                                                                      00340000
+.* Check the TYPE parameter                                             00350000
+         AIF   (K'&TYPE EQ 0).NOERR1                                    00360000
+         AIF   ('&TYPE' EQ 'g').NOERR1                                  00370000
+         AIF   ('&TYPE' EQ 'a').NOERR1                                  00380000
+         AIF   ('&TYPE' EQ 'f').NOERR1                                  00390000
+         AIF   ('&TYPE' EQ 'c').NOERR1                                  00400000
+.ERR1A   MNOTE 8,'TYPE of register must be g, a, f, or c'               00410000
+.NOERR1  ANOP                                                           00420000
+.*                                                                      00430000
+.* To be a valid register, &REG must either be a literal number         00440000
+.* or an EQUated register. The former must be tested explicitly,        00450000
+.* the latter can be tested against the register type tables.           00460000
+         AIF   (K'&REG EQ 0).RETURN8   * No register: invalid           00470000
+&I       SETA  ('&REG' FIND '+-*/(.,)') * Complex or simple expression? 00480000
+         AIF   (&I GT 0).RETURN8       * Not a simple expression        00490000
+&I       SETA  ('&REG' FIND '''')      * Contains a quote?              00500000
+         AIF   (&I GT 0).LITERAL       * Yes, must be a literal         00510000
+&I       SETA  ('0123456789' FIND '&REG'(1,1)) * Decimal constant?      00520000
+         AIF   (&I GT 0).LITERAL       * Yes, must be a literal         00530000
+.*                                                                      00540000
+.* REG is a valid EQU-name. Check its type.                             00550000
+         GBLC  &(BXA_REGT_&REG)        * Declare type field of &REG     00560000
+         AIF   ('&(BXA_REGT_&REG)' EQ '').RETURN8 * Not a register      00570000
+         AIF   (K'&TYPE EQ 0).RETURN0  * No explicit type: return ok    00580000
+         AIF   ('&(BXA_REGT_&REG)' EQ '&TYPE').RETURN0 * Type ok        00590000
+         AGO   .RETURN8                * Register is of wrong type      00600000
+.*                                                                      00610000
+.* &reg appears to be a literal. Check whether it designates a valid    00620000
+.* register between 0 and 15. (0, 2, 4, or 6 for floating point reg.)   00630000
+.LITERAL ANOP  ,                       *                                00640000
+         CHKLIT &REG                   * Valid literal?                 00650000
+         AIF   (&BXA_RC NE 0).RETURN8  * No invalid                     00660000
+         AIF   (&BXA_NUMVAL LT 0).RETURN8 * Negative regs dont exist    00670000
+         AIF   (&BXA_NUMVAL GT 15).RETURN8 * 15 is max register number  00680000
+         AIF   ('&TYPE' NE 'f').RETURN4 * This is a valid register      00690000
+         AIF   (&BXA_NUMVAL EQ 0).RETURN4 * Check that this is an       00700000
+         AIF   (&BXA_NUMVAL EQ 2).RETURN4 *   existing floating point   00710000
+         AIF   (&BXA_NUMVAL EQ 4).RETURN4 *   register number.          00720000
+         AIF   (&BXA_NUMVAL EQ 6).RETURN4 *                             00730000
+         AGO   .RETURN8                * Return invalid                 00740000
+.*                                                                      00750000
+.* Register specified is not a valid register                           00760000
+.RETURN8 ANOP                                                           00770000
+&BXA_NUMVAL SETA 0                     * No valid register              00780000
+&BXA_RC  SETA 8                        * Return error                   00790000
+         MEXIT                                                          00800000
+.*                                                                      00810000
+.* Register specified is a numeric literal number 0-15                  00820000
+.* &BXA_NUMVAL already contains the register number                     00830000
+.RETURN4 ANOP                                                           00840000
+&BXA_RC  SETA 4                        * Return warning                 00850000
+         MEXIT                                                          00860000
+.*                                                                      00870000
+.* Register specified is a declared register (of any type)              00880000
+.RETURN0 ANOP                                                           00890000
+         GBLA  &(BXA_REGN_&REG)        * Declare type field of &REG     00900000
+&BXA_NUMVAL SETA &(BXA_REGN_&REG)      * Return register number         00910000
+&BXA_RC  SETA 0                                                         00920000
+.*                                                                      00930000
+.MEND    MEND                                                           00940003

@@ -1,0 +1,242 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro generates entries in the STORAGE and STRHDR lists and is  00180000
+.*  intended for use with BXADBG00 only.                                00190000
+.* It is required that the calling program include the MAPSNAP macro.   00200000
+.* There must be an active USING SNAPLIST,R2                            00210000
+.*           and an active USING SNAPHLIST,R3                           00220000
+.*                                                                      00230000
+&LABEL   SNAPNTRY &ADR,                * Starting address or (reg)     *00240000
+               &LEN=,                  * Length or (reg)               *00250000
+               &END=,                  * (reg)                         *00260000
+               &HDR=                   * Address of header or (reg)     00270000
+.*                                                                      00280000
+.* &ADR   Specifies the starting address of a storage area to be dumped 00290000
+.* &LEN   Specifies the length of the storage area to be dumped         00300000
+.* &END   Specifies a register contining the end-address                00310000
+.* &HDR   Specifies the address of the header for the storage area dump 00320000
+.*        or specifies a the header, enclosed in single quotes          00330000
+.*                                                                      00340000
+.********************************************************************** 00341001
+.*                                                                      00342001
+.*       IMPORTANT NOTICE                                               00343001
+.*       ========= ======                                               00344001
+.*                                                                      00345001
+.* Code below checks whether 'USER' accepted the terms and conditions   00346001
+.* of the license for the BXA macro library. This code is to be treated 00347001
+.* as part of the Copyright Notice and therefore may not be changed     00348001
+.* or disabled in any way.                                              00349001
+.*                                                                      00349101
+.********************************************************************** 00349201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00349301
+         CHKLIC SNAPNTRY               * Check license acceptance       00349401
+         AIF   (&BXA_RC NE 0).MEND                                      00349502
+.********************************************************************** 00349601
+.*                                                                      00349701
+.* End of special code that is part of the Copyright Notice             00349801
+.*                                                                      00349901
+.********************************************************************** 00350001
+.*                                                                      00350101
+.* Declare variables                                                    00351000
+         GBLC  &BXA_USELBL(50)         * Using labels ...               00360000
+         GBLA  &BXA_USEREG(50)         *   and their register indexes   00370000
+         GBLC  &BXA_USEFLD(50)         *   and associated base fields   00380000
+         GBLA  &BXA_USENDX0(5)         * Index into &BXA_USELBL/USEREG  00390000
+         GBLA  &BXA_USENDX1(5)         * Index into &BXA_USELBL/USEREG  00400000
+         GBLA  &BXA_USENDX             * Index into &BXA_USENDX1        00410000
+         LCLA  &N                      * Index for BXA_USE...           00420000
+         LCLC  &REG                    * Register name                  00430000
+         GBLC  &BXA_RD_RETVAL          * label of dup.data              00440000
+         LCLC  &LAB                    * Label to use for RDATA tables  00450000
+.*                                                                      00460000
+.* Check the ADR parameter                                              00470000
+         AIF   (K'&ADR EQ 0).ERR1A                                      00480000
+         AIF   ('&ADR'(1,1) NE '(').NOERR1                              00490000
+         AIF   (N'&ADR EQ 0).ERR1B                                      00500000
+         AIF   (N'&ADR GT 1).ERR1C                                      00510000
+         AGO   .NOERR1                                                  00520000
+.ERR1A   MNOTE 8,'ADR parameter not specified'                          00530000
+         AGO   .NOERR1                                                  00540000
+.ERR1B   MNOTE 8,'ADR parameter contains no registers in sublist'       00550000
+         AGO   .NOERR1                                                  00560000
+.ERR1C   MNOTE 8,'ADR parameter contains more than 1 register in sublis*00570000
+               t'                                                       00580000
+.NOERR1  ANOP                                                           00590000
+.*                                                                      00600000
+.* Check the LEN parameter                                              00610000
+         AIF   (K'&LEN EQ 0).NOERR2                                     00620000
+         AIF   ('&LEN'(1,1) NE '(').NOERR2                              00630000
+         AIF   (N'&LEN EQ 0).ERR2B                                      00640000
+         AIF   (N'&LEN GT 1).ERR2C                                      00650000
+         AGO   .NOERR2                                                  00660000
+.ERR2B   MNOTE 8,'LEN parameter contains no registers in sublist'       00670000
+         AGO   .NOERR2                                                  00680000
+.ERR2C   MNOTE 8,'LEN parameter contains more than 1 register in sublis*00690000
+               t'                                                       00700000
+.NOERR2  ANOP                                                           00710000
+.*                                                                      00720000
+.* Check the HDR parameter                                              00730000
+         AIF   (K'&HDR EQ 0).ERR3A                                      00740000
+         AIF   ('&HDR'(1,1) EQ '(' AND N'&HDR EQ 0).ERR3B               00750000
+         AIF   ('&HDR'(1,1) EQ '(' AND N'&HDR GT 1).ERR3C               00760000
+         AIF   ('&HDR'(1,1) EQ '''' AND '&HDR'(K'&HDR,1) NE '''').ERR3D 00770000
+         AIF   ('&HDR'(1,1) NE '''' AND '&HDR'(K'&HDR,1) EQ '''').ERR3D 00780000
+         AGO   .NOERR3                                                  00790000
+.ERR3A   MNOTE 8,'HDR parameter not specified'                          00800000
+         AGO   .NOERR3                                                  00810000
+.ERR3B   MNOTE 8,'HDR parameter contains no registers in sublist'       00820000
+         AGO   .NOERR3                                                  00830000
+.ERR3C   MNOTE 8,'HDR parameter contains more than 1 register in sublis*00840000
+               t'                                                       00850000
+         AGO   .NOERR3                                                  00860000
+.ERR3D   MNOTE 8,'HDR parameter not properly enclosed in parmaeters'    00870000
+.NOERR3  ANOP                                                           00880000
+.*                                                                      00890000
+.* Check the END parameter                                              00900000
+         AIF   (K'&END EQ 0).NOERR4                                     00910000
+         AIF   ('&END'(1,1) NE '(').ERR4A                               00920000
+         AIF   (N'&END EQ 0).ERR4B                                      00930000
+         AIF   (N'&END GT 1).ERR4C                                      00940000
+         AGO   .NOERR4                                                  00950000
+.ERR4A   MNOTE 8,'END parameter must specify a (reg)'                   00960000
+         AGO   .NOERR4                                                  00970000
+.ERR4B   MNOTE 8,'END parameter contains no registers in sublist'       00980000
+         AGO   .NOERR4                                                  00990000
+.ERR4C   MNOTE 8,'END parameter contains more than 1 register in sublis*01000000
+               t'                                                       01010000
+.NOERR4  ANOP                                                           01020000
+.*                                                                      01030000
+.* LEN and END are mutually exclusive, 1 must be specified              01040000
+         AIF   (K'&LEN EQ 0 AND K'&END EQ 0).ERR5A                      01050000
+         AIF   (K'&LEN NE 0 AND K'&END NE 0).ERR5B                      01060000
+         AGO   .NOERR5                                                  01070000
+.ERR5A   MNOTE 8,'Either LEN or END parameter must be specified'        01080000
+         AGO   .NOERR5                                                  01090000
+.ERR5B   MNOTE 8,'Cannot specify both LEN and END parameters'           01100000
+.NOERR5  ANOP                                                           01110000
+.*                                                                      01120000
+.* Generate start address or use (reg)                                  01130000
+         AIF   ('&ADR'(1,1) EQ '(').ADR_REG                             01140000
+&LABEL   LA    R1,&ADR                 * Get start-address              01150000
+         ST    R1,SNAPFROM             *  and put into list             01160000
+         AGO   .ADR_OK                                                  01170000
+.ADR_REG ANOP                                                           01180000
+&LABEL   ST    &ADR(1),SNAPFROM        * Put pointer into list          01190000
+         LR    R1,&ADR(1)              * Copy ptr to calculate end addr 01200000
+.ADR_OK  ANOP                                                           01210000
+.*                                                                      01220000
+.* Generate end address or use (reg)                                    01230000
+         AIF   (K'&LEN NE 0).USELEN                                     01240000
+         ST    &END(1),SNAPTO          * Put end-address into snaplist  01250000
+         AGO   .ENDOK                                                   01260000
+.*                                                                      01270000
+.USELEN  ANOP                                                           01280000
+         AIF   ('&LEN'(1,1) EQ '(').ENDR                                01290000
+         INC   R1,&LEN-1                                                01300000
+         AGO   .ENDST                                                   01310000
+.ENDR    ANOP                                                           01320000
+         INC   R1,&LEN                 * Address area + 1               01330000
+         DEC   R1                      * Decrement to point to end-byte 01340000
+.ENDST   ANOP                                                           01350000
+         ST    R1,SNAPTO               *  and put into list             01360000
+.ENDOK   ANOP                                                           01370000
+.*                                                                      01380000
+.* Find pointer to SNAPLIST entry                                       01390000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX) * Get pointer to first entry   01400000
+.LOOP1   ANOP  ,                       * Search current part of tables  01410000
+&N       SETA  &N+1                    * Point next entry               01420000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP1NF                01430000
+         AIF   ('&BXA_USEFLD(&N)' NE 'SNAPLIST').LOOP1                  01440000
+&N       SETA  &BXA_USEREG(&N)-1       * Create reg.nr from index       01450000
+&REG     SETC  'R&N'                   * Set up register name           01460000
+         AGO   .LOOP1OK                * Quit loop                      01470000
+.LOOP1NF ANOP  ,                                                        01480000
+         MNOTE 8,'No USING established for SNAPLIST'                    01490000
+         MEXIT ,                                                        01500000
+.LOOP1OK ANOP  ,                                                        01510000
+.*                                                                      01520000
+.* Increment pointer for list                                           01530000
+         INC   &REG,SNAPLIST_LEN       * Point to next free entry       01540000
+.*                                                                      01550000
+.* Generate header address or use (reg)                                 01560000
+         AIF   ('&HDR'(1,1) EQ '(').HDR_REG                             01570000
+         AIF   ('&HDR'(1,1) EQ '''').HDR_TXT                            01580000
+         L     R1,=AL4(&HDR)           * Get start-address              01590000
+         ST    R1,SNAPHPTR             *  and put into list             01600000
+         AGO   .HDR_OK                                                  01610000
+.HDR_REG ANOP                                                           01620000
+         ST    &HDR(1),SNAPHPTR        * Put pointer into list          01630000
+         AGO   .HDR_OK                                                  01640000
+.HDR_TXT ANOP                                                           01650000
+.* The header-text will be defined using RDATA. If RDATA finds a        01660000
+.* duplicate entry, it will replace that entry with an EQU. If this     01670000
+.* is the case, we will use the original label. Since all remote data   01680000
+.* is accessed thru an AL4(..)-literal this saves on literal pool size. 01690000
+&LAB     SETC  '_HDR&SYSNDX'           * Label for the remote header    01700000
+&LAB     RDATA SNAPHDR,&HDR,           * Define the header text        *01710000
+               RD_MODE=COND            *   unless pre-allocated         01720000
+         AIF   (K'&BXA_RD_RETVAL EQ 0).LABOK * No duplicate: keep &LAB  01730000
+&LAB     SETC  '&BXA_RD_RETVAL'        * Duplicate: use actual label    01740000
+.LABOK   ANOP                                                           01750000
+         L     R1,=AL4(&LAB)           * Get start-address              01760000
+         ST    R1,SNAPHPTR             *  and put into list             01770000
+.HDR_OK  ANOP                                                           01780000
+.*                                                                      01790000
+.* Find pointer to SNAPHLIST entry                                      01800000
+&N       SETA  &BXA_USENDX0(&BXA_USENDX) * Get pointer to first entry   01810000
+.LOOP2   ANOP  ,                       * Search current part of tables  01820000
+&N       SETA  &N+1                    * Point next entry               01830000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP2NF                01840000
+         AIF   ('&BXA_USEFLD(&N)' NE 'SNAPHLIST').LOOP2                 01850000
+&N       SETA  &BXA_USEREG(&N)-1       * Create reg.nr from index       01860000
+&REG     SETC  'R&N'                   * Set up register name           01870000
+         AGO   .LOOP2OK                * Quit loop                      01880000
+.LOOP2NF ANOP  ,                                                        01890000
+         MNOTE 8,'No USING established for SNAPHLIST'                   01900000
+         MEXIT ,                                                        01910000
+.LOOP2OK ANOP  ,                                                        01920000
+.*                                                                      01930000
+.* Increment pointer for header-list                                    01940000
+         INC   &REG,SNAPHLIST_LEN      * Point to next free entry       01950000
+.*                                                                      01960000
+.MEND    MEND                                                           01970002

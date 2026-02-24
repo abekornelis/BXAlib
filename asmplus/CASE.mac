@@ -1,0 +1,143 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: CASE                                   00180000
+.* Combines with ELSE and ENDCASE to conditionally execute code-blocks  00190000
+.*                                                                      00200000
+&LABEL   CASE  &NEST=NO                * YES to force nesting           00210000
+.*                                     * Condition in &SYSLIST          00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC CASE                   * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLA  &BXA_STK                * Index to last valid            00250000
+         GBLC  &BXA_STK_OP(5)          * Opcodes                        00260000
+         GBLC  &BXA_STK_LBL(5)         * Labels                         00270000
+         GBLA  &BXA_STK_LVL(5)         * Levels                         00280000
+         LCLC  &OP                     * Last opcode on stack           00290000
+         LCLC  &LBL                    * Last label on stack            00300000
+         LCLA  &LVL                    * Next level on stack            00310000
+         LCLC  &LAB                    * End-of-else label              00320000
+         LCLC  &ARGS                   * SYSLIST as a string            00330000
+         LCLA  &I                      * Stack pointer                  00340000
+.*                                                                      00350000
+.* Check number of parameters                                           00360000
+         AIF   (N'&SYSLIST EQ 0).ERR1                                   00370000
+         AIF   (K'&SYSLIST(1) EQ 0).ERR1                                00380000
+         AGO   .NOERR1                                                  00390000
+.ERR1    MNOTE 8,'No condition specified'                               00400000
+         MEXIT                                                          00410000
+.NOERR1  ANOP                                                           00420000
+.*                                                                      00430000
+.* Check NEST parameter                                                 00440000
+         AIF   ('&NEST' EQ 'NO').NOERR2                                 00450000
+         AIF   ('&NEST' EQ 'YES').NOERR2                                00460000
+.ERR2    MNOTE 8,'NEST parameter must be either YES or NO'              00470000
+         MEXIT                                                          00480000
+.NOERR2  ANOP                                                           00490000
+.*                                                                      00500000
+.* If this is not the first CASE of the current level, then we          00510000
+.* must first generate a branch to the ENDCASE-statement to             00520000
+.* terminate the currently running CASE.                                00530000
+         AIF   ('&NEST' EQ 'YES').NOBRANCH * Nesting a new level        00540000
+&I       SETA  &BXA_STK                * Point current stack entry      00550000
+         AIF   (&I EQ 0).NOBRANCH      * Stack is empty: we're first    00560000
+         AIF   ('&BXA_STK_OP(&I)' NE 'CASE').NOBRANCH                   00570000
+.* Ok: preceding structure is another CASE at the same level            00580000
+         B     _EC_&SYSNDX             * Terminate: branch to ENDCASE   00590000
+*                                                                       00600000
+&BXA_STK_LBL(&I) LABEL ,               * Preceding CASEs all false      00610000
+&BXA_STK_LBL(&I) SETC '_EC_&SYSNDX'    * Label for ENDCASE              00620000
+.NOBRANCH ANOP                                                          00630000
+.*                                                                      00640000
+.* Build ARGS from &SYSLIST                                             00650000
+&I       SETA  0                       * I indexes &SYSLIST             00660000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     00670000
+&I       SETA  &I+1                    * Point next entry               00680000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           00690000
+&ARGS    SETC  '&ARGS'.','.'&SYSLIST(&I)' * Add entry to ARGS           00700000
+         AGO   .LOOP1                  * And go process next entry      00710000
+.LOOP1OK ANOP                                                           00720000
+&ARGS    SETC  '('.'&ARGS'(2,*).')'    * Parenthesize and remove lead , 00730000
+.*                                                                      00740000
+.* Generate embedded IF statement                                       00750000
+&I       SETA  &BXA_STK                * Copy current stack pointer     00760000
+&LABEL   IF    &ARGS                                                    00770000
+         AIF   (&I EQ &BXA_STK).MEND   * No new stack entry!            00780002
+.*                                                                      00790000
+.* Determine nesting level for this CASE statement                      00800000
+&I       SETA  &BXA_STK-1              * Point to previous stack entry  00810000
+         AIF   (&I EQ 0).LVL1          * Stack empty?                   00820000
+&LVL     SETA  &BXA_STK_LVL(&I)        * Copy existing level            00830000
+         AIF   ('&BXA_STK_OP(&I)' NE 'CASE').LVLUP                      00840000
+.* Preceding entry was a case: nest if NEST=YES                         00850000
+         AIF   ('&NEST' EQ 'NO').LVLOK * No: no change in level         00860000
+.LVLUP   ANOP  ,                                                        00870000
+&LVL     SETA  &LVL+1                  * Increase nesting level         00880000
+         AGO   .LVLOK                                                   00890000
+.LVL1    ANOP  ,                                                        00900000
+&LVL     SETA  1                       * First level                    00910000
+.LVLOK   ANOP  ,                                                        00920000
+.*                                                                      00930000
+.* Modify stack to reflect CASE in stead of IF                          00940000
+&I       SETA  &BXA_STK                * Point to current stack entry   00950000
+&BXA_STK_OP(&I) SETC 'CASE'            * Change IF into CASE            00960000
+&BXA_STK_LVL(&I) SETA &LVL             * Modify nesting level           00970000
+.*                                                                      00980000
+.MEND    MEND                                                           01000002

@@ -1,0 +1,571 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Unit Control Module definition                   00180000
+.*                                                                      00190000
+&LABEL   MAPUCM &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPUCM                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPUCM         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'UCM').EMBED                                   00360000
+         AIF   ('&CB' EQ 'UCMEFEXT').EMBED                              00370000
+         AIF   ('&CB' EQ 'UCMEIL').EMBED                                00380000
+         AIF   ('&CB' EQ 'UCMEPEXT').EMBED                              00390000
+         AIF   ('&CB' EQ 'UCMFEXTA').EMBED                              00400000
+         AIF   ('&CB' EQ 'UCMFSAVE').EMBED                              00410000
+         AIF   ('&CB' EQ 'UCMLIST').EMBED                               00420000
+         AIF   ('&CB' EQ 'UCMPEXTA').EMBED                              00430000
+         AIF   ('&CB' EQ 'UCMPRFX').EMBED                               00440000
+         AIF   ('&CB' EQ 'UCM2EXT').EMBED                               00450000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00460000
+         MEXIT                                                          00470000
+.*                                                                      00480000
+.* Generate embedded definition                                         00490000
+.EMBED   ANOP                                                           00500000
+&LABEL   NESTCB &CB,X,&PRFX                                             00510000
+         MEXIT                                                          00520000
+.*                                                                      00530000
+.DSECT   ANOP                                                           00540000
+         AIF   (&BXA_MAC_MAPUCM).MEND                                   00550002
+&BXA_MAC_MAPUCM SETB 1                                                  00560000
+.* Set up translation from control block to macro for DCL               00570000
+         GBLC  &BXA_CB_UCM                                              00580000
+         GBLC  &BXA_CB_UCMEFEXT                                         00590000
+         GBLC  &BXA_CB_UCMEIL                                           00600000
+         GBLC  &BXA_CB_UCMEPEXT                                         00610000
+         GBLC  &BXA_CB_UCMFEXTA                                         00620000
+         GBLC  &BXA_CB_UCMFSAVE                                         00630000
+         GBLC  &BXA_CB_UCMLIST                                          00640000
+         GBLC  &BXA_CB_UCMPEXTA                                         00650000
+         GBLC  &BXA_CB_UCMPRFX                                          00660000
+         GBLC  &BXA_CB_UCM2EXT                                          00670000
+&BXA_CB_UCM SETC 'UCM'                                                  00680000
+&BXA_CB_UCMEFEXT SETC 'UCM'                                             00690000
+&BXA_CB_UCMEIL SETC 'UCM'                                               00700000
+&BXA_CB_UCMEPEXT SETC 'UCM'                                             00710000
+&BXA_CB_UCMFEXTA SETC 'UCM'                                             00720000
+&BXA_CB_UCMFSAVE SETC 'UCM'                                             00730000
+&BXA_CB_UCMLIST SETC 'UCM'                                              00740000
+&BXA_CB_UCMPEXTA SETC 'UCM'                                             00750000
+&BXA_CB_UCMPRFX SETC 'UCM'                                              00760000
+&BXA_CB_UCM2EXT SETC 'UCM'                                              00770000
+.*                                                                      00780000
+.* UCM2SFLG - IEAVSTAA CONTROL FLAGS                                    00790000
+UCM2SDWA EQUOVR ,,b,UCM2SFLG                                            00800000
+UCM2SENT EQUOVR ,,b,UCM2SFLG                                            00810000
+UCM2DTAK EQUOVR ,,b,UCM2SFLG                                            00820000
+UCM2DSTR EQUOVR ,,b,UCM2SFLG                                            00830000
+UCM2WTOI EQUOVR ,,b,UCM2SFLG                                            00840000
+UCM2REC  EQUOVR ,,b,UCM2SFLG                                            00850000
+UCM2FAIL EQUOVR ,,b,UCM2SFLG                                            00860000
+UCMRV008 EQUOVR ,,b,UCM2SFLG                                            00870000
+.*                                                                      00880000
+.* UCMSFLG1 - BYTE 1 OF SYSTEM CONTROL FLAGS                            00890000
+UCMSYSHC EQUOVR ,,b,UCMSFLG1                                            00900000
+UCMSYSB  EQUOVR ,,b,UCMSFLG1                                            00910000
+UCMSYSC  EQUOVR ,,b,UCMSFLG1                                            00920000
+UCMSYSD  EQUOVR ,,b,UCMSFLG1                                            00930000
+UCMSYSE  EQUOVR ,,b,UCMSFLG1                                            00940000
+UCMSYSF  EQUOVR ,,b,UCMSFLG1                                            00950000
+UCMSYSG  EQUOVR ,,b,UCMSFLG1                                            00960000
+UCMSYSH  EQUOVR ,,b,UCMSFLG1                                            00970000
+.*                                                                      00980000
+.* UCMSFLG2 - BYTE 2 OF SYSTEM CONTROL FLAGS                            00990000
+UCMSYSI  EQUOVR ,,b,UCMSFLG2                                            01000000
+UCMSYSJ  EQUOVR ,,b,UCMSFLG2                                            01010000
+UCMSYSK  EQUOVR ,,b,UCMSFLG2                                            01020000
+UCMSYSL  EQUOVR ,,b,UCMSFLG2                                            01030000
+UCMSYSM  EQUOVR ,,b,UCMSFLG2                                            01040000
+UCMSYSN  EQUOVR ,,b,UCMSFLG2                                            01050000
+UCMSYSO  EQUOVR ,,b,UCMSFLG2                                            01060000
+UCMSYSP  EQUOVR ,,b,UCMSFLG2                                            01070000
+.*                                                                      01080000
+.* UCMMFLG3 - MISCELLANEOUS CONTROL FLAGS                               01090000
+UCMREFSH EQUOVR ,,b,UCMMFLG3                                            01100000
+UCMLOGSW EQUOVR ,,b,UCMMFLG3                                            01110000
+UCMMRSV2 EQUOVR ,,b,UCMMFLG3                                            01120000
+UCMMRSV3 EQUOVR ,,b,UCMMFLG3                                            01130000
+UCMMRSV4 EQUOVR ,,b,UCMMFLG3                                            01140000
+UCMMRSV5 EQUOVR ,,b,UCMMFLG3                                            01150000
+UCMMRSV6 EQUOVR ,,b,UCMMFLG3                                            01160000
+UCMMRSV7 EQUOVR ,,b,UCMMFLG3                                            01170000
+.*                                                                      01180000
+.* UCMMFLG4 - Miscellaneous flags                                       01190000
+UCMOPSS  EQUOVR ,,b,UCMMFLG4                                            01200000
+UCMOPSA  EQUOVR ,,b,UCMMFLG4                                            01210000
+UCMOPSV  EQUOVR ,,b,UCMMFLG4                                            01220000
+UCMOPSD  EQUOVR ,,b,UCMMFLG4                                            01230000
+UCMOPSEA EQUOVR ,,b,UCMMFLG4                                            01240000
+UCMOPS5  EQUOVR ,,b,UCMMFLG4                                            01250000
+UCMOPS6  EQUOVR ,,b,UCMMFLG4                                            01260000
+UCMOPS7  EQUOVR ,,b,UCMMFLG4                                            01270000
+.*                                                                      01280000
+.* UCMSDS1 - SDS FLAGS                                                  01290000
+UCMSDS1A EQUOVR ,,b,UCMSDS1                                             01300000
+UCMSDS1B EQUOVR ,,b,UCMSDS1                                             01310000
+UCMSDS1C EQUOVR ,,b,UCMSDS1                                             01320000
+UCMSDS1D EQUOVR ,,b,UCMSDS1                                             01330000
+UCMSDS1E EQUOVR ,,b,UCMSDS1                                             01340000
+UCMPRTHC EQUOVR ,,b,UCMSDS1                                             01350000
+UCMRSV08 EQUOVR ,,b,UCMSDS1                                             01360000
+UCMRSV09 EQUOVR ,,b,UCMSDS1                                             01370000
+.*                                                                      01380000
+.* UCMMISCF - MISCELLANEOUS BITS                                        01390000
+UCMJ3CBS EQUOVR ,,b,UCMMISCF                                            01400000
+UCMJ3SAE EQUOVR ,,b,UCMMISCF                                            01410000
+UCMWU100 EQUOVR ,,b,UCMMISCF                                            01420000
+UCMENFDM EQUOVR ,,b,UCMMISCF                                            01430000
+UCMWU400 EQUOVR ,,b,UCMMISCF                                            01440000
+.* UCMRSV0A EQUOVR ,,b,UCMMISCF        * Last seen in OS/390 V2R6       01450000
+UCMWDONE EQUOVR ,,b,UCMMISCF           * First seen in z/OS V1R4        01451000
+UCMRSV0B EQUOVR ,,b,UCMMISCF                                            01460000
+UCMRSV0C EQUOVR ,,b,UCMMISCF                                            01470000
+.*                                                                      01480000
+.* UCMRPYF1 - First byte of Reply Flags                                 01490000
+UCMRPY0I EQUOVR ,,b,UCMRPYF1                                            01500000
+UCMENHR  EQUOVR ,,b,UCMRPYF1                                            01510000
+.*                                                                      01520000
+.* UCMMODE - MODE FLAGS                                                 01530000
+UCMCTIC  EQUOVR ,,b,UCMMODE                                             01540000
+UCMSPLXQ EQUOVR ,,b,UCMMODE                                             01550000
+UCMTPUTA EQUOVR ,,b,UCMMODE                                             01560000
+UCMSYPLX EQUOVR ,,b,UCMMODE                                             01570000
+UCMAMFA  EQUOVR ,,b,UCMMODE                                             01580000
+UCMOGCE  EQUOVR ,,b,UCMMODE                                             01590000
+UCMFSTAT EQUOVR ,,b,UCMMODE                                             01600000
+UCM1SYS  EQUOVR ,,b,UCMMODE                                             01610000
+.*                                                                      01620000
+.* UCMAMRF - ACTION MESSAGE RETENTION FACILITY FLAGS                    01630000
+UCMAMRFA EQUOVR ,,b,UCMAMRF                                             01640000
+UCMAMRFF EQUOVR ,,b,UCMAMRF                                             01650000
+UCMRSV78 EQUOVR ,,b,UCMAMRF                                             01660000
+UCMABUFF EQUOVR ,,b,UCMAMRF                                             01670000
+UCMAMRFC EQUOVR ,,b,UCMAMRF                                             01680000
+UCMEXSSI EQUOVR ,,b,UCMAMRF                                             01690000
+.* UCMRSV80 EQUOVR ,,b,UCMAMRF         * Last seen in OS/390 V2R6       01700000
+UCMAMRFR EQUOVR ,,b,UCMAMRF            * First seen in z/OS V1R4        01701000
+UCMRSV81 EQUOVR ,,b,UCMAMRF                                             01710000
+.*                                                                      01720000
+.* UCMVRSN - VERSION LEVEL                                              01730000
+UCMSP13  EQUOVR ,,v,UCMVRSN                                             01740000
+UCMSP211 EQUOVR ,,v,UCMVRSN                                             01750000
+UCMSP220 EQUOVR ,,v,UCMVRSN                                             01760000
+UCMSP410 EQUOVR ,,v,UCMVRSN                                             01770000
+UCMSP420 EQUOVR ,,v,UCMVRSN                                             01780000
+UCMSP422 EQUOVR ,,v,UCMVRSN                                             01790000
+UCMSP440 EQUOVR ,,v,UCMVRSN                                             01800000
+UCMSP51X EQUOVR ,,v,UCMVRSN                                             01810000
+UCMVRID  EQUOVR ,,v,UCMVRSN                                             01820000
+.*                                                                      01830000
+.* UCMMODE2 - MODE FLAGS #2                                             01840000
+UCMOVRDE EQUOVR ,,b,UCMMODE2                                            01850000
+UCMLOGS  EQUOVR ,,b,UCMMODE2                                            01860000
+UCMMD202 EQUOVR ,,b,UCMMODE2                                            01870000
+UCMHCENT EQUOVR ,,b,UCMMODE2                                            01880000
+UCMMD204 EQUOVR ,,b,UCMMODE2                                            01890000
+UCMMD205 EQUOVR ,,b,UCMMODE2                                            01900000
+.* UCMMD206 EQUOVR ,,b,UCMMODE2        * Last seen in OS/390 V2R6       01910000
+UCM_Default_RC11 EQUOVR ,,b,UCMMODE2   * First seen in z/OS V1R4        01911000
+UCMMD207 EQUOVR ,,b,UCMMODE2                                            01920000
+.*                                                                      01930000
+.* UCMRSV42 - RESERVED  (MDC033)                                        01940000
+UCMRSV43 EQUOVR ,,b,UCMRSV42                                            01950000
+UCMRSV44 EQUOVR ,,b,UCMRSV42                                            01960000
+UCMRSV45 EQUOVR ,,b,UCMRSV42                                            01970000
+UCMRSV46 EQUOVR ,,b,UCMRSV42                                            01980000
+UCMRSV47 EQUOVR ,,b,UCMRSV42                                            01990000
+UCMRSV48 EQUOVR ,,b,UCMRSV42                                            02000000
+UCMRSV49 EQUOVR ,,b,UCMRSV42                                            02010000
+UCMRSV50 EQUOVR ,,b,UCMRSV42                                            02020000
+.*                                                                      02030000
+.* UCMRSV51 - RESERVED  (MDC033)                                        02040000
+UCMRSV52 EQUOVR ,,b,UCMRSV51                                            02050000
+UCMRSV53 EQUOVR ,,b,UCMRSV51                                            02060000
+UCMRSV54 EQUOVR ,,b,UCMRSV51                                            02070000
+UCMRSV55 EQUOVR ,,b,UCMRSV51                                            02080000
+UCMRSV56 EQUOVR ,,b,UCMRSV51                                            02090000
+UCMRSV57 EQUOVR ,,b,UCMRSV51                                            02100000
+UCMRSV58 EQUOVR ,,b,UCMRSV51                                            02110000
+UCMRSV59 EQUOVR ,,b,UCMRSV51                                            02120000
+.*                                                                      02130000
+.* UCMECB - I/O COMPLETION ECB OR ADDRESS OF I/O COMPLETION ECB         02140000
+UCMECBFB EQUOVR ,,v,UCMECB+3                                            02150000
+UCMECBFC EQUOVR ,,v,UCMECB+3                                            02160000
+UCMECBFD EQUOVR ,,v,UCMECB+3                                            02170000
+UCMECBFE EQUOVR ,,v,UCMECB+3                                            02180000
+UCMECBFF EQUOVR ,,v,UCMECB+3                                            02190000
+.*                                                                      02200000
+.* UCMSTS - STATUS FLAGS                                                02210000
+UCMAF    EQUOVR ,,b,UCMSTS                                              02220000
+UCMPF    EQUOVR ,,b,UCMSTS                                              02230000
+UCMBF    EQUOVR ,,b,UCMSTS                                              02240000
+UCMCF    EQUOVR ,,b,UCMSTS                                              02250000
+UCMTA    EQUOVR ,,b,UCMSTS                                              02260000
+UCMTB    EQUOVR ,,b,UCMSTS                                              02270000
+UCMEMCLS EQUOVR ,,b,UCMSTS                                              02280000
+UCMTC    EQUOVR ,,b,UCMSTS                                              02290000
+.*                                                                      02300000
+.* UCMATR - ATTRIBUTE FLAGS                                             02310000
+UCMOF    EQUOVR ,,b,UCMATR                                              02320000
+UCMIF    EQUOVR ,,b,UCMATR                                              02330000
+UCMXF    EQUOVR ,,b,UCMATR                                              02340000
+UCMUF    EQUOVR ,,b,UCMATR                                              02350000
+UCMLF    EQUOVR ,,b,UCMATR                                              02360000
+UCMAT04  EQUOVR ,,b,UCMATR                                              02370000
+UCMINCLR EQUOVR ,,b,UCMATR                                              02380000
+UCMGLBCH EQUOVR ,,b,UCMATR                                              02390000
+.*                                                                      02400000
+.* UCMEDEVX - DEVICE TYPE INDEX                                         02410000
+UCM2540  EQUOVR ,,v,UCMEDEVX                                            02420000
+UCM2740  EQUOVR ,,v,UCMEDEVX                                            02430000
+UCM3211  EQUOVR ,,v,UCMEDEVX                                            02440000
+UCM3215  EQUOVR ,,v,UCMEDEVX                                            02450000
+UCM32772 EQUOVR ,,v,UCMEDEVX                                            02460000
+UCM32782 EQUOVR ,,v,UCMEDEVX                                            02470000
+UCM3782A EQUOVR ,,v,UCMEDEVX                                            02480000
+UCM32783 EQUOVR ,,v,UCMEDEVX                                            02490000
+UCM32784 EQUOVR ,,v,UCMEDEVX                                            02500000
+UCM3792A EQUOVR ,,v,UCMEDEVX                                            02510000
+UCM3792B EQUOVR ,,v,UCMEDEVX                                            02520000
+UCM3793A EQUOVR ,,v,UCMEDEVX                                            02530000
+UCM3793B EQUOVR ,,v,UCMEDEVX                                            02540000
+UCM3284  EQUOVR ,,v,UCMEDEVX                                            02550000
+UCM3792C EQUOVR ,,v,UCMEDEVX                                            02560000
+UCM3270X EQUOVR ,,v,UCMEDEVX                                            02570000
+UCM2732E EQUOVR ,,v,UCMEDEVX                                            02580000
+UCM3180E EQUOVR ,,v,UCMEDEVX                                            02590000
+UCM3160E EQUOVR ,,v,UCMEDEVX                                            02600000
+UCM4380E EQUOVR ,,v,UCMEDEVX                                            02610000
+UCM6280E EQUOVR ,,v,UCMEDEVX                                            02620000
+UCM6260E EQUOVR ,,v,UCMEDEVX                                            02630000
+UCM5006E EQUOVR ,,v,UCMEDEVX                                            02640000
+.*                                                                      02650000
+.* UCMSDS5 - SDS FLAGS                                                  02660000
+UCMSDS5A EQUOVR ,,b,UCMSDS5                                             02670000
+UCMSDS5B EQUOVR ,,b,UCMSDS5                                             02680000
+UCMSDS5C EQUOVR ,,b,UCMSDS5                                             02690000
+UCMSDS5D EQUOVR ,,b,UCMSDS5                                             02700000
+UCMRSV30 EQUOVR ,,b,UCMSDS5                                             02710000
+UCMSDS5F EQUOVR ,,b,UCMSDS5                                             02720000
+UCMSDS5G EQUOVR ,,b,UCMSDS5                                             02730000
+UCMRSV31 EQUOVR ,,b,UCMSDS5                                             02740000
+.*                                                                      02750000
+.* UCMDIDCS - DIDOCS GLOBAL UPDATE FLAGS                                02760000
+UCMEGCHG EQUOVR ,,b,UCMDIDCS                                            02770000
+UCMENGUP EQUOVR ,,b,UCMDIDCS                                            02780000
+UCMAHERE EQUOVR ,,b,UCMDIDCS                                            02790000
+UCMINUSE EQUOVR ,,b,UCMDIDCS                                            02800000
+UCMEFAIL EQUOVR ,,b,UCMDIDCS                                            02810000
+.*                                                                      02820000
+.* UCMAUTHA - 1ST BYTE OF COMMAND CODE AUTH FLAGS                       02830000
+UCMAUTH1 EQUOVR ,,b,UCMAUTHA                                            02840000
+UCMAUTH2 EQUOVR ,,b,UCMAUTHA                                            02850000
+UCMAUTH3 EQUOVR ,,b,UCMAUTHA                                            02860000
+UCMRSV19 EQUOVR ,,b,UCMAUTHA                                            02870000
+UCMRSV20 EQUOVR ,,b,UCMAUTHA                                            02880000
+UCMRSV21 EQUOVR ,,b,UCMAUTHA                                            02890000
+UCMRSV22 EQUOVR ,,b,UCMAUTHA                                            02900000
+UCMRSV23 EQUOVR ,,b,UCMAUTHA                                            02910000
+.*                                                                      02920000
+.* UCMDISP1 - FIRST BYTE - DISPOSITION FLAGS                            02930000
+UCMDISPA EQUOVR ,,b,UCMDISP1                                            02940000
+UCMDISPB EQUOVR ,,b,UCMDISP1                                            02950000
+UCMDISPC EQUOVR ,,b,UCMDISP1                                            02960000
+UCMDISPD EQUOVR ,,b,UCMDISP1                                            02970000
+UCMDISPE EQUOVR ,,b,UCMDISP1                                            02980000
+UCMDISPF EQUOVR ,,b,UCMDISP1                                            02990000
+UCMDISPG EQUOVR ,,b,UCMDISP1                                            03000000
+UCMDISPH EQUOVR ,,b,UCMDISP1                                            03010000
+.*                                                                      03020000
+.* UCMDISP2 - SECOND BYTE - DISPOSITION FLAGS                           03030000
+UCMDISPI EQUOVR ,,b,UCMDISP2                                            03040000
+UCMDISPJ EQUOVR ,,b,UCMDISP2                                            03050000
+UCMDISPK EQUOVR ,,b,UCMDISP2                                            03060000
+UCMDISPL EQUOVR ,,b,UCMDISP2                                            03070000
+UCMDISPM EQUOVR ,,b,UCMDISP2                                            03080000
+UCMDISPN EQUOVR ,,b,UCMDISP2                                            03090000
+UCMDISPX EQUOVR ,,b,UCMDISP2                                            03100000
+.*                                                                      03110000
+.* UCMMSG1 - FIRST BYTE - MESSAGE FLAGS                                 03120000
+UCMMSGA  EQUOVR ,,b,UCMMSG1                                             03130000
+UCMMSGB  EQUOVR ,,b,UCMMSG1                                             03140000
+UCMRSV70 EQUOVR ,,b,UCMMSG1                                             03150000
+UCMMSGD  EQUOVR ,,b,UCMMSG1                                             03160000
+UCMRSV71 EQUOVR ,,b,UCMMSG1                                             03170000
+UCMMSGF  EQUOVR ,,b,UCMMSG1                                             03180000
+UCMMSGG  EQUOVR ,,b,UCMMSG1                                             03190000
+UCMRSV27 EQUOVR ,,b,UCMMSG1                                             03200000
+.*                                                                      03210000
+.* UCMDEVC - DEVICE CONTROL FLAGS                                       03220000
+UCMDEVA  EQUOVR ,,b,UCMDEVC                                             03230000
+UCMDEVB  EQUOVR ,,b,UCMDEVC                                             03240000
+UCMDEVCC EQUOVR ,,b,UCMDEVC                                             03250000
+UCMDEVD  EQUOVR ,,b,UCMDEVC                                             03260000
+UCMDEVE  EQUOVR ,,b,UCMDEVC                                             03270000
+UCMDEVF  EQUOVR ,,b,UCMDEVC                                             03280000
+UCMDEVG  EQUOVR ,,b,UCMDEVC                                             03290000
+UCMVHRSN EQUOVR ,,b,UCMDEVC                                             03300000
+.*                                                                      03310000
+.* UCMFFLG1 - MESSAGE FLAGS                                             03320000
+UCMFMSGE EQUOVR ,,b,UCMFFLG1                                            03330000
+UCMFMSGA EQUOVR ,,b,UCMFFLG1                                            03340000
+UCMFMSGN EQUOVR ,,b,UCMFFLG1                                            03350000
+UCMFMSG1 EQUOVR ,,b,UCMFFLG1                                            03360000
+UCMFMSG2 EQUOVR ,,b,UCMFFLG1                                            03370000
+UCMFMSG3 EQUOVR ,,b,UCMFFLG1                                            03380000
+UCMFMSG4 EQUOVR ,,b,UCMFFLG1                                            03390000
+UCMFMSG5 EQUOVR ,,b,UCMFFLG1                                            03400000
+.*                                                                      03410000
+.* UCMFFLG2 - MESSAGE FLAGS                                             03420000
+UCMFMSG6 EQUOVR ,,b,UCMFFLG2                                            03430000
+UCMFMSG7 EQUOVR ,,b,UCMFFLG2                                            03440000
+UCMFMSG8 EQUOVR ,,b,UCMFFLG2                                            03450000
+UCMFMSG9 EQUOVR ,,b,UCMFFLG2                                            03460000
+UCMFMSGB EQUOVR ,,b,UCMFFLG2                                            03470000
+UCMFUMPF EQUOVR ,,b,UCMFFLG2                                            03480000
+UCMFMSGC EQUOVR ,,b,UCMFFLG2                                            03490000
+UCMNHOLD EQUOVR ,,b,UCMFFLG2                                            03500000
+.*                                                                      03510000
+.* UCMFFLG3 - QUEUE SCANNED FLAGS FOR ACTION MESSAGE                    03520000
+UCMFRQSD EQUOVR ,,b,UCMFFLG3                                            03530000
+UCMFIQSD EQUOVR ,,b,UCMFFLG3                                            03540000
+UCMFEQSD EQUOVR ,,b,UCMFFLG3                                            03550000
+UCMFCQSD EQUOVR ,,b,UCMFFLG3                                            03560000
+UCMFRSVD EQUOVR ,,b,UCMFFLG3                                            03570000
+UCMFRSVE EQUOVR ,,b,UCMFFLG3                                            03580000
+UCMFRSVF EQUOVR ,,b,UCMFFLG3                                            03590000
+UCMFRSVG EQUOVR ,,b,UCMFFLG3                                            03600000
+.*                                                                      03610000
+.* UCMFMISC - MISCELLANEOUS FLAGS                                       03620000
+UCMFWRID EQUOVR ,,b,UCMFMISC                                            03630000
+UCMFCMIN EQUOVR ,,b,UCMFMISC                                            03640000
+UCMFRSVH EQUOVR ,,b,UCMFMISC                                            03650000
+UCMFHOLD EQUOVR ,,b,UCMFMISC                                            03660000
+UCMF4RSV EQUOVR ,,b,UCMFMISC                                            03670000
+UCMFLOGR EQUOVR ,,b,UCMFMISC                                            03680000
+UCMFLOGA EQUOVR ,,b,UCMFMISC                                            03690000
+UCMFRACT EQUOVR ,,b,UCMFMISC                                            03700000
+.*                                                                      03710000
+.* UCMFMIS2 - MISCELLANEOUS FLAG BYTE 2                                 03720000
+UCMFPCOK EQUOVR ,,b,UCMFMIS2                                            03730000
+UCMFUD1  EQUOVR ,,b,UCMFMIS2                                            03740000
+UCMFHCUD EQUOVR ,,b,UCMFMIS2                                            03750000
+UCMFMLSS EQUOVR ,,b,UCMFMIS2                                            03760000
+UCMFSYNL EQUOVR ,,b,UCMFMIS2                                            03770000
+UCMFMIX  EQUOVR ,,b,UCMFMIS2                                            03780000
+UCMFPCMP EQUOVR ,,b,UCMFMIS2                                            03790000
+UCMF440  EQUOVR ,,b,UCMFMIS2                                            03800000
+.*                                                                      03810000
+.* UCMFXBYT - HIGH-ORDER BYTE OF UCMFXECB                               03820000
+UCMFXB0  EQUOVR ,,b,UCMFXBYT                                            03830000
+.*                                                                      03840000
+.* UCMFMIS3 - MISCELLANEOUS FLAG BYTE 3                                 03850000
+UCMF65BL EQUOVR ,,b,UCMFMIS3                                            03860000
+UCMF85BL EQUOVR ,,b,UCMFMIS3                                            03870000
+.*                                                                      03880000
+.* UCMPSNQB - QUEUE SCANNED FLAGS FOR ACTION MESSAGE                    03890000
+UCMPRQSD EQUOVR ,,b,UCMPSNQB                                            03900000
+UCMPIQSD EQUOVR ,,b,UCMPSNQB                                            03910000
+UCMPEQSD EQUOVR ,,b,UCMPSNQB                                            03920000
+UCMPCQSD EQUOVR ,,b,UCMPSNQB                                            03930000
+UCMPRSV4 EQUOVR ,,b,UCMPSNQB                                            03940000
+UCMPRSV5 EQUOVR ,,b,UCMPSNQB                                            03950000
+UCMPRSV6 EQUOVR ,,b,UCMPSNQB                                            03960000
+UCMPRSV7 EQUOVR ,,b,UCMPSNQB                                            03970000
+.*                                                                      03980000
+.* UCMPFLG1 - MISCELLANEOUS FLAGS                                       03990000
+UCMPWERA EQUOVR ,,b,UCMPFLG1                                            04000000
+UCMPUXIT EQUOVR ,,b,UCMPFLG1                                            04010000
+UCMPPFKC EQUOVR ,,b,UCMPFLG1                                            04020000
+UCMPSWCH EQUOVR ,,b,UCMPFLG1                                            04030000
+UCMPSWCC EQUOVR ,,b,UCMPFLG1                                            04040000
+UCMPLOCO EQUOVR ,,b,UCMPFLG1                                            04050000
+UCMPXITA EQUOVR ,,b,UCMPFLG1                                            04060000
+UCMPXTDF EQUOVR ,,b,UCMPFLG1                                            04070000
+.*                                                                      04080000
+.* UCMEFLG1 - FLAGS FOR UCME FIXED EXTENSION                            04090000
+UCMEFLGA EQUOVR ,,b,UCMEFLG1                                            04100000
+UCMEFLGB EQUOVR ,,b,UCMEFLG1                                            04110000
+UCMEFLGC EQUOVR ,,b,UCMEFLG1                                            04120000
+UCMEFLGD EQUOVR ,,b,UCMEFLG1                                            04130000
+UCMEFLGE EQUOVR ,,b,UCMEFLG1                                            04140000
+.* UCMEFLGF EQUOVR ,,b,UCMEFLG1        * Last seen in OS/390 V2R6       04150000
+.* UCMEFLGG EQUOVR ,,b,UCMEFLG1        * Last seen in OS/390 V2R6       04160000
+.* UCMEFLGH EQUOVR ,,b,UCMEFLG1        * Last seen in OS/390 V2R6       04170000
+UCMEF_Logon_Optional   EQUOVR ,,b,UCMEFLG1 * First seen in z/OS V1R4    04170100
+UCMEF_Logon_Required   EQUOVR ,,b,UCMEFLG1 * First seen in z/OS V1R4    04170200
+UCMEF_AutoLog_Required EQUOVR ,,b,UCMEFLG1 * First seen in z/OS V1R4    04171000
+.*                                                                      04180000
+.* UCMEFLG2 - FLAG FIELD                                                04190000
+UCMEFSTW EQUOVR ,,b,UCMEFLG2                                            04200000
+UCMEFLRQ EQUOVR ,,b,UCMEFLG2                                            04210000
+UCMEFALG EQUOVR ,,b,UCMEFLG2                                            04220000
+UCMEFLOG EQUOVR ,,b,UCMEFLG2                                            04230000
+UCMEALOG EQUOVR ,,b,UCMEFLG2                                            04240000
+UCMEFALL EQUOVR ,,b,UCMEFLG2                                            04250000
+UCMEFPAL EQUOVR ,,b,UCMEFLG2                                            04260000
+.*                                                                      04270000
+.* UCMEFL1 - FIRST BYTE OF THE MESSAGE LEVEL FLAGS                      04280000
+UCMEFLR  EQUOVR ,,b,UCMEFL1                                             04290000
+UCMEFLIA EQUOVR ,,b,UCMEFL1                                             04300000
+UCMEFLCE EQUOVR ,,b,UCMEFL1                                             04310000
+UCMEFLE  EQUOVR ,,b,UCMEFL1                                             04320000
+UCMEFLI  EQUOVR ,,b,UCMEFL1                                             04330000
+UCMEFLBC EQUOVR ,,b,UCMEFL1                                             04340000
+.*                                                                      04350000
+.* UCMEFMSC - MISCELLANEOUS ROUTING INFORMATION                         04360000
+UCMEFUD  EQUOVR ,,b,UCMEFMSC                                            04370000
+UCMEFUDO EQUOVR ,,b,UCMEFMSC                                            04380000
+UCMEFMS3 EQUOVR ,,b,UCMEFMSC                                            04390000
+UCMEFAUT EQUOVR ,,b,UCMEFMSC                                            04400000
+UCMEFHCY EQUOVR ,,b,UCMEFMSC                                            04410000
+.*                                                                      04420000
+.* UCMEFL3 - Reserved for IBM use                                       04430000
+UCMEFMSA EQUOVR ,,b,UCMEFL3                                             04440000
+UCMEFCSA EQUOVR ,,b,UCMEFL3                                             04450000
+.*                                                                      04460000
+.* UCMEPFG1 - MISCELLANEOUS FLAGS                                       04470000
+UCMEPAIN EQUOVR ,,b,UCMEPFG1                                            04480000
+UCMEPTFL EQUOVR ,,b,UCMEPFG1                                            04490000
+UCMEPPOB EQUOVR ,,b,UCMEPFG1                                            04500000
+UCMEPASY EQUOVR ,,b,UCMEPFG1                                            04510000
+.*                                                                      04520000
+.* UCMEPMON - MONITOR SAVE FLAGS, FIRST BYTE                            04530000
+UCMEPMJ  EQUOVR ,,b,UCMEPMON                                            04540000
+UCMEPMST EQUOVR ,,b,UCMEPMON                                            04550000
+UCMEPM02 EQUOVR ,,b,UCMEPMON                                            04560000
+UCMEPM03 EQUOVR ,,b,UCMEPMON                                            04570000
+UCMEPM04 EQUOVR ,,b,UCMEPMON                                            04580000
+UCMEPMS  EQUOVR ,,b,UCMEPMON                                            04590000
+UCMEPMTM EQUOVR ,,b,UCMEPMON                                            04600000
+UCMEPM07 EQUOVR ,,b,UCMEPMON                                            04610000
+.*                                                                      04620000
+.* UCMEPA - ARRAY OF 11 BYTES CORRESPONDING TO EACH AREA IN UCMEPARE    04630000
+UCMEPUSE EQUOVR ,,b,UCMEPA                                              04640000
+UCMEPADD EQUOVR ,,b,UCMEPA                                              04650000
+.*                                                                      04660000
+.* UCMEND - ADDR OF LAST DEVICE ENTRY                                   04670000
+UCMEND   EQUOVR ,,U                    * Prevent defaulting to type 0   04680000
+.*                                                                      04690000
+.* Override EJECT-statements (with 'arguments' in the IEECUCM macro)    04700000
+.*       EJECTOVR *NOERR,9             * Last seen in OS/390 V2R6       04710000
+         EJECTOVR *NOERR,12            * First seen in z/OS V1R4        04711000
+.*                                                                      04720000
+         MNOTE *,'Including IEECUCM mapping macro'                      04730000
+         IEECUCM LIST=YES              * Keep current LIST options      04740000
+         EQUOVR *END                                                    04750000
+         EJECTOVR *END                                                  04760000
+*                                                                       04770000
+UCM      DSECT ,                       * Resume UCM DSECT               04780000
+         ORG                                                            04790000
+UCM_LEN  EQU   *-UCM                   * Length of UCM                  04800000
+*                                                                       04810000
+UCMEFEXT DSECT ,                       * Resume UCM inividual device    04820000
+         ORG   ,                       *          Entry Fixed EXTension 04830000
+UCMEFEXT_LEN EQU *-UCMEFEXT            * Length of UCMEFEXT             04840000
+*                                                                       04850000
+UCMEIL   DSECT ,                       * Resume UCM Event Indication    04860000
+         ORG   ,                       *                        List    04870000
+UCMEIL_LEN EQU *-UCMEIL                * Length of UCMEIL               04880000
+*                                                                       04890000
+UCMEPEXT DSECT ,                       * Resume UCM individual device   04900000
+         ORG   ,                       *       Entry Pageable EXTension 04910000
+UCMEPEXT_LEN EQU *-UCMEPEXT            * Length of UCMEPEXT             04920000
+*                                                                       04930000
+UCMFEXTA DSECT ,                       * Resume UCM Fixed EXTension     04940000
+         ORG   ,                       *                       bAse     04950000
+UCMFEXTA_LEN EQU *-UCMFEXTA            * Length of UCMFEXTA             04960000
+*                                                                       04970000
+UCMFSAVE DSECT ,                       * Resume UCM Fixed extension     04980000
+         ORG   ,                       *                     SAVE area  04990000
+UCMFSAVE_LEN EQU *-UCMFSAVE            * Length of UCMFSAVE             05000000
+*                                                                       05010000
+UCMLIST  DSECT ,                       * Resume LIST of individual      05020000
+         ORG   ,                       *            device entry maps   05030000
+UCMLIST_LEN EQU *-UCMLIST              * Length of UCMLIST              05040000
+*                                                                       05050000
+UCMPEXTA DSECT ,                       * Resume UCM Pageable EXTension  05060000
+         ORG   ,                       *                         bAse   05070000
+UCMPEXTA_LEN EQU *-UCMPEXTA            * Length of UCMPEXTA             05080000
+*                                                                       05090000
+UCMPRFX  DSECT ,                       * Resume MCS Prefix area         05100000
+         ORG                                                            05110000
+UCMPRFX_LEN EQU *-UCMPRFX              * Length of UCMPRFX              05120000
+*                                                                       05130000
+UCM2EXT  DSECT ,                       * Resume OS/VS2 extension        05140000
+         ORG                                                            05150000
+UCM2EXT_LEN EQU *-UCM2EXT              * Length of UCM2EXT              05160000
+.*                                                                      05170000
+.* Return to our original CSECT name                                    05180000
+&SYSECT  &SYSSTYP                                                       05190000
+.*                                                                      05200000
+.MEND    MEND                                                           05220002

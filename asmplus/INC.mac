@@ -1,0 +1,137 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Increment a register                                                 00180000
+.*                                                                      00190000
+&LABEL   INC   &REG,                   * Register to be incremented    *00200000
+               &COUNT                  * Amount to increment            00210000
+.*                                                                      00220000
+.* &REG   specifies the register to be incremented                      00230000
+.* &COUNT specifies the amount by which the register is to be           00240000
+.*        incremented. May be specified as:                             00250000
+.*      - Literal or symbolic value: must evaluate to a value between 0 00260000
+.*        and 4095 inclusive.                                           00270000
+.*      - (reg): must specify a valid register, 0 not allowed           00280000
+.*      - (value,reg): both of the above apply                          00290000
+.*      - nothing: defaults to 1                                        00300000
+.*                                                                      00310000
+.********************************************************************** 00311001
+.*                                                                      00312001
+.*       IMPORTANT NOTICE                                               00313001
+.*       ========= ======                                               00314001
+.*                                                                      00315001
+.* Code below checks whether 'USER' accepted the terms and conditions   00316001
+.* of the license for the BXA macro library. This code is to be treated 00317001
+.* as part of the Copyright Notice and therefore may not be changed     00318001
+.* or disabled in any way.                                              00319001
+.*                                                                      00319101
+.********************************************************************** 00319201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00319301
+         CHKLIC INC                    * Check license acceptance       00319401
+         AIF   (&BXA_RC NE 0).MEND                                      00319502
+.********************************************************************** 00319601
+.*                                                                      00319701
+.* End of special code that is part of the Copyright Notice             00319801
+.*                                                                      00319901
+.********************************************************************** 00320001
+.*                                                                      00320101
+.* Declare locals                                                       00321000
+         LCLC  &_REG,&_COUNT,&_COUNTR                                   00330000
+.*                                                                      00340000
+.* Check Reg parameter                                                  00350000
+&_REG    SETC  '&REG'                                                   00360000
+         AIF   (K'&REG NE 0).NOERR1A                                    00370000
+.ERR1A   MNOTE 8,'No register specified'                                00380000
+.NOERR1A ANOP                                                           00390000
+         AIF   ('&REG'(1,1) NE '(').NOERR1                              00400000
+         AIF   (N'&REG EQ 0).ERR1B                                      00410000
+         AIF   (N'&REG GT 1).ERR1C                                      00420000
+&_REG    SETC  '&REG(1)'                                                00430000
+         AGO   .NOERR1                                                  00440000
+.ERR1B   MNOTE 8,'No register specified within sublist'                 00450000
+         AGO   .NOERR1                                                  00460000
+.ERR1C   MNOTE 8,'More than 1 register specified within sublist'        00470000
+.NOERR1  ANOP                                                           00480000
+.*                                                                      00490000
+.* Check Count parameter                                                00500000
+         AIF   (K'&COUNT EQ 0).NOERR2                                   00510000
+         AIF   ('&COUNT'(1,1) NE '(').NOERR2                            00520000
+         AIF   (N'&COUNT EQ 0).ERR2A                                    00530000
+         AIF   (N'&COUNT GT 2).ERR2B                                    00540000
+         AGO   .NOERR2                                                  00550000
+.ERR2A   MNOTE 8,'No amount to increment specified in sublist'          00560000
+         AGO   .NOERR2                                                  00570000
+.ERR2B   MNOTE 8,'Too many arguments specified in sublist'              00580000
+.NOERR2  ANOP                                                           00590000
+.*                                                                      00600000
+.* Split &COUNT into &_COUNT and &_COUNTR                               00610000
+         AIF   (K'&COUNT EQ 0).COUNT1                                   00620000
+         AIF   ('&COUNT'(1,1) NE '(').COUNTLIT                          00630000
+         AIF   (N'&COUNT EQ 1).COUNTR                                   00640000
+&_COUNTR SETC  '&COUNT(2)'                                              00650000
+&_COUNT  SETC  '&COUNT(1)'                                              00660000
+         AGO   .COUNT_OK                                                00670000
+.COUNTR  ANOP                                                           00680000
+&_COUNTR SETC  '&COUNT(1)'                                              00690000
+&_COUNT  SETC  '0'                                                      00700000
+         AGO   .COUNT_OK                                                00710000
+.COUNTLIT ANOP                                                          00720000
+&_COUNT  SETC  '&COUNT'                                                 00730000
+         AGO   .COUNT_OK                                                00740000
+.COUNT1  ANOP                                                           00750000
+&_COUNT  SETC  '1'                                                      00760000
+.COUNT_OK ANOP                                                          00770000
+.*                                                                      00780000
+.* Generate a LA instruction to increment the register                  00790000
+&LABEL   LA    &_REG,&_COUNT.(&_COUNTR,&_REG) * Increment register      00800000
+.*                                                                      00810000
+.* If the increment register is register 0, add an AR instruction       00820000
+         AIF   ('&_COUNTR' EQ 'R0').R0                                  00830000
+         AIF   ('&_COUNTR' EQ 'R00').R0                                 00840000
+         AIF   ('&_COUNTR' EQ '0').R0                                   00850000
+         AIF   ('&_COUNTR' EQ '00').R0                                  00860000
+         AGO   .MEND                                                    00870002
+.*                                                                      00880000
+.R0      ANOP  ,
+         AR    &_REG,&_COUNTR          * And add increment from GPR0    00890000
+.*                                                                      00900000
+.MEND    MEND                                                           00920002

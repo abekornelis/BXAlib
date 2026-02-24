@@ -1,0 +1,189 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Turn on a value in a code field                                      00180000
+.*                                                                      00190000
+&LABEL   SET   &CODE                   * Name of code to be SET         00200000
+.*                                     * More codes are in SYSLIST      00210000
+.*                                                                      00220000
+.* Alternative syntax: SET field1,field2                                00230000
+.*                                                                      00240000
+.* &CODE specifies the name of a DCL-declared code value. Any number of 00250000
+.*       arguments may follow, but they all have to be DCL-declared     00260000
+.*       value names too.                                               00270000
+.* fld1  Name of an A-type or V-type field                              00280000
+.* fld2  Name of a field, or a register                                 00290000
+.*                                                                      00300000
+.********************************************************************** 00301001
+.*                                                                      00302001
+.*       IMPORTANT NOTICE                                               00303001
+.*       ========= ======                                               00304001
+.*                                                                      00305001
+.* Code below checks whether 'USER' accepted the terms and conditions   00306001
+.* of the license for the BXA macro library. This code is to be treated 00307001
+.* as part of the Copyright Notice and therefore may not be changed     00308001
+.* or disabled in any way.                                              00309001
+.*                                                                      00309101
+.********************************************************************** 00309201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00309301
+         CHKLIC SET                    * Check license acceptance       00309401
+         AIF   (&BXA_RC NE 0).MEND                                      00309502
+.********************************************************************** 00309601
+.*                                                                      00309701
+.* End of special code that is part of the Copyright Notice             00309801
+.*                                                                      00309901
+.********************************************************************** 00310001
+.*                                                                      00311001
+.* Declare variables                                                    00320000
+         GBLA  &BXA_NUMVAL             * Retvalue from CHKREG           00330000
+         LCLC  &_LABEL                 * Copy of &LABEL                 00340000
+         LCLA  &I                      * Index for SYSLIST              00350000
+         LCLA  &J                      * Pointer to period in &ARG      00360000
+         LCLC  &ARG                    * 1 argument from SYSLIST        00370000
+         LCLC  &_LOC                   * Current location               00380000
+.*                                                                      00390000
+.* Check the LABEL parameter                                            00400000
+&_LABEL  SETC  '&LABEL'                *                                00410000
+.*                                                                      00420000
+.* Check the CODE parameter                                             00430000
+         AIF   (K'&CODE NE 0).NOERR1   *                                00440000
+.ERR1A   MNOTE 8,'Missing argument(s)' *                                00450000
+         MEXIT ,                       *                                00460000
+.NOERR1  ANOP  ,                       *                                00470000
+.*                                                                      00480000
+.* Check field type to determine syntax type                            00490000
+         AIF   (T'&CODE EQ 'v').SYNTAX1 * Ok: process code value names  00500000
+.*                                                                      00510000
+.* CODE parameter must be of type A, V, or R                            00520000
+         AIF   (T'&CODE EQ 'A').NOERR3  *                               00530000
+         AIF   (T'&CODE EQ 'V').NOERR3  *                               00540000
+         AIF   (T'&CODE EQ 'R').NOERR3A *                               00550000
+.ERR3A   MNOTE 8,'Cannot SET &CODE: field type not supported'           00560000
+         MEXIT ,                                                        00570000
+.NOERR3A ANOP  ,                                                        00580000
+         AIF   (L'&CODE EQ 4).NOERR3                                    00590000
+         AIF   (L'&CODE EQ 3).NOERR3                                    00600000
+.ERR3B   MNOTE 8,'Cannot SET &CODE: length must be 3 or 4 bytes'        00610000
+         MEXIT ,                                                        00620000
+.NOERR3  ANOP  ,                                                        00630000
+.*                                                                      00640000
+.* Check second argument                                                00650000
+&ARG     SETC  '&SYSLIST(2)'           * Extract argument               00660000
+         AIF   (K'&ARG NE 0).NOERR4    *                                00670000
+.ERR4A   MNOTE 8,'Pointed field missing'                                00680000
+         MEXIT ,                       *                                00690000
+.NOERR4  ANOP  ,                       *                                00700000
+.*                                                                      00710000
+.* Check nr of arguments                                                00720000
+         AIF   (N'&SYSLIST LE 2).NOERR5                                 00730000
+.ERR5A   MNOTE 4,'More than 2 arguments: remainder ignored'             00740000
+         MEXIT ,                       *                                00750000
+.NOERR5  ANOP  ,                       *                                00760000
+.*                                                                      00770000
+.* Obtain ptr to &ARG                                                   00780000
+         CHKREG &ARG,g                 * Is this a valid register?      00790000
+         AIF   (&BXA_RC EQ 0).SAVARG   *                                00800000
+&_LABEL  LA    R0,&ARG                 * Obtain pointer                 00810000
+&_LABEL  SETC  ''                      * Wipe label after use           00820000
+&ARG     SETC  'R0'                    * Pointer now in R0              00830000
+.*                                                                      00840000
+.* Save pointer in &ARG into &CODE field                                00850000
+.SAVARG  ANOP  ,                       *                                00860000
+         AIF   (T'&CODE EQ 'A').SAVST  *                                00870000
+         AIF   (T'&CODE EQ 'V').SAVST  *                                00880000
+.* Must be type R: unaligned, explicit length                           00890000
+         AIF   (L'&CODE EQ 3).SAVST3   *                                00900000
+         AIF   (L'&CODE EQ 4).SAVST4   *                                00910000
+         MNOTE 12,'Internal error'     *                                00920000
+         MEXIT ,                       *                                00930000
+.*                                                                      00940000
+.* Store pointer into field                                             00950000
+.SAVST   ANOP  ,                       *                                00960000
+&_LABEL  ST    &ARG,&CODE              * Set up pointer                 00970000
+         MEXIT ,                       *                                00980000
+.*                                                                      00990000
+.SAVST3  ANOP  ,                       *                                01000000
+&_LABEL  STCM  &ARG,NYYY,&CODE         * Set up 24-bit pointer          01010000
+         MEXIT ,                       *                                01020000
+.*                                                                      01030000
+.SAVST4  ANOP  ,                       *                                01040000
+&_LABEL  STCM  &ARG,YYYY,&CODE         * Set up 31-bit pointer          01050000
+         MEXIT ,                       *                                01060000
+.*                                                                      01070000
+.* Handling of syntax 1: any number of value-names                      01080000
+.*                                                                      01090000
+.SYNTAX1 ANOP  ,                       *                                01100000
+.*                                                                      01110000
+.* Loop to process all arguments given                                  01120000
+&I       SETA  0                       * I indexes into SYSLIST         01130000
+.LOOP1   ANOP  ,                       * Loop thru syslist              01140000
+&I       SETA  &I+1                    * Point next argument            01150000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK *                             01160000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract argument               01170000
+.* &ARG is a valid code name?                                           01180000
+         AIF   (K'&ARG EQ 0).LOOP1     * Omitted argument: skip         01190000
+         AIF   (T'&ARG NE 'v').ERR2A   * Not a code value               01200000
+&J       SETA  ('&ARG' INDEX '.')      * Search for a period            01210000
+         AIF   (&J EQ 0).LOOP1NP       * Unqualified name               01220000
+&_LOC    SETC  '&ARG'(1,&J-1).'.'      * Extract USING name from ARG    01230000
+&ARG     SETC  '&ARG'(&J+1,*)          * Extract code value name        01240000
+.LOOP1NP ANOP  ,                       *                                01250000
+         GBLC  &(BXA_BITF_&ARG)        * Declare code location variable 01260000
+&_LOC    SETC  '&_LOC'.'&(BXA_BITF_&ARG)' * Create location name        01270000
+&J       SETA  L'&_LOC                 * Determine length of field      01280000
+         AIF   (&J EQ 1).LOOP1MI       * 1 byte: use Move Immediate     01290000
+&_LABEL  MVC   &_LOC,=AL&J.(&ARG)      * Set field to desired value     01300000
+&_LABEL  SETC  ''                      * Wipe label after use           01310000
+         AGO   .LOOP1                  * And go process next arg        01320000
+.LOOP1MI ANOP  ,                       *                                01330000
+&_LABEL  MVI   &_LOC,&ARG              * Set field to desired value     01340000
+&_LABEL  SETC  ''                      * Wipe label after use           01350000
+         AGO   .LOOP1                  * And go process next arg        01360000
+.ERR2A   ANOP  ,                       *                                01370000
+&ARG     SETC  (DOUBLE '&ARG')         *                                01380000
+         MNOTE 8,'&ARG is not a DCL declared code value: skipped'       01390000
+         AGO   .LOOP1                  *                                01400000
+.LOOP1OK ANOP  ,                       *                                01410000
+         AIF   (K'&_LABEL EQ 0).MEND   * Label has been generated?      01420002
+&_LABEL  LABEL ,                       * No: do so now                  01430000
+.*                                                                      01440000
+.MEND    MEND                                                           01460002

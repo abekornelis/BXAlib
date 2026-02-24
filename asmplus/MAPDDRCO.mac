@@ -1,0 +1,264 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the IOS Dynamic Device Reconfiguration COMmunication 00180000
+.*                     table                                            00190000
+.*                                                                      00200000
+&LABEL   MAPDDRCO &DSECT=YES,          * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPDDRCO               * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLB  &BXA_MAC_MAPDDRCO       * Map has been generated?        00260000
+.*                                                                      00280000
+.* Check parameters                                                     00290000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00300000
+               CB=&CB,                 *                               *00310000
+               PRFX=&PRFX              *                                00320000
+         AIF   (&BXA_RC GT 4).MEND                                      00330002
+.*                                                                      00340000
+.* Check the CB parameter                                               00350000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00360000
+         AIF   ('&CB' EQ 'DDRCOM').EMBED                                00370000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00380000
+         MEXIT                                                          00390000
+.*                                                                      00400000
+.* Generate embedded definition                                         00410000
+.EMBED   ANOP                                                           00420000
+&LABEL   NESTCB &CB,X,&PRFX                                             00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.DSECT   ANOP                                                           00460000
+         AIF   (&BXA_MAC_MAPDDRCO).MEND                                 00470002
+&BXA_MAC_MAPDDRCO SETB 1                                                00480000
+.* Set up translation from control block to macro for DCL               00490000
+         GBLC  &BXA_CB_DDRCOM                                           00500000
+&BXA_CB_DDRCOM SETC 'DDRCO'                                             00510000
+.*                                                                      00520000
+.* DDRSRC - SOURCE OF DDR REQUEST                                       00530000
+DDROPER   EQUOVR ,,b,DDRSRC                                             00540000
+DDRSYS    EQUOVR ,,b,DDRSRC                                             00550000
+DDRPAGE   EQUOVR ,,b,DDRSRC                                             00560000
+.*                                                                      00570000
+.* DDRSTAT - REQUEST STATUS                                             00580000
+DDRACTV   EQUOVR ,,b,DDRSTAT                                            00590000
+DDRQUE    EQUOVR ,,b,DDRSTAT                                            00600000
+DDRHAMA   EQUOVR ,,b,DDRSTAT                                            00610000
+DDRRMV    EQUOVR ,,b,DDRSTAT                                            00620000
+DDRPRG    EQUOVR ,,b,DDRSTAT                                            00630000
+DDRSIRB   EQUOVR ,,b,DDRSTAT                                            00640000
+DDRBYPTM  EQUOVR ,,b,DDRSTAT                                            00650000
+.*                                                                      00660000
+.* DDRDSTAT - DEVICE TYPE AND FLAGS                                     00670000
+DDRBUFL   EQUOVR ,,b,DDRDSTAT                                           00680000
+DDRDA     EQUOVR ,,b,DDRDSTAT                                           00690000
+DDRMT     EQUOVR ,,b,DDRDSTAT                                           00700000
+DDRUR     EQUOVR ,,b,DDRDSTAT                                           00710000
+DDRRCYLE  EQUOVR ,,b,DDRDSTAT                                           00720000
+DDRTRPOS  EQUOVR ,,b,DDRDSTAT                                           00730000
+DDRMTEND  EQUOVR ,,b,DDRDSTAT                                           00740000
+.*                                                                      00750000
+.* DDRROWN - REQUEST RESOURCES                                          00760000
+DDRRTENQ  EQUOVR ,,b,DDRROWN                                            00770000
+DDRRUENQ  EQUOVR ,,b,DDRROWN                                            00780000
+DDRRDENQ  EQUOVR ,,b,DDRROWN                                            00790000
+DDRRYENQ  EQUOVR ,,b,DDRROWN                                            00800000
+DDRDEN    EQUOVR ,,b,DDRROWN                                            00810000
+DDRJES3L  EQUOVR ,,b,DDRROWN                                            00820000
+DDRFIRST  EQUOVR ,,b,DDRROWN                                            00830000
+.*                                                                      00840000
+.* DDRTER1 - TERMINATION REASON CODE                                    00850000
+DDRTNF    EQUOVR ,,v,DDRTER1                                            00860000
+DDRTEP    EQUOVR ,,v,DDRTER1                                            00870000
+DDRTOC    EQUOVR ,,v,DDRTER1                                            00880000
+DDRTBR    EQUOVR ,,v,DDRTER1                                            00890000
+DDRTCO    EQUOVR ,,v,DDRTER1                                            00900000
+DDRTIU    EQUOVR ,,v,DDRTER1                                            00910000
+DDRTCE    EQUOVR ,,v,DDRTER1                                            00920000
+DDRTID    EQUOVR ,,v,DDRTER1                                            00930000
+DDRTCU    EQUOVR ,,v,DDRTER1                                            00940000
+DDRTJE    EQUOVR ,,v,DDRTER1                                            00950000
+DDRTEXC   EQUOVR ,,v,DDRTER1                                            00960000
+DDRTAIP   EQUOVR ,,v,DDRTER1                                            00970000
+DDRTREP   EQUOVR ,,v,DDRTER1                                            00980000
+DDRTRD    EQUOVR ,,v,DDRTER1                                            00990000
+DDRTRR    EQUOVR ,,v,DDRTER1                                            01000000
+DDRTLF    EQUOVR ,,v,DDRTER1                                            01010000
+DDRTIOA   EQUOVR ,,v,DDRTER1                                            01020000
+DDRTMSG   EQUOVR ,,v,DDRTER1                                            01030000
+.*                                                                      01040000
+.* DDRINV1 - INVALID REASON CODE                                        01050000
+DDRIMP    EQUOVR ,,v,DDRINV1                                            01060000
+DDRIUF    EQUOVR ,,v,DDRINV1                                            01070000
+DDRINS    EQUOVR ,,v,DDRINV1                                            01080000
+DDRIIN    EQUOVR ,,v,DDRINV1                                            01090000
+DDRINO    EQUOVR ,,v,DDRINV1                                            01100000
+DDRINA    EQUOVR ,,v,DDRINV1                                            01110000
+DDRIDT    EQUOVR ,,v,DDRINV1                                            01120000
+DDRIJ3    EQUOVR ,,v,DDRINV1                                            01130000
+DDRIONL   EQUOVR ,,v,DDRINV1                                            01140000
+DDRIDYST  EQUOVR ,,v,DDRINV1                                            01150000
+DDRIVOLI  EQUOVR ,,v,DDRINV1                                            01160000
+DDRIIOA   EQUOVR ,,v,DDRINV1                                            01170000
+DDRIOPD   EQUOVR ,,v,DDRINV1                                            01180000
+DDRIPAG   EQUOVR ,,v,DDRINV1                                            01190000
+.*                                                                      01200000
+.* DDRINV2 - VALIDATE'S PARM FIELD                                      01210000
+DDRVFM    EQUOVR ,,v,DDRINV2                                            01220000
+DDRVCM    EQUOVR ,,v,DDRINV2                                            01230000
+DDRVUS    EQUOVR ,,v,DDRINV2                                            01240000
+.*                                                                      01250000
+.* DDRIOF1 - I/O PARM FLAGS FIELD 1                                     01260000
+DDRREAD   EQUOVR ,,v,DDRIOF1                                            01270000
+DDRRUN    EQUOVR ,,v,DDRIOF1                                            01280000
+DDRRDBK   EQUOVR ,,v,DDRIOF1                                            01290000
+DDRXA4    EQUOVR ,,v,DDRIOF1                                            01300000
+DDRBSF    EQUOVR ,,v,DDRIOF1                                            01310000
+DDRFSF    EQUOVR ,,v,DDRIOF1                                            01320000
+DDRNOP    EQUOVR ,,v,DDRIOF1                                            01330000
+DDRSNS    EQUOVR ,,v,DDRIOF1                                            01340000
+DDRLOAD   EQUOVR ,,v,DDRIOF1                                            01350000
+.*                                                                      01360000
+.* DDRIOF2 - I/O PARM FLAGS FIELD 2                                     01370000
+DDRWHICH  EQUOVR ,,b,DDRIOF2                                            01380000
+DDRITAKE  EQUOVR ,,b,DDRIOF2                                            01390000
+DDRILAB   EQUOVR ,,b,DDRIOF2                                            01400000
+DDRIMNT   EQUOVR ,,b,DDRIOF2                                            01410000
+DDRICNT   EQUOVR ,,b,DDRIOF2                                            01420000
+DDRTCNTL  EQUOVR ,,b,DDRIOF2                                            01430000
+.*                                                                      01440000
+.* DDRMSGOP - OPERATOR RESPONSE                                         01450000
+DDRWTOR   EQUOVR ,,v,DDRMSGOP                                           01460000
+DDRYES    EQUOVR ,,v,DDRMSGOP                                           01470000
+DDRNO     EQUOVR ,,v,DDRMSGOP                                           01480000
+DDRCUA    EQUOVR ,,v,DDRMSGOP                                           01490000
+.*                                                                      01500000
+.* DDRMSGCD - MESSAGE NUMBER CODE                                       01510000
+DDRM500I  EQUOVR ,,v,DDRMSGCD                                           01520000
+DDRM500D  EQUOVR ,,v,DDRMSGCD                                           01530000
+DDRM502E  EQUOVR ,,v,DDRMSGCD                                           01540000
+DDRM503I  EQUOVR ,,v,DDRMSGCD                                           01550000
+DDRM505I  EQUOVR ,,v,DDRMSGCD                                           01560000
+DDRM509I  EQUOVR ,,v,DDRMSGCD                                           01570000
+DDRM509D  EQUOVR ,,v,DDRMSGCD                                           01580000
+DDRM511A  EQUOVR ,,v,DDRMSGCD                                           01590000
+DDRM512I  EQUOVR ,,v,DDRMSGCD                                           01600000
+DDRM513I  EQUOVR ,,v,DDRMSGCD                                           01610000
+DDRM515I  EQUOVR ,,v,DDRMSGCD                                           01620000
+DDRM514I  EQUOVR ,,v,DDRMSGCD                                           01630000
+DDRM501I  EQUOVR ,,v,DDRMSGCD                                           01640000
+DDRM516I  EQUOVR ,,v,DDRMSGCD                                           01650000
+DDRM517I  EQUOVR ,,v,DDRMSGCD                                           01660000
+DDRM518I  EQUOVR ,,v,DDRMSGCD                                           01670000
+DDRM519I  EQUOVR ,,v,DDRMSGCD                                           01680000
+.*                                                                      01690000
+.* DDRMSGPC - (0-7) MESSAGE CODES                                       01700000
+DDRPNO    EQUOVR ,,v,DDRMSGPC                                           01710000
+DDRPFM    EQUOVR ,,v,DDRMSGPC                                           01720000
+DDRPTO    EQUOVR ,,v,DDRMSGPC                                           01730000
+DDRPVL    EQUOVR ,,v,DDRMSGPC                                           01740000
+DDRPLT    EQUOVR ,,v,DDRMSGPC                                           01750000
+DDRPSN    EQUOVR ,,v,DDRMSGPC                                           01760000
+DDRPTM    EQUOVR ,,v,DDRMSGPC                                           01770000
+DDRLIB    EQUOVR ,,v,DDRMSGPC                                           01780000
+DDRPIC    EQUOVR ,,v,DDRMSGPC                                           01790000
+DDRPDV    EQUOVR ,,v,DDRMSGPC                                           01800000
+DDRPRC    EQUOVR ,,v,DDRMSGPC                                           01810000
+.*                                                                      01820000
+.* DDRLABEL - TAPE FROM LABEL TYPE                                      01830000
+DDRLAL    EQUOVR ,,b,DDRLABEL                                           01840000
+DDRLBLP   EQUOVR ,,b,DDRLABEL                                           01850000
+DDRLNL    EQUOVR ,,b,DDRLABEL                                           01860000
+DDRLNSL   EQUOVR ,,b,DDRLABEL                                           01870000
+DDRLSD    EQUOVR ,,b,DDRLABEL                                           01880000
+DDRLNOP   EQUOVR ,,b,DDRLABEL                                           01890000
+.*                                                                      01900000
+.* DDRREC1 - RECORDER FLAGS                                             01910000
+DDRRECON  EQUOVR ,,v,DDRREC1                                            01920000
+DDRR91    EQUOVR ,,v,DDRREC1                                            01930000
+DDRRBLF   EQUOVR ,,v,DDRREC1                                            01940000
+.*                                                                      01950000
+.* DDRREC2 - RECORDER PARM LIST                                         01960000
+DDRRFMTO  EQUOVR ,,b,DDRREC2                                            01970000
+.*                                                                      01980000
+.* DDRFLAGS - MISC FLAGS                                                01990000
+DDRINTER  EQUOVR ,,b,DDRFLAGS                                           02000000
+DDRIOA    EQUOVR ,,b,DDRFLAGS                                           02010000
+.*                                                                      02020000
+.* DDRFTPT3 - THIRD FOOTPRINT BYTE                                      02030000
+DDRDW0IN  EQUOVR ,,b,DDRFTPT3                                           02040000
+DDRIOSIN  EQUOVR ,,b,DDRFTPT3                                           02050000
+DDRIOSOT  EQUOVR ,,b,DDRFTPT3                                           02060000
+DDRJES3C  EQUOVR ,,b,DDRFTPT3                                           02070000
+DDRSCHED  EQUOVR ,,b,DDRFTPT3                                           02080000
+.*                                                                      02090000
+         MNOTE *,'Including IHADDR mapping macro'                       02100000
+         IHADDR ,                      *                                02110000
+         EQUOVR *END                                                    02120000
+*                                                                       02130000
+DDRCOM   DSECT ,                       * Return to DDRCOM               02140000
+         ORG                                                            02150000
+DDRCOM_LEN EQU *-DDRCOM                * Length of DDRCOM               02160000
+.*                                                                      02170000
+.* Return to our original CSECT name                                    02180000
+&SYSECT  &SYSSTYP                                                       02190000
+.*                                                                      02200000
+.MEND    MEND                                                           02220002

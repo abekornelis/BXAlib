@@ -1,0 +1,211 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro Dissects a parameter into its constituent parts           00180000
+.*                                                                      00190000
+&LABEL   DISSECT &TYPE,                * Type of parameter to dissect  *00200000
+               &INPUT                  * Parameter to dissect           00210000
+.*                                                                      00220000
+.* TYPE must be one of the following:                                   00230000
+.*   - DB  = Displacement(Base)                                         00240000
+.*   - DLB = Displacement(Length,Base)                                  00250000
+.*   - DRB = Displacement(Register,Base)                                00260000
+.*   - DXB = Displacement(indeX,Base)                                   00270000
+.*   - I   = Immediate                                                  00280000
+.*   - M   = Mask                                                       00290000
+.*   - R   = Register                                                   00300000
+.* INPUT will normally be a parameter passed to a macro that replaces   00310000
+.*       some machine instruction. May have been pre-processed with     00320000
+.*       the SPLIT macro.                                               00330000
+.*                                                                      00340000
+.********************************************************************** 00341001
+.*                                                                      00342001
+.*       IMPORTANT NOTICE                                               00343001
+.*       ========= ======                                               00344001
+.*                                                                      00345001
+.* Code below checks whether 'USER' accepted the terms and conditions   00346001
+.* of the license for the BXA macro library. This code is to be treated 00347001
+.* as part of the Copyright Notice and therefore may not be changed     00348001
+.* or disabled in any way.                                              00349001
+.*                                                                      00349101
+.********************************************************************** 00349201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00349301
+         CHKLIC DISSECT                * Check license acceptance       00349401
+         AIF   (&BXA_RC NE 0).MEND                                      00349504
+.********************************************************************** 00349601
+.*                                                                      00349701
+.* End of special code that is part of the Copyright Notice             00349801
+.*                                                                      00349901
+.********************************************************************** 00350001
+.*                                                                      00350101
+.* Declare variables                                                    00351000
+         GBLC  &BXA_PRM(3)             * Output parameters              00360000
+         LCLC  &IN                     * Input string                   00370000
+         LCLC  &OP1                    * Operand before (               00380000
+         LCLC  &OP2                    * First operand in ()            00390000
+         LCLC  &OP3                    * Second operand in ()           00400000
+         LCLC  &C                      * Single character from input    00410000
+         LCLA  &I,&J                   * Work var.                      00420000
+         LCLA  &PAR                    * Nr of parentheses levels       00430000
+         LCLB  &STRING                 * On if scanning within quotes   00440000
+         LCLB  &FINDPAR                * On if parentheses present      00450000
+         LCLB  &SPLIT                  * On if parentheses hold a comma 00460000
+.*                                                                      00470000
+.* Determine what to do                                                 00480000
+         AIF   ('&TYPE' EQ 'I').TYPEOK * Immediate operand              00490000
+         AIF   ('&TYPE' EQ 'M').TYPEOK * Mask operand                   00500000
+         AIF   ('&TYPE' EQ 'R').TYPEOK * Register operand               00510000
+&FINDPAR SETB  1                       * Parentheses may be present     00520000
+         AIF   ('&TYPE' EQ 'DB').TYPEOK * Displacement(Base)            00530000
+&SPLIT   SETB  1                       * Two arguments in parentheses   00540000
+         AIF   ('&TYPE' EQ 'DLB').TYPEOK * Displacement(Length,Base)    00550000
+         AIF   ('&TYPE' EQ 'DRB').TYPEOK * Displacement(Register,Base)  00560000
+         AIF   ('&TYPE' EQ 'DXB').TYPEOK * Displacement(indeX,Base)     00570000
+.ERR1    MNOTE 8,'Invalid TYPE specified on DISSECT macro'              00580000
+         MEXIT ,                       *                                00590000
+.TYPEOK  ANOP  ,                       *                                00600000
+.*                                                                      00610000
+.* Set up for processing                                                00620000
+         AIF   (K'&INPUT EQ 0).EXIT    * No input: do nothing           00630000
+&IN      SETC  '&INPUT'                *                                00640000
+.*                                                                      00650000
+.* Before the actual dissection starts embedded comments - if any -     00660000
+.* must be removed.                                                     00670000
+&I       SETA  ('&IN' FIND ' ')        * Search embedded space          00680000
+         AIF   (&I EQ 0).NOCOMMNT      * No space: no comments          00690000
+.LOOP1   ANOP  ,                       * Search backward                00700000
+&I       SETA  ('&IN' FIND ''' ')      * Find quote or space            00710000
+         AIF   (&I EQ 0).NOCOMMNT      * No comment found: done         00720000
+&C       SETC  '&IN'(&I,1)             * Extract character found        00730000
+         AIF   ('&C' EQ '''').LOOP1QU  * Found a quote                  00740000
+.* Must be a space                                                      00750000
+         AIF   (NOT &STRING).LOOP1OK   * Found start of comment         00760000
+         AGO   .LOOP1NX                * Go continue search             00770000
+.LOOP1QU ANOP  ,                       * Handle quote                   00780000
+&STRING  SETB  (&STRING XOR 1)         * Flip string status             00790000
+.LOOP1NX ANOP  ,                       * Continue search                00800000
+         AIF   (&I EQ K'&IN).NOCOMMNT  * Trailing char: no comment fnd  00810000
+&IN      SETC  '&IN'(&I+1,*)           * Remove treated text            00820000
+         AGO   .LOOP1                  *                                00830000
+.LOOP1OK ANOP  ,                       * Leading space found            00840000
+&I       SETA  K'&INPUT-K'&IN          * Nr of chars before comment     00850000
+&IN      SETC  '&INPUT'(1,&I)          * Extract relevant input         00860000
+.NOCOMMNT ANOP ,                       *                                00870000
+.*                                                                      00880000
+.* First we must extract the OP1 field. This field starts at position 1 00890000
+.* and ends when either:                                                00900000
+.* - the input field is exhausted                                       00910000
+.* - If FINDPAR is on: a left parenthesis is found, which is not        00920000
+.*   preceded by an arithmetic operator (+-*/)                          00930000
+.*                                                                      00940000
+         AIF   (&FINDPAR).FINDPAR      * Need to look for a ( ??        00950000
+.NOPAR   ANOP  ,                       * Parentheses do not matter      00960000
+&OP1     SETC  '&IN'                   * Just copy the argument         00970000
+.*                                                                      00980000
+.* If register is specified as (reg), remove the parentheses            00990000
+         AIF   ('&TYPE' NE 'R').EXIT   * Only for register operand      01000000
+         AIF   ('&OP1'(1,1) NE '(').EXIT * Must start with left par     01010000
+         AIF   ('&OP1'(K'&OP1,1) NE ')').EXIT * And end with right par  01020000
+&OP1     SETC  '&OP1'(2,K'&OP1-2)      * Remove parentheses             01030000
+         AGO   .EXIT                   * And be done with it            01040000
+.*                                                                      01050000
+.* If last character is not a closing parenthesis, only the             01060000
+.* displacement field is present, and no action is required.            01070000
+.FINDPAR ANOP  ,                       * Find parentheses if present    01080000
+         AIF   ('&IN'(K'&IN,1) NE ')').NOPAR * Displacement only?       01090000
+.*                                                                      01100000
+.* There are parentheses which may be relevant. Search backward to      01110000
+.* find the matching opening parenthesis.                               01120000
+&PAR     SETA  0                       * Level of parentheses           01130000
+&STRING  SETB  0                       * No string                      01140000
+&I       SETA  K'&IN+1                 * Point beyond string-end        01150000
+.LOOP2   ANOP  ,                       * Search backward                01160000
+&I       SETA  &I-1                    * Point previous character       01170000
+         AIF   (&I LT 1).LOOP2ERR      * No matching parenthesis found  01180000
+&C       SETC  '&IN'(&I,1)             * Extract single character       01190000
+         AIF   ('&C' EQ '(').LOOP2LP   * Found a left parenthesis       01200000
+         AIF   ('&C' EQ ')').LOOP2RP   * Found a right parenthesis      01210000
+         AGO   .LOOP2                  *                                01220000
+.LOOP2ERR MNOTE 8,'Non-matching parentheses in operand'                 01230000
+         MEXIT ,                       *                                01240000
+.LOOP2RP ANOP  ,                       * Handle right parentheses       01250000
+&PAR     SETA  &PAR+1                  * Add 1 to level of parentheses  01260000
+         AGO   .LOOP2                  *                                01270000
+.LOOP2LP ANOP  .                       * Handle left parentheses        01280000
+&PAR     SETA  &PAR-1                  *                                01290000
+         AIF   (&PAR GT 0).LOOP2       * Not all levels closed: contin. 01300000
+.* Found matching opening parenthesis at &I: check preceding character  01310000
+         AIF   (&I LE 1).NOPAR         * Displacement only?             01320000
+&J       SETA  &I-1                    * Point preceding character      01330000
+&C       SETC  '&IN'(&J,1)             * Extract preceding character    01340000
+&J       SETA  ('+-*/' FIND '&C')      * This is an arithmetic term?    01350000
+         AIF   (&J NE 0).NOPAR         * Must be part of displacement   01360000
+.* Ok: extract displacement into OP1                                    01370000
+&OP1     SETC  '&IN'(1,&I-1)           * Displ. up to left parenthesis  01380000
+&IN      SETC  '&IN'(&I+1,*)           * Keep remainder for len/base    01390000
+&IN      SETC  '&IN'(1,K'&IN-1)        * But remove outer parentheses   01400000
+.*                                                                      01410000
+.* If SPLIT is off the remainder goes into OP2, otherwise it must be    01420000
+.* split into OP2 and OP3.                                              01430000
+         AIF   (&SPLIT).SPLIT          * Need to split?                 01440000
+.NOSPLIT ANOP  ,                       * Nothing to split               01450000
+&OP2     SETC  '&IN'                   * Copy remainder                 01460000
+         AGO   .EXIT                   * And be done with it            01470000
+.*                                                                      01480000
+.* Check for a comma: if not present, there's nothing to split!         01490000
+.SPLIT   ANOP  ,                       * Try to split IN to OP2 and OP3 01500000
+&I       SETA  ('&IN' FIND ',')        * Locate comma in string         01510000
+         AIF   (&I EQ 0).NOSPLIT       *                                01520000
+         AIF   (&I EQ 1).NOOP2         * OP2 omitted?                   01530000
+&OP2     SETC  '&IN'(1,&I-1)           * OP2 up to & excluding comma    01540000
+.NOOP2   ANOP  ,                       *                                01550000
+         AIF   (&I EQ K'&IN).NOOP3     * OP3 omitted?                   01560000
+&OP3     SETC  '&IN'(&I+1,*)           * OP3 follows comma              01570000
+.NOOP3   ANOP  ,                       *                                01580000
+.*                                                                      01590000
+.* Exit point: copy result to global variables                          01600000
+.EXIT    ANOP  ,                       *                                01610000
+&BXA_PRM(1) SETC '&OP1'                *                                01620000
+&BXA_PRM(2) SETC '&OP2'                *                                01630000
+&BXA_PRM(3) SETC '&OP3'                *                                01640000
+.*                                                                      01650000
+.MEND    MEND                                                           01660004

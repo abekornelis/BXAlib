@@ -1,0 +1,7 @@
+*                                                                       00010000
+* This load module has no specific requirements                         00020000
+*                                                                       00030000
+ SETOPT     PARM(REUS=REFR)                                             00040000
+ INCLUDE OBJECTS(BXACOPY)                                               00050000
+ ENTRY           BXACOPY                                                00060000
+ NAME            BXACOPY(R)                                             00070000

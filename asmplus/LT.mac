@@ -1,0 +1,97 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Load and Test a register                                             00180000
+.*                                                                      00190000
+&LABEL   LT    &REG,                   * Register to load              *00200000
+               &LOC                    * Location of value              00210000
+.*                                                                      00220000
+.* &REG  specifies the register to load                                 00230000
+.* &LOC  specifies the location that holds the value to be loaded       00240000
+.*                                                                      00250000
+.********************************************************************** 00251001
+.*                                                                      00252001
+.*       IMPORTANT NOTICE                                               00253001
+.*       ========= ======                                               00254001
+.*                                                                      00255001
+.* Code below checks whether 'USER' accepted the terms and conditions   00256001
+.* of the license for the BXA macro library. This code is to be treated 00257001
+.* as part of the Copyright Notice and therefore may not be changed     00258001
+.* or disabled in any way.                                              00259001
+.*                                                                      00259101
+.********************************************************************** 00259201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00259301
+         CHKLIC LT                     * Check license acceptance       00259401
+         AIF   (&BXA_RC NE 0).MEND                                      00259502
+.********************************************************************** 00259601
+.*                                                                      00259701
+.* End of special code that is part of the Copyright Notice             00259801
+.*                                                                      00259901
+.********************************************************************** 00260001
+.*                                                                      00260101
+.* Check the REG parameter                                              00261000
+         AIF   (K'&REG NE 0).NOERR1A                                    00270000
+.ERR1A   MNOTE 8,'No register specified'                                00280000
+         AGO   .NOERR1                                                  00290000
+.NOERR1A ANOP                                                           00300000
+         AIF   ('&REG'(1,1) NE '(').NOERR1                              00310000
+         AIF   (N'&REG EQ 0).ERR1B                                      00320000
+         AIF   (N'&REG GT 1).ERR1C                                      00330000
+         AGO   .NOERR1                                                  00340000
+.ERR1B   MNOTE 8,'No register specified within sublist'                 00350000
+         AGO   .NOERR1                                                  00360000
+.ERR1C   MNOTE 8,'More than 1 register specified in sublist'            00370000
+.NOERR1  ANOP                                                           00380000
+.*                                                                      00390000
+.* Check the LOC parameter                                              00400000
+         AIF   (K'&LOC NE 0).NOERR2                                     00410000
+.ERR2    MNOTE 8,'LOC parameter not specified'                          00420000
+.NOERR2  ANOP                                                           00430000
+.*                                                                      00440000
+.* Check the number of parameters                                       00450000
+         AIF   (N'&SYSLIST EQ 2).NOERR3                                 00460000
+.ERR3    MNOTE 4,'Too many parameters specified: ignored'               00470000
+.NOERR3  ANOP                                                           00480000
+.*                                                                      00490000
+&LABEL   ICM   &REG,ALLBYTES,&LOC      * Load value and test it         00500000
+.*                                                                      00510000
+.MEND    MEND                                                           00520002

@@ -1,0 +1,118 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Extract current PSW                                                  00180000
+.*                                                                      00190000
+&LABEL   EPSW  &REG                    * Register set to be used        00200000
+.*                                                                      00210000
+.* &REG  specifies an even register. The PSW will be placed in register 00220000
+.*       &REG and &REG+1.                                               00230000
+.*                                                                      00240000
+.********************************************************************** 00241001
+.*                                                                      00242001
+.*       IMPORTANT NOTICE                                               00243001
+.*       ========= ======                                               00244001
+.*                                                                      00245001
+.* Code below checks whether 'USER' accepted the terms and conditions   00246001
+.* of the license for the BXA macro library. This code is to be treated 00247001
+.* as part of the Copyright Notice and therefore may not be changed     00248001
+.* or disabled in any way.                                              00249001
+.*                                                                      00249101
+.********************************************************************** 00249201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00249301
+         CHKLIC EPSW                   * Check license acceptance       00249401
+         AIF   (&BXA_RC NE 0).MEND                                      00249502
+.********************************************************************** 00249601
+.*                                                                      00249701
+.* End of special code that is part of the Copyright Notice             00249801
+.*                                                                      00249901
+.********************************************************************** 00250001
+.*                                                                      00250101
+.* Declare variables                                                    00251000
+         LCLC  &_REG                                                    00260000
+         LCLC  &_REG1,&_REG2                                            00270000
+         LCLA  &REGN                                                    00280000
+.*                                                                      00290000
+.* Check the REG parameter                                              00300000
+         AIF   (K'&REG EQ 0).ERR1A                                      00310000
+&_REG    SETC  '&REG'                                                   00320000
+         AIF   ('&_REG'(1,1) NE '(').LAB1A * If enclosed in parentheses 00330000
+&_REG    SETC  '&REG(1)'               * Remove parentheses             00340000
+.LAB1A   ANOP                                                           00350000
+         AIF   ('&_REG'(1,1) NE 'R').LAB1B * If R...                    00360000
+&_REG    SETC  '&_REG'(2,*)            * Remove leading R               00370000
+&_REG1   SETC  'R'                                                      00380000
+&_REG2   SETC  'R'                                                      00390000
+.LAB1B   ANOP                                                           00400000
+         AIF   ('&_REG' EQ '0').LAB1C                                   00410000
+         AIF   ('&_REG' EQ '00').LAB1C                                  00420000
+         AIF   ('&_REG' EQ '14').LAB1C                                  00430000
+         AGO   .ERR1B                                                   00440000
+.LAB1C   ANOP                                                           00450000
+&_REG1   SETC  '&_REG1'.'&_REG'                                         00460000
+&REGN    SETA  &_REG                                                    00470000
+&REGN    SETA  &REGN+1                                                  00480000
+&_REG2   SETC  '&_REG2'.'&REGN'                                         00490000
+         AGO   .NOERR1                                                  00500000
+.ERR1A   MNOTE 8,'You should specify an even general purpose register'  00510000
+         MEXIT                                                          00520000
+.ERR1B   MNOTE 8,'You can use only R0/R1 or R14/R15'                    00530000
+.NOERR1  ANOP                                                           00540000
+.*                                                                      00550000
+.* Check the number of parameters                                       00560000
+         AIF   (N'&SYSLIST GT 1).ERR2                                   00570000
+         AGO   .NOERR2                                                  00580000
+.ERR2    MNOTE 4,'Too many parameters specified: ignored'               00590000
+.NOERR2  ANOP                                                           00600000
+.*                                                                      00610000
+.* Generate code                                                        00620000
+&LABEL   LA    &_REG2,_EPSW&SYSNDX     * Load internal return address   00630000
+         LA    &_REG1,1                * Amode bit                      00640000
+         SLL   &_REG1,31               *   into bit 0                   00650000
+         OR    &_REG2,&_REG1           *   of the return address        00660000
+         BAKR  &_REG2,R0               * Create stack entry (nobranch)  00670000
+         LA    &_REG2,1                * Specifies PSW for ESTA         00680000
+         ESTA  &_REG1,&_REG2           * Put PSW into registers         00690000
+         PR    ,                       * Remove stack entry             00700000
+_EPSW&SYSNDX LABEL ,                   *                                00710000
+.*                                                                      00720000
+.MEND    MEND                                                           00730002

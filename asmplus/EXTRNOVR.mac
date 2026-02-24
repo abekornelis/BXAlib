@@ -1,0 +1,159 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro fills the stack of EXTRN modifications for use by the     00180000
+.* EXTRN macro, which replaces the assembler's EXTRN instruction        00190000
+.*                                                                      00200000
+&LABEL   EXTRNOVR &OPT,                * See below for valid keywords  *00210000
+               &NEWNAM                 * New name for *NEWNAME option   00220000
+.*                                                                      00230000
+.* &LABEL mandatory, except when &OPT=*END                              00240000
+.*        The specified EXTRN name will be overridden.                  00250000
+.* &OPT   specifies one of the following:                               00260000
+.*        *END cancels all outstanding EXTRNOVR requests                00270000
+.*        *SUPPRESS suppresses the definition of &LABEL                 00280000
+.*        *WXTRN   changes the EXTRN name to a WXTRN name               00290000
+.*        *NEWNAME changes the EXTRN for &LABEL into one for &NEWNAM,   00300000
+.*              i.e. Specify *NEWNAME,newname                           00310000
+.* &NEWNAM Specifies the new name, if &OPT=*NEWNAME                     00320000
+.*                                                                      00330000
+.********************************************************************** 00331001
+.*                                                                      00332001
+.*       IMPORTANT NOTICE                                               00333001
+.*       ========= ======                                               00334001
+.*                                                                      00335001
+.* Code below checks whether 'USER' accepted the terms and conditions   00336001
+.* of the license for the BXA macro library. This code is to be treated 00337001
+.* as part of the Copyright Notice and therefore may not be changed     00338001
+.* or disabled in any way.                                              00339001
+.*                                                                      00339101
+.********************************************************************** 00339201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00339301
+         CHKLIC EXTRNOVR               * Check license acceptance       00339401
+         AIF   (&BXA_RC NE 0).MEND                                      00339502
+.********************************************************************** 00339601
+.*                                                                      00339701
+.* End of special code that is part of the Copyright Notice             00339801
+.*                                                                      00339901
+.********************************************************************** 00340001
+.*                                                                      00340101
+.* Declare variables                                                    00341000
+         GBLA  &BXA_EXTRNOVR           * Ptr to last valid              00350000
+         GBLC  &BXA_EXTRNOVR_LAB(50)   * Labels                         00360000
+         GBLC  &BXA_EXTRNOVR_NAM(50)   * New names                      00370000
+         LCLA  &I                      * Index                          00380000
+.*                                                                      00390000
+.* Check LABEL parameter                                                00400000
+         AIF   (K'&LABEL GT 0).NOERR1                                   00410000
+         AIF   ('&OPT' EQ '*END').NOERR1                                00420000
+.ERR1    MNOTE 8,'Missing label parameter'                              00430000
+         MEXIT                                                          00440000
+.NOERR1  ANOP                                                           00450000
+.*                                                                      00460000
+.* Check the OPT parameter                                              00470000
+         AIF   (K'&OPT NE 0).NOERR2A                                    00480000
+.ERR2A   MNOTE 8,'Missing parameter(s)'                                 00490000
+         MEXIT                                                          00500000
+.NOERR2A ANOP  ,                                                        00510000
+         AIF   ('&OPT' EQ '*SUPPRESS').NOERR2                           00520000
+         AIF   ('&OPT' EQ '*WXTRN').NOERR2                              00530000
+         AIF   ('&OPT' EQ '*NEWNAME').NOERR2                            00540000
+         AIF   ('&OPT' EQ '*END').NOERR2                                00550000
+.ERR2B   MNOTE 8,'&OPT is not a valid keyword'                          00560000
+         MEXIT                                                          00570000
+.NOERR2  ANOP  ,                                                        00580000
+.*                                                                      00590000
+.* Check the NEWNAME parameter (must be present if &OPT = *NEWNAME)     00600000
+         AIF   ('&OPT' EQ '*NEWNAME' AND K'&NEWNAM EQ 0).ERR3A          00610000
+         AGO   .NOERR3                                                  00620000
+.ERR3A   MNOTE 8,'New name not specified with option *NEWNAME'          00630000
+         MEXIT                                                          00640000
+.NOERR3  ANOP                                                           00650000
+.*                                                                      00660000
+.* Check number of parameters                                           00670000
+         AIF   ('&OPT' EQ '*END' AND N'&SYSLIST GT 1).ERR4A             00680000
+         AIF   ('&OPT' EQ '*END').NOERR4                                00690000
+         AIF   ('&OPT' EQ '*SUPPRESS' AND N'&SYSLIST GT 1).ERR4A        00700000
+         AIF   ('&OPT' EQ '*SUPPRESS').NOERR4                           00710000
+         AIF   ('&OPT' EQ '*WXTRN' AND N'&SYSLIST GT 1).ERR4A           00720000
+         AIF   ('&OPT' EQ '*WXTRN').NOERR4                              00730000
+         AIF   (N'&SYSLIST GT 2).ERR4B                                  00740000
+         AGO   .NOERR4                                                  00750000
+.ERR4A   MNOTE 4,'More than 1 argument: remainder ignored'              00760000
+         AGO   .NOERR4                                                  00770000
+.ERR4B   MNOTE 4,'More than 2 arguments: remainder ignored'             00780000
+.NOERR4  ANOP                                                           00790000
+.*                                                                      00800000
+.* Option *END requires differen logic                                  00810000
+         AIF   ('&OPT' EQ '*END').END                                   00820000
+.*                                                                      00830000
+.* Other options: add entry to tables                                   00840000
+&I       SETA  &BXA_EXTRNOVR+1         * Next free entry                00850000
+&BXA_EXTRNOVR_LAB(&I) SETC '&LABEL'    * Insert label                   00860000
+&BXA_EXTRNOVR_NAM(&I) SETC '&OPT'      * Insert *SUPPRESS or *WXTRN     00870000
+         AIF   ('&OPT' NE '*NEWNAME').NAMOK * For option *NEWNAME:      00880000
+&BXA_EXTRNOVR_NAM(&I) SETC '&NEWNAM'   * replace *NEWNAME with new name 00890000
+.NAMOK   ANOP  ,                       *                                00900000
+&BXA_EXTRNOVR SETA &I                  * And update ptr to last valid   00910000
+.*                                                                      00920000
+.* Replace EXTRN-instruction by our EXTRN-macro on the first override   00930000
+         AIF   (&BXA_EXTRNOVR GT 1).MEND                                00940002
+         OPSYNS EXTRN                  * Replace EXTRN by _EXTRN        00950000
+         MEXIT                                                          00960000
+.*                                                                      00970000
+.* Ending current EXTRNOVR requests. Issue a message for any unused     00980000
+.* entries in BXA_EXTRNOVR tables.                                      00990000
+.END     ANOP                                                           01000000
+         AIF   (&BXA_EXTRNOVR EQ 0).MEND * No entries remain            01010002
+&I       SETA  0                       * I indexes BXA_EXTRNOVR_xxx     01020000
+.LOOP1   ANOP  ,                       * For all current entries        01030000
+&I       SETA  &I+1                    * Point next entry               01040000
+         AIF   (&I GT &BXA_EXTRNOVR).LOOP1OK * At end: quit loop        01050000
+         MNOTE 4,'EXTRNOVR for &BXA_EXTRNOVR_LAB(&I) discarded'         01060000
+         AGO   .LOOP1                                                   01070000
+.LOOP1OK ANOP                                                           01080000
+&BXA_EXTRNOVR SETA 0                   * Reset valid counter to 0       01090000
+.*                                                                      01100000
+.* Disable our DS-macro by replacing _DS by original DS-instruction     01110000
+         OPSYNS _DS                    * Reset DS-instruction           01120000
+.*                                                                      01130000
+.MEND    MEND                                                           01150002

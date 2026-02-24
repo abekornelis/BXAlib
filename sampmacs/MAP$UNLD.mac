@@ -1,0 +1,176 @@
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* BIXXAMS - Bixoft Cross Access Method Services                        00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+**********************************************************************  00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for PDS unload workarea                                00180000
+.*                                                                      00190000
+&LABEL   MAP$UNLD &DSECT=YES,          * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.*                                                                      00230000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAP$UNLD       * Map has been generated?        00250000
+         GBLA  &BXA_RC                 * Returncode                     00260000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).SKIP                                      00320000
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'UNLD').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAP$UNLD).SKIP                                 00460000
+&BXA_MAC_MAP$UNLD SETB 1                                                00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_UNLD                                             00490000
+&BXA_CB_UNLD SETC '$UNLD'                                               00500000
+.*                                                                      00510000
+         GENMAPS (DECB,EPAL,PDS,SAVE)                                   00520000
+.*                                                                      00530000
+         MNOTE *,'Generating DSECTs for Unload workarea'                00540000
+*                                                                       00550000
+* DSECT for unload workarea                                             00560000
+*                                                                       00570000
+UNLD     DSECT ,                       *                                00580000
+UNLSAVE  DCL   BXASAVE                 *                                00590000
+*                                                                       00600000
+* Status bits                                                           00610000
+UNLSTAT  DCL   *BITS,                  * Status bits                   *00620000
+               UNLSEOF,                * 0: EOF reached on input data  *00630000
+               UNLSPRM                 * 1: Valid parm was on JCL       00640000
+*                                                                       00650000
+UNLBLKSI DS    H                       * Block size                     00660000
+UNLTTRN  DCL   TTRN,UNLTTRN_           * TTRn value for POINT           00670000
+*                                                                       00680000
+* Pointer fields                                                        00690000
+UNLDIRP  DS    A                       * Pointer to directory table     00700000
+UNLDIRFP DS    A                       * Pointer to free entry in table 00710000
+UNLDIRSZ DS    F                       * Size of dir table in bytes     00720000
+*                                                                       00730000
+UNLBUFP  DS    A                       * Pointer to record buffer       00740000
+UNLBUFSZ DS    F                       * Buffer size                    00750000
+UNLBUFND DS    A                       * Ptr to logical end-of-buffer+1 00760000
+UNLRCDP  DS    A                       * Pointer to current record      00770000
+*                                                                       00780000
+* JCL fields                                                            00790000
+UNLPARM  DS    CL8                     * Job and step name              00800000
+UNLDSN   DS    CL44                    * Data set name                  00810000
+UNLDSNLN DS    H                       * Data set name length in bytes  00820000
+UNLCTRI  DCL   *BITS,                  * Allocation type               *00830000
+               UNLALCYL,               * 0: Cylinder request           *00840000
+               UNLALTRK,               * 1: Track request              *00850000
+               UNLALBLK                * 2: Block request               00860000
+UNLPQTY  DS    F                       * Primary alloc quantity         00870000
+UNLSQTY  DS    F                       * Secondary alloc quantity       00880000
+UNLDQTY  DS    F                       * Directory alloc quantity       00890000
+*********************************************************************** 00900000
+UNLWORK  DS    0D                      * Align                          00910000
+*                                                                       00920000
+* DCB for BPAM access in UNLWORK                                        00930000
+         ORG   UNLWORK                 *                                00940000
+UNLDCB1  DCB   DDNAME=SYSUT1,          * Input dataset                 *00950000
+               DSORG=PO,               * Read directory sequentially   *00960000
+               DCBE=0,                 * DCBE will be used             *00970000
+               MACRF=R                 * Dataset will be read only      00980000
+UNLDCB1_LEN EQU *-UNLDCB1              *                                00990000
+*                                                                       01000000
+* DCB for BSAM access overlays UNLDCB1                                  01010000
+         ORG   UNLDCB1                 *                                01020000
+UNLDCB2  DCB   DDNAME=SYSUT1,          * Input dataset                 *01030000
+               DSORG=PS,               * Read directory sequentially   *01040000
+               DCBE=0,                 * DCBE will be used             *01050000
+               MACRF=RP                * Dataset will be read only      01060000
+UNLDCB2_LEN EQU *-UNLDCB2              *                                01070000
+*                                                                       01080000
+* DCB for QSAM output follows preceding DCB2                            01090000
+UNLDCBO  DCB   DDNAME=SYSUT2,          * Output dataset                *01100000
+               DSORG=PS,               *                               *01110000
+               MACRF=PM                * with PUT in move-mode          01120000
+UNLDCBO_LEN EQU *-UNLDCBO              *                                01130000
+*                                                                       01140000
+* DCBE for BPAM access follows DCB                                      01150000
+         ORG   ,                       * Set to current end of UNLWORK  01160000
+UNLDCBE1 DCBE  EODAD=0                 * EODAD routine                  01170000
+UNLDCBE1_LEN EQU *-UNLDCBE1            *                                01180000
+*                                                                       01190000
+* DCBE for BSAM access overlays UNLDCBE1                                01200000
+         ORG   UNLDCBE1                *                                01210000
+UNLDCBE2 DCBE  EODAD=0                 * EODAD routine                  01220000
+UNLDCBE2_LEN EQU *-UNLDCBE2            *                                01230000
+*                                                                       01240000
+* Add OPEN plist in UNLWORK                                             01250000
+         ORG   ,                       * Set to current end of UNLWORK  01260000
+UNLOPEN  OPEN  (0,INPUT),MF=L          * Reserve room for OPEN plist    01270000
+UNLOPEN_LEN EQU *-UNLOPEN              *                                01280000
+*                                                                       01290000
+* CLOSE plist reuses OPEN area                                          01300000
+         ORG   UNLOPEN                 *                                01310000
+UNLCLOS  CLOSE (0),MF=L                * Reserve room for CLOSE plist   01320000
+UNLCLOS_LEN EQU *-UNLCLOS              *                                01330000
+*                                                                       01340000
+* DECB for reading with BPAM reuses OPEN area                           01350000
+         ORG   UNLOPEN                 *                                01360000
+         READ  UNLDECB1,SF,MF=L        * Create DECB for reading        01370000
+UNLDECB1_LEN EQU *-UNLDECB1            *                                01380000
+*                                                                       01390000
+* DECB for reading with BSAM reuses OPEN area                           01400000
+         ORG   UNLOPEN                 * Set to reuse UNLOPEN area      01410000
+         READ  UNLDECB2,SF,MF=L        * Create DECB for reading        01420000
+UNLDECB2_LEN EQU *-UNLDECB1            *                                01430000
+*                                                                       01440000
+* Plist for SWAREQ in UNLWORK                                           01450000
+         ORG   ,                       *                                01460000
+UNLSWARQ SWAREQ EPA=UNLEPAPT,          * SWAREQ parmlist goes here     *01470000
+               MF=L                    *                                01480000
+UNLSWARQ_LEN EQU *-UNLSWARQ            * Length of plist                01490000
+*                                                                       01500000
+         DS    0F                      * Re-align on fullword           01510000
+UNLEPAPT DS    A                       * Pointer to UNLEPAX             01520000
+UNLEPAX  DCL   EPAX,*NOUSE             * EPAX follows UNLSWARQ          01530000
+UNLEPAX_LEN EQU *-UNLEPAX              * Length of EPAX                 01540000
+*                                                                       01550000
+* Unpack area for allocation amounts re-uses SWAREQ areas               01560000
+         ORG   UNLSWARQ                *                                01570000
+         DS    0D                      * Align on D-word                01580000
+UNLCVD   DS    PL8                     * Result of CVD                  01590000
+UNLQTY   DS    ZL5                     * Zoned quantity                 01600000
+*                                                                       01610000
+* Buffer for output record follows all else                             01620000
+         ORG   ,                       * Set to current end of UNLWORK  01630000
+UNLBUFO  DS    CL80                    * Buffer for 1 output record     01640000
+UNLBUFO_LEN EQU *-UNLBUFO              *                                01650000
+*                                                                       01660000
+* Reset location counter to end of UNLWORK                              01670000
+         ORG   ,                       *                                01680000
+         DS    0D                      * Align for internal Save areas  01690000
+UNLD_LEN EQU   *-UNLD                  *                                01700000
+.*                                                                      01710000
+.* Return to our original CSECT name                                    01720000
+&SYSECT  &SYSSTYP                                                       01730000
+.*                                                                      01740000
+.SKIP    ANOP                                                           01750000
+         MEND                                                           01760000

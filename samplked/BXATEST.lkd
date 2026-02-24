@@ -1,0 +1,7 @@
+*                                                                       00010000
+* This load module has no specific requirements                         00020000
+*                                                                       00030000
+ SETOPT     PARM(REUS=REFR)                                             00040000
+ INCLUDE OBJECTS(BXATEST)                                               00050000
+ ENTRY           BXATEST                                                00060000
+ NAME            BXATEST(R)                                             00070000

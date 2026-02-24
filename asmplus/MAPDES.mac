@@ -1,0 +1,383 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Data Facilities Area                             00180000
+.*                                                                      00190000
+&LABEL   MAPDES &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPDES                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPDES         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'DESB').EMBED                                  00360000
+         AIF   ('&CB' EQ 'DESD').EMBED                                  00370000
+         AIF   ('&CB' EQ 'DESL').EMBED                                  00380000
+         AIF   ('&CB' EQ 'DESN').EMBED                                  00390000
+         AIF   ('&CB' EQ 'DESP').EMBED                                  00400000
+         AIF   ('&CB' EQ 'DESR').EMBED                                  00410000
+         AIF   ('&CB' EQ 'DESRCS').EMBED                                00420000
+         AIF   ('&CB' EQ 'DESX').EMBED                                  00430000
+         AIF   ('&CB' EQ 'DST').EMBED                                   00440000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.* Generate embedded definition                                         00480000
+.EMBED   ANOP                                                           00490000
+&LABEL   NESTCB &CB,X,&PRFX                                             00500000
+         MEXIT                                                          00510000
+.*                                                                      00520000
+.DSECT   ANOP                                                           00530000
+         AIF   (&BXA_MAC_MAPDES).MEND                                   00540002
+&BXA_MAC_MAPDES SETB 1                                                  00550000
+.* Set up translation from control block to macro for DCL               00560000
+         GBLC  &BXA_CB_DESB                                             00570000
+         GBLC  &BXA_CB_DESD                                             00580000
+         GBLC  &BXA_CB_DESL                                             00590000
+         GBLC  &BXA_CB_DESN                                             00600000
+         GBLC  &BXA_CB_DESP                                             00610000
+         GBLC  &BXA_CB_DESR                                             00620000
+         GBLC  &BXA_CB_DESRCS                                           00630000
+         GBLC  &BXA_CB_DESX                                             00640000
+         GBLC  &BXA_CB_DST                                              00650000
+&BXA_CB_DESB   SETC 'DES'                                               00660000
+&BXA_CB_DESD   SETC 'DES'                                               00670000
+&BXA_CB_DESL   SETC 'DES'                                               00680000
+&BXA_CB_DESN   SETC 'DES'                                               00690000
+&BXA_CB_DESP   SETC 'DES'                                               00700000
+&BXA_CB_DESR   SETC 'DES'                                               00710000
+&BXA_CB_DESRCS SETC 'DES'                                               00720000
+&BXA_CB_DESX   SETC 'DES'                                               00730000
+&BXA_CB_DST    SETC 'DES'                                               00740000
+.*                                                                      00750000
+.* DESP_LEV - control block level                                       00760000
+DESP_LEV_IV            EQUOVR ,,v,DESP_LEV                              00770000
+.*                                                                      00780000
+.* DESP_FUNC - function type                                            00790000
+DESP_FUNC_UPDATE       EQUOVR ,,v,DESP_FUNC                             00800000
+DESP_FUNC_RENAME       EQUOVR ,,v,DESP_FUNC                             00810000
+DESP_FUNC_DELETE       EQUOVR ,,v,DESP_FUNC                             00820000
+DESP_FUNC_EXIT         EQUOVR ,,v,DESP_FUNC                             00830000
+DESP_FUNC_GET_NAMES    EQUOVR ,,v,DESP_FUNC                             00840000
+DESP_FUNC_PUT          EQUOVR ,,v,DESP_FUNC                             00850000
+DESP_FUNC_RELEASE      EQUOVR ,,v,DESP_FUNC                             00860000
+DESP_FUNC_GET_ALL      EQUOVR ,,v,DESP_FUNC                             00870000
+DESP_FUNC_GET          EQUOVR ,,v,DESP_FUNC                             00880000
+DESP_FUNC_OMITTED      EQUOVR ,,v,DESP_FUNC                             00890000
+.*                                                                      00900000
+.* DESP_FLAGS - DESP FLAG1                                              00910000
+DESP_BYPASS_LLA        EQUOVR ,,b,DESP_FLAGS                            00920000
+DESP_CONCAT_FLG        EQUOVR ,,b,DESP_FLAGS                            00930000
+DESP_SUBPOOL_FLG       EQUOVR ,,b,DESP_FLAGS                            00940000
+DESP_C370LIB           EQUOVR ,,b,DESP_FLAGS                            00950000
+DESP_CONCAT_ALL        EQUOVR ,,b,DESP_FLAGS                            00960000
+DESP_HIDE              EQUOVR ,,b,DESP_FLAGS                            00970000
+DESP_SYSTEM_DCB        EQUOVR ,,b,DESP_FLAGS                            00980000
+.*                                                                      00990000
+.* DESP_EXIT_SCOPE - EXIT SCOPE                                         01000000
+DESP_EXIT_SCOPE_TASK   EQUOVR ,,v,DESP_EXIT_SCOPE                       01010000
+DESP_EXIT_SCOPE_GLOBAL EQUOVR ,,v,DESP_EXIT_SCOPE                       01020000
+.*                                                                      01030000
+.* DESP_LIBTYPE - function subtype (DCB, DEB)                           01040000
+DESP_LIBTYPE_DCB       EQUOVR ,,v,DESP_LIBTYPE                          01050000
+DESP_LIBTYPE_DEB       EQUOVR ,,v,DESP_LIBTYPE                          01060000
+DESP_LIBTYPE_OMITTED   EQUOVR ,,v,DESP_LIBTYPE                          01070000
+.*                                                                      01080000
+.* DESP_GETTYPE - function subtype                                      01090000
+DESP_GETTYPE_SMDE      EQUOVR ,,v,DESP_GETTYPE                          01100000
+DESP_GETTYPE_PDSDE     EQUOVR ,,v,DESP_GETTYPE                          01110000
+DESP_GETTYPE_NAME_LIST EQUOVR ,,v,DESP_GETTYPE                          01120000
+DESP_GETTYPE_OMITTED   EQUOVR ,,v,DESP_GETTYPE                          01130000
+.*                                                                      01140000
+.* DESP_RELTYPE - function subtype                                      01150000
+DESP_RELTYPE_DE_LIST   EQUOVR ,,v,DESP_RELTYPE                          01160000
+DESP_RELTYPE_CONN_ID   EQUOVR ,,v,DESP_RELTYPE                          01170000
+DESP_RELTYPE_OMITTED   EQUOVR ,,v,DESP_RELTYPE                          01180000
+.*                                                                      01190000
+.* DESP_EXIT_OPTION - EXIT option                                       01200000
+DESP_EXIT_OPTION_QUERY      EQUOVR ,,v,DESP_EXIT_OPTION                 01210000
+DESP_EXIT_OPTION_DELETE     EQUOVR ,,v,DESP_EXIT_OPTION                 01220000
+DESP_EXIT_OPTION_REPLACE    EQUOVR ,,v,DESP_EXIT_OPTION                 01230000
+DESP_EXIT_OPTION_NOREPLACE  EQUOVR ,,v,DESP_EXIT_OPTION                 01240000
+.*                                                                      01250000
+.* DESP_OPTION - PUT REPLACE option                                     01260000
+DESP_OPTION_REPLACE    EQUOVR ,,v,DESP_OPTION                           01270000
+DESP_OPTION_NOREPLACE  EQUOVR ,,v,DESP_OPTION                           01280000
+.*                                                                      01290000
+.* DESP_CONN_INTENT - connect intent                                    01300000
+DESP_CONN_INTENT_INPUT EQUOVR ,,v,DESP_CONN_INTENT                      01310000
+DESP_CONN_INTENT_EXEC  EQUOVR ,,v,DESP_CONN_INTENT                      01320000
+DESP_CONN_INTENT_HOLD  EQUOVR ,,v,DESP_CONN_INTENT                      01330000
+DESP_CONN_INTENT_NONE  EQUOVR ,,v,DESP_CONN_INTENT                      01340000
+.*                                                                      01350000
+.* DESL_FLAGS - flags                                                   01360000
+DESL_MODULE_BUFFERED_LLA EQUOVR ,,b,DESL_FLAGS                          01370000
+.*                                                                      01380000
+.* DESL_CODE - result code                                              01390000
+DESL_CODE_NEWNAME_EXISTS EQUOVR ,,v,DESL_CODE                           01400000
+DESL_CODE_ERROR        EQUOVR ,,v,DESL_CODE                             01410000
+DESL_CODE_NOTFOUND     EQUOVR ,,v,DESL_CODE                             01420000
+DESL_CODE_SUCC         EQUOVR ,,v,DESL_CODE                             01430000
+.*                                                                      01440000
+.* DESB_LEV - CONTROL BLOCK LEVEL                                       01450000
+DESB_LEV_IV            EQUOVR ,,v,DESB_LEV                              01460000
+.*                                                                      01470000
+.* DESD_FLAG - flags                                                    01480000
+DESD_FLAG_ALIAS        EQUOVR ,,b,DESD_FLAG                             01490000
+.*                                                                      01500000
+.* DESD_CODE - processing code                                          01510000
+DESD_CODE_ERROR        EQUOVR ,,v,DESD_CODE                             01520000
+DESD_CODE_NOGO         EQUOVR ,,v,DESD_CODE                             01530000
+DESD_CODE_SUCC         EQUOVR ,,v,DESD_CODE                             01540000
+.*                                                                      01550000
+.* DESX_LEV - control block level                                       01560000
+DESX_LEV_IV            EQUOVR ,,v,DESX_LEV                              01570000
+.*                                                                      01580000
+.* DESX_FLAGS - Flags                                                   01590000
+DESX_BLDL_BIT          EQUOVR ,,b,DESX_FLAGS                            01600000
+DESX_PRE_BIT           EQUOVR ,,b,DESX_FLAGS                            01610000
+DESX_POST_BIT          EQUOVR ,,b,DESX_FLAGS                            01620000
+.*                                                                      01630000
+.* DST_LEV - control block level                                        01640000
+DST_LEV_IV             EQUOVR ,,v,DST_LEV                               01650000
+.*                                                                      01660000
+.* DST_FLAGS - DST flags                                                01670000
+DST_FLAGS_PROP         EQUOVR ,,b,DST_FLAGS                             01680000
+.*                                                                      01690000
+.* DESRC - return code                                                  01700000
+DESRC_SUCC             EQUOVR ,,v,DESRC                                 01710000
+DESRC_INFO             EQUOVR ,,v,DESRC                                 01720000
+DESRC_WARN             EQUOVR ,,v,DESRC                                 01730000
+DESRC_PARM             EQUOVR ,,v,DESRC                                 01740000
+DESRC_CALR             EQUOVR ,,v,DESRC                                 01750000
+DESRC_ENVR             EQUOVR ,,v,DESRC                                 01760000
+DESRC_IOER             EQUOVR ,,v,DESRC                                 01770000
+DESRC_MEDE             EQUOVR ,,v,DESRC                                 01780000
+DESRC_DSLE             EQUOVR ,,v,DESRC                                 01790000
+DESRC_SEVE             EQUOVR ,,v,DESRC                                 01800000
+.*                                                                      01810000
+.* DESRS - reason code                                                  01820000
+DESRS_MEMBER_PEND_DELETE     EQUOVR ,,v,DESRS                           01830000
+DESRS_LONG_NAME_NOT_ORIGINAL EQUOVR ,,v,DESRS                           01840000
+DESRS_NEW_NAME_EXISTS        EQUOVR ,,v,DESRS                           01850000
+DESRS_BOTH_NAMES_BIG         EQUOVR ,,v,DESRS                           01860000
+DESRS_BOTH_NAMES_SAME        EQUOVR ,,v,DESRS                           01870000
+DESRS_INVAL_PREVDST_HEADER   EQUOVR ,,v,DESRS                           01880000
+DESRS_PREV_DSTPTR_PTR_ZERO   EQUOVR ,,v,DESRS                           01890000
+DESRS_DST_COMP_SWAP_FAILED   EQUOVR ,,v,DESRS                           01900000
+DESRS_EXIT_SCOPE_INVALID     EQUOVR ,,v,DESRS                           01910000
+DESRS_EXIT_OPTION_INVALID    EQUOVR ,,v,DESRS                           01920000
+DESRS_EXIT_PREV_DSTPTR_ZERO  EQUOVR ,,v,DESRS                           01930000
+DESRS_INVAL_DST_HEADER       EQUOVR ,,v,DESRS                           01940000
+DESRS_EXIT_DST_PTR_ZERO      EQUOVR ,,v,DESRS                           01950000
+DESRS_DST_ALREADY_EXISTS     EQUOVR ,,v,DESRS                           01960000
+DESRS_EXIT_ERROR             EQUOVR ,,v,DESRS                           01970000
+DESRS_AUTH_ERROR             EQUOVR ,,v,DESRS                           01980000
+DESRS_PACBLOC_ERROR          EQUOVR ,,v,DESRS                           01990000
+DESRS_UNKNOWN                EQUOVR ,,v,DESRS                           02000000
+DESRS_GETMAIN_ERROR          EQUOVR ,,v,DESRS                           02010000
+DESRS_CANT_CHANGE_RECOVERY   EQUOVR ,,v,DESRS                           02020000
+DESRS_IGWCDFNC_ERROR         EQUOVR ,,v,DESRS                           02030000
+DESRS_NO_PNAR_FOR_NAME       EQUOVR ,,v,DESRS                           02040000
+DESRS_UNEXPECTED_SAR_CODE    EQUOVR ,,v,DESRS                           02050000
+DESRS_TWO_MLT_NAMES          EQUOVR ,,v,DESRS                           02060000
+DESRS_PDSDE_MERGE_ERR        EQUOVR ,,v,DESRS                           02070000
+DESRS_UNKNOWN_EXIT_ERROR     EQUOVR ,,v,DESRS                           02080000
+DESRS_ECB_POSTED_ERROR       EQUOVR ,,v,DESRS                           02090000
+DESRS_CONNID_OVERFLOW        EQUOVR ,,v,DESRS                           02100000
+DESRS_NAME_IS_PRIMARY_NAME   EQUOVR ,,v,DESRS                           02110000
+DESRS_CLOCK_ERROR            EQUOVR ,,v,DESRS                           02120000
+DESRS_DATA_LENGTH_ERROR      EQUOVR ,,v,DESRS                           02130000
+DESRS_ANCHOR_IN_USE          EQUOVR ,,v,DESRS                           02140000
+DESRS_ANCHOR_FREE            EQUOVR ,,v,DESRS                           02150000
+DESRS_ADD_STACK_FAILED       EQUOVR ,,v,DESRS                           02160000
+DESRS_INVALID_CONN_INTENT    EQUOVR ,,v,DESRS                           02170000
+DESRS_NAME_LIST_@_INVALID    EQUOVR ,,v,DESRS                           02180000
+DESRS_NAME_LIST_COUNT_INVALID EQUOVR ,,v,DESRS                          02190000
+DESRS_CONNID_INVALID         EQUOVR ,,v,DESRS                           02200000
+DESRS_INVALID_GETTYPE        EQUOVR ,,v,DESRS                           02210000
+DESRS_INVALID_AREA_PTR       EQUOVR ,,v,DESRS                           02220000
+DESRS_INVALID_AREAPTR_PTR    EQUOVR ,,v,DESRS                           02230000
+DESRS_AREA_LENGTH_TOO_SMALL  EQUOVR ,,v,DESRS                           02240000
+DESRS_INVALID_ENTRY_GAP      EQUOVR ,,v,DESRS                           02250000
+DESRS_INVALID_DE_LIST_PTR    EQUOVR ,,v,DESRS                           02260000
+DESRS_INVALID_DE_LIST_CNT    EQUOVR ,,v,DESRS                           02270000
+DESRS_INVALID_CONN_ID_PTR    EQUOVR ,,v,DESRS                           02280000
+DESRS_INVALID_RELEASE_TYPE   EQUOVR ,,v,DESRS                           02290000
+DESRS_INVALID_PUT_OPTION     EQUOVR ,,v,DESRS                           02300000
+DESRS_INVALID_MEM_DATA_PTR   EQUOVR ,,v,DESRS                           02310000
+DESRS_INVALID_MEM_DATA_CNT   EQUOVR ,,v,DESRS                           02320000
+DESRS_INVALID_NAME_PTR       EQUOVR ,,v,DESRS                           02330000
+DESRS_INVALID_NAME_LENGTH    EQUOVR ,,v,DESRS                           02340000
+DESRS_UNSUPPORTED_FUNC       EQUOVR ,,v,DESRS                           02350000
+DESRS_DEB_REQUIRES_AUTH      EQUOVR ,,v,DESRS                           02360000
+DESRS_INVALID_DCB_PTR        EQUOVR ,,v,DESRS                           02370000
+DESRS_DCB_NOT_OPEN           EQUOVR ,,v,DESRS                           02380000
+DESRS_COMP_NAME_BAD          EQUOVR ,,v,DESRS                           02390000
+DESRS_DCB_NOT_OPEN_OUTPUT    EQUOVR ,,v,DESRS                           02400000
+DESRS_INVALID_DEB_PTR        EQUOVR ,,v,DESRS                           02410000
+DESRS_DEBCHK_FAILED          EQUOVR ,,v,DESRS                           02420000
+DESRS_INVALID_CONCAT         EQUOVR ,,v,DESRS                           02430000
+DESRS_PDSDE_PTR_INVALID      EQUOVR ,,v,DESRS                           02440000
+DESRS_INVALID_FT             EQUOVR ,,v,DESRS                           02450000
+DESRS_LIB_NOT_BUFFERED       EQUOVR ,,v,DESRS                           02460000
+DESRS_INVALID_DFNC_FUNC      EQUOVR ,,v,DESRS                           02470000
+DESRS_DISCONNECT_FILE_FAILED EQUOVR ,,v,DESRS                           02480000
+DESRS_INSUF_BUFFER_SIZE      EQUOVR ,,v,DESRS                           02490000
+DESRS_PDS_NOT_SUPPORTED      EQUOVR ,,v,DESRS                           02500000
+DESRS_INVALID_CT             EQUOVR ,,v,DESRS                           02510000
+DESRS_INVALID_MLT            EQUOVR ,,v,DESRS                           02520000
+DESRS_MORE_THAN_1_PRIMARY    EQUOVR ,,v,DESRS                           02530000
+DESRS_INVALID_PARM_LIST_HEADER EQUOVR ,,v,DESRS                         02540000
+DESRS_INVALID_NAME_PREFIX    EQUOVR ,,v,DESRS                           02550000
+DESRS_NO_PRIMARY_NAME        EQUOVR ,,v,DESRS                           02560000
+DESRS_NAME_ALREADY_EXISTS    EQUOVR ,,v,DESRS                           02570000
+DESRS_LONG_NAME_AND_LLA      EQUOVR ,,v,DESRS                           02580000
+DESRS_PROGRAM_OBJECT_ONLY    EQUOVR ,,v,DESRS                           02590000
+DESRS_FREEMAIN_ERROR         EQUOVR ,,v,DESRS                           02600000
+DESRS_CONVERT_ERROR          EQUOVR ,,v,DESRS                           02610000
+DESRS_UNEXPECTED_JCDM_ERROR  EQUOVR ,,v,DESRS                           02620000
+DESRS_PDSDE_CONVRT_ERR       EQUOVR ,,v,DESRS                           02630000
+DESRS_SETLOCK_ERR            EQUOVR ,,v,DESRS                           02640000
+DESRS_EXTRACT_ERROR          EQUOVR ,,v,DESRS                           02650000
+DESRS_SET_ERROR              EQUOVR ,,v,DESRS                           02660000
+DESRS_ANCHOR_CREATE_FAILED   EQUOVR ,,v,DESRS                           02670000
+DESRS_ELEMENT_CREATE_FAILED  EQUOVR ,,v,DESRS                           02680000
+DESRS_PMAR_MERGE_ERR         EQUOVR ,,v,DESRS                           02690000
+DESRS_IEWLCNVT_ERROR         EQUOVR ,,v,DESRS                           02700000
+DESRS_NAME_NOT_DEFINED       EQUOVR ,,v,DESRS                           02710000
+DESRS_CHANGED_PMAR_LENGTH    EQUOVR ,,v,DESRS                           02720000
+DESRS_SMDE_TOKEN_BAD         EQUOVR ,,v,DESRS                           02730000
+DESRS_PRI_NM_THIS_FILE       EQUOVR ,,v,DESRS                           02740000
+DESRS_CANT_GET_FILELOCK      EQUOVR ,,v,DESRS                           02750000
+DESRS_CONNECTION_NOT_FOUND   EQUOVR ,,v,DESRS                           02760000
+DESRS_DESL_SMDE_PTR          EQUOVR ,,v,DESRS                           02770000
+DESRS_RELTYPE_INVALID        EQUOVR ,,v,DESRS                           02780000
+DESRS_BAD_PMAR_FIELD_UPDATED EQUOVR ,,v,DESRS                           02790000
+DESRS_IEWBXILO_ERROR         EQUOVR ,,v,DESRS                           02800000
+DESRS_MULTIPLE_ERRORS        EQUOVR ,,v,DESRS                           02810000
+DESRS_AUTH_SUBPOOL           EQUOVR ,,v,DESRS                           02820000
+DESRS_DIRECTORY_EMPTY        EQUOVR ,,v,DESRS                           02830000
+DESRS_CONNECT_AUTH           EQUOVR ,,v,DESRS                           02840000
+DESRS_C370LIB_PDSDE_ME       EQUOVR ,,v,DESRS                           02850000
+DESRS_BAD_BLKSIZE            EQUOVR ,,v,DESRS                           02860000
+DESRS_BAD_TXT_CARD           EQUOVR ,,v,DESRS                           02870000
+DESRS_BAD_C370LIB_DIR        EQUOVR ,,v,DESRS                           02880000
+DESRS_DCB_NOT_OPEN_PO        EQUOVR ,,v,DESRS                           02890000
+DESRS_AREA_AREAPTR_ME        EQUOVR ,,v,DESRS                           02900000
+DESRS_SMDE_PTR_INVALID       EQUOVR ,,v,DESRS                           02910000
+DESRS_C370LIB_SMDE_ME        EQUOVR ,,v,DESRS                           02920000
+DESRS_NOTFOUND               EQUOVR ,,v,DESRS                           02930000
+DESRS_MODULE_BUFFERED_LLA    EQUOVR ,,v,DESRS                           02940000
+DESRS_SUCC                   EQUOVR ,,v,DESRS                           02950000
+.*                                                                      02960000
+         MNOTE *,'Including IGWDES mapping macro'                       02970000
+         IGWDES ,                      *                                02980000
+         EQUOVR *END                   *                                02990000
+*                                                                       03000000
+DESP     DSECT ,                       * Return to DESP                 03010000
+         ORG   ,                       *                                03020000
+DESP_SIZE EQU  *-DESP                  * Length of DESP                 03030000
+*                                                                       03040000
+DESL     DSECT ,                       * Return to DESL                 03050000
+         ORG   ,                       *                                03060000
+DESL_SIZE EQU  *-DESL                  * Length of DESL                 03070000
+*                                                                       03080000
+DESB     DSECT ,                       * Return to DESB                 03090000
+         ORG   ,                       *                                03100000
+DESB_SIZE EQU  *-DESB                  * Length of DESB                 03110000
+*                                                                       03120000
+DESN     DSECT ,                       * Return to DESN                 03130000
+         ORG   ,                       *                                03140000
+DESN_SIZE EQU  *-DESN                  * Length of DESN                 03150000
+*                                                                       03160000
+DESD     DSECT ,                       * Return to DESD                 03170000
+         ORG   ,                       *                                03180000
+DESD_SIZE EQU  *-DESD                  * Length of DESD                 03190000
+*                                                                       03200000
+DESX     DSECT ,                       * Return to DESX                 03210000
+         ORG   ,                       *                                03220000
+DESX_SIZE EQU  *-DESX                  * Length of DESX                 03230000
+*                                                                       03240000
+DST      DSECT ,                       * Return to DST                  03250000
+         ORG   ,                       *                                03260000
+DST_SIZE EQU   *-DST                   * Length of DST                  03270000
+*                                                                       03280000
+DESRCS   DSECT ,                       * Return to DESRCS               03290000
+         ORG   ,                       *                                03300000
+DESRCS_SIZE EQU *-DESRCS               * Length of DESRCS               03310000
+*                                                                       03320000
+DESR     DSECT ,                       * Return to DESR                 03330000
+         ORG   ,                       *                                03340000
+DESR_SIZE EQU  *-DESR                  * Length of DESR                 03350000
+.*                                                                      03360000
+.* Return to our original CSECT name                                    03370000
+&SYSECT  &SYSSTYP                                                       03380000
+.*                                                                      03390000
+.MEND    MEND                                                           03410002

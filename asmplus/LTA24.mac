@@ -1,0 +1,171 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Load and Test 24-bit address into a register                         00180000
+.*                                                                      00190000
+&LABEL   LTA24 &REG,                   * Register to load              *00200000
+               &LOC,                   * Location of address           *00210000
+               &MASK,                  * Mask for ICM (default=NYYY)   *00220000
+               &RELOAD=                * YES, NO, QUICK                 00230000
+.*                                                                      00240000
+.* &REG  specifies the register to load                                 00250000
+.* &LOC  specifies the location of the address to be loaded             00260000
+.* &MASK specifies which bytes of the register are to be loaded         00270000
+.* &RELOAD if YES, specifies that the register to be loaded is also     00280000
+.*       used as a base register to address the field.                  00290000
+.*       if NO, specifies that the register to be loaded will not be    00300000
+.*       used as a base register to address the field.                  00310000
+.*       if QUICK, specifies that the register to be loaded is also     00320000
+.*       used as a 24-bit base register to address the field.           00330000
+.*                                                                      00340000
+.********************************************************************** 00341001
+.*                                                                      00342001
+.*       IMPORTANT NOTICE                                               00343001
+.*       ========= ======                                               00344001
+.*                                                                      00345001
+.* Code below checks whether 'USER' accepted the terms and conditions   00346001
+.* of the license for the BXA macro library. This code is to be treated 00347001
+.* as part of the Copyright Notice and therefore may not be changed     00348001
+.* or disabled in any way.                                              00349001
+.*                                                                      00349101
+.********************************************************************** 00349201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00349301
+         CHKLIC LTA24                  * Check license acceptance       00349401
+         AIF   (&BXA_RC NE 0).MEND                                      00349502
+.********************************************************************** 00349601
+.*                                                                      00349701
+.* End of special code that is part of the Copyright Notice             00349801
+.*                                                                      00349901
+.********************************************************************** 00350001
+.*                                                                      00350101
+.* Declare variables                                                    00351000
+         LCLC  &_REG                   * Register specified             00360000
+         LCLA  &_REGNO                 * Register number                00370000
+         LCLA  &_REGX                  * Register index                 00380000
+         LCLC  &_MASK                  * Specified or defaulted mask    00390000
+         LCLC  &_RELOAD                * Reload option                  00400000
+         GBLB  &BXA_USED_REGS(16)      * Use status of regs R0-R15      00410000
+         GBLA  &BXA_NUMVAL             * Output from CHKREG             00430000
+         LCLC  &TMP                    * Temp register                  00440000
+.*                                                                      00450000
+.* Check the RELOAD parameter                                           00460000
+         AIF   (K'&RELOAD EQ 0).NOERR4                                  00470000
+&_RELOAD SETC  '&RELOAD'                                                00480000
+         AIF   ('&RELOAD' EQ 'YES').NOERR4                              00490000
+         AIF   ('&RELOAD' EQ 'QUICK').NOERR4                            00500000
+         AIF   ('&RELOAD' EQ 'NO').NOERR4                               00510000
+.ERR4    MNOTE 4,'Invalid RELOAD parameter: ignored'                    00520000
+&_RELOAD SETC  ''                      * Default to no RELOAD parm      00530000
+.NOERR4  ANOP  ,                                                        00540000
+.*                                                                      00550000
+.* Check the REG parameter                                              00560000
+&_REG    SETC  '&REG'                                                   00570000
+         AIF   (K'&REG NE 0).NOERR1A                                    00580000
+.ERR1A   MNOTE 8,'No register specified'                                00590000
+         AGO   .NOERR1                                                  00600000
+.NOERR1A ANOP                                                           00610000
+         AIF   ('&REG'(1,1) NE '(').NOERR1C                             00620000
+&_REG    SETC  '&REG(1)'                                                00630000
+         AIF   (N'&REG EQ 0).ERR1B                                      00640000
+         AIF   (N'&REG GT 1).ERR1C                                      00650000
+         AGO   .NOERR1C                                                 00660000
+.ERR1B   MNOTE 8,'No register specified within sublist'                 00670000
+         AGO   .NOERR1                                                  00680000
+.ERR1C   MNOTE 8,'More than 1 register specified in sublist'            00690000
+         AGO   .NOERR1                                                  00700000
+.NOERR1C ANOP                                                           00710000
+         CHKREG &_REG                                                   00720000
+         AIF   (&BXA_RC GT 4).ERR1D                                     00730000
+&_REGX   SETA  &BXA_NUMVAL+1           * Create index value             00740000
+         AGO   .NOERR1D                                                 00750000
+.ERR1D   ANOP  ,                                                        00760000
+&_REG    SETC  (DOUBLE '&_REG')                                         00770000
+         MNOTE 8,'&_REG is not a valid register'                        00780000
+         AGO   .NOERR1                                                  00790000
+.NOERR1D ANOP                                                           00800000
+         AIF   (NOT &BXA_USED_REGS(&_REGX)).NOERR1                      00810000
+.ERR1E   ANOP  ,                                                        00820000
+         AIF   (K'&_RELOAD NE 0).NOERR1                                 00830000
+&_REG    SETC  (DOUBLE '&_REG')                                         00840000
+         MNOTE 0,'&_REG is currently in use, code generated may err'    00850000
+.NOERR1  ANOP                                                           00860000
+.*                                                                      00870000
+.* Check the LOC parameter                                              00880000
+         AIF   (K'&LOC NE 0).NOERR2                                     00890000
+.ERR2    MNOTE 8,'LOC parameter not specified'                          00900000
+.NOERR2  ANOP                                                           00910000
+.*                                                                      00920000
+.* Check the MASK parameter                                             00930000
+&_MASK   SETC  '&MASK'                                                  00940000
+         AIF   (K'&MASK NE 0).MASKOK                                    00950000
+&_MASK   SETC  'NYYY'                                                   00960000
+.MASKOK  ANOP                                                           00970000
+.*                                                                      00980000
+.* Check the number of parameters                                       00990000
+         AIF   (N'&SYSLIST LE 3).NOERR3                                 01000000
+.ERR3    MNOTE 4,'Too many parameters specified: ignored'               01010000
+.NOERR3  ANOP                                                           01020000
+.*                                                                      01030000
+.* Generate code                                                        01040000
+         AIF   ('&_RELOAD' EQ 'YES').RELOAD                             01050000
+         AIF   ('&_RELOAD' EQ 'QUICK').RELALT                           01060000
+&LABEL   CLEAR &_REG                   * Wipe register                  01070000
+         ICM   &_REG,&_MASK,&LOC       * Load and test 24-bit address   01080000
+         MEXIT                                                          01090000
+.*                                                                      01100000
+.RELOAD  ANOP  ,                       * Reload register                01110000
+         EQUREG TEMP=YES,R0=YES        * Assign any register            01120000
+         AIF   (&BXA_RC GT 0).RELALT   * Use alternate code             01130000
+&TMP     SETC  'R'.'&BXA_NUMVAL'       * Create register name           01140000
+&LABEL   CLEAR &TMP                    * Wipe register                  01150000
+         ICM   &TMP,&_MASK,&LOC        * Load 24-bit address            01160000
+         LTR   &_REG,&TMP              * Load and test 24-bit value     01170000
+         MEXIT                                                          01180000
+.*                                                                      01190000
+.RELALT  ANOP  ,                       * Reload register (Alternate)    01200000
+&LABEL   ICM   &_REG,&_MASK,&LOC       * Load and test 24-bit address   01210000
+         AIF   ('&_RELOAD' EQ 'QUICK').MEND                             01220002
+         SLL   &_REG,8                 * Remove hi-order bits           01230000
+         SRL   &_REG,8                 * Reposition low-order bits      01240000
+         LTR   &_REG,&_REG             * Check register contents        01250000
+.*                                                                      01260000
+.MEND    MEND                                                           01280002

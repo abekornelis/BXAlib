@@ -1,0 +1,505 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Unit Control Block                               00180000
+.*                                                                      00190000
+&LABEL   MAPUCB &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPUCB                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPUCB         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'UCB').EMBED                                   00360000
+         AIF   ('&CB' EQ 'UCBOCR').EMBED                                00370000
+         AIF   ('&CB' EQ 'UCBPDCTA').EMBED                              00380000
+         AIF   ('&CB' EQ 'UCBUCS').EMBED                                00390000
+         AIF   ('&CB' EQ 'UCB3540X').EMBED                              00400000
+         AIF   ('&CB' EQ 'UCB3800X').EMBED                              00410000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.* Generate embedded definition                                         00450000
+.EMBED   ANOP                                                           00460000
+&LABEL   NESTCB &CB,X,&PRFX                                             00470000
+         MEXIT                                                          00480000
+.*                                                                      00490000
+.DSECT   ANOP                                                           00500000
+         AIF   (&BXA_MAC_MAPUCB).MEND                                   00510002
+&BXA_MAC_MAPUCB SETB 1                                                  00520000
+.* Set up translation from control block to macro for DCL               00530000
+         GBLC  &BXA_CB_UCB                                              00540000
+         GBLC  &BXA_CB_UCBOCR                                           00550000
+         GBLC  &BXA_CB_UCBPDCTA                                         00560000
+         GBLC  &BXA_CB_UCBUCS                                           00570000
+         GBLC  &BXA_CB_UCB3540X                                         00580000
+         GBLC  &BXA_CB_UCB3800X                                         00590000
+&BXA_CB_UCB SETC 'UCB'                                                  00600000
+&BXA_CB_UCBOCR SETC 'UCB'                                               00610000
+&BXA_CB_UCBPDCTA SETC 'UCB'                                             00620000
+&BXA_CB_UCBUCS SETC 'UCB'                                               00630000
+&BXA_CB_UCB3540X SETC 'UCB'                                             00640000
+&BXA_CB_UCB3800X SETC 'UCB'                                             00650000
+.*                                                                      00660000
+.* UCBFL6 - Device features byte                                        00670000
+UCBASUN  EQUOVR ,,b,UCBFL6                                              00680000
+UCBMDISP EQUOVR ,,b,UCBFL6                                              00690000
+UCBDBUF  EQUOVR ,,b,UCBFL6                                              00700000
+UCBIDS   EQUOVR ,,b,UCBFL6                                              00710000
+UCBSELFD EQUOVR ,,b,UCBFL6                                              00720000
+UCBSMSMM EQUOVR ,,b,UCBFL6                                              00730000
+UCBLERP  EQUOVR ,,b,UCBFL6                                              00740000
+UCBIOT   EQUOVR ,,b,UCBFL6                                              00750000
+.*                                                                      00760000
+.* UCBATI - Index to the attention table (ANTAB)                        00770000
+UCBRSV04 EQUOVR ,,b,UCBATI                                              00780000
+UCBRSV05 EQUOVR ,,b,UCBATI                                              00790000
+UCBRSV06 EQUOVR ,,b,UCBATI                                              00800000
+UCBRSV07 EQUOVR ,,b,UCBATI                                              00810000
+UCBRSV08 EQUOVR ,,b,UCBATI                                              00820000
+UCBRSV09 EQUOVR ,,b,UCBATI                                              00830000
+UCBHALI  EQUOVR ,,b,UCBATI                                              00840000
+UCBHPDV  EQUOVR ,,b,UCBATI                                              00850000
+.*                                                                      00860000
+.* UCBFLP1 - Flag byte                                                  00870000
+UCBNSRCH EQUOVR ,,b,UCBFLP1                                             00880000
+UCBSHRUP EQUOVR ,,b,UCBFLP1                                             00890000
+UCBRERP  EQUOVR ,,b,UCBFLP1                                             00900000
+UCBINHIO EQUOVR ,,b,UCBFLP1                                             00910000
+UCBSWAPF EQUOVR ,,b,UCBFLP1                                             00920000
+UCBERLOG EQUOVR ,,b,UCBFLP1                                             00930000
+UCBDYNPH EQUOVR ,,b,UCBFLP1                                             00940000
+UCBRALOC EQUOVR ,,b,UCBFLP1                                             00950000
+.*                                                                      00960000
+.* UCBFL7 - Miscellaneous usage flags                                   00970000
+UCBMASGN EQUOVR ,,b,UCBFL7                                              00980000
+UCBSSPND EQUOVR ,,b,UCBFL7                                              00990000
+UCBAUTOS EQUOVR ,,b,UCBFL7                                              01000000
+UCBNOSEL EQUOVR ,,b,UCBFL7                                              01010000
+.*                                                                      01020000
+.* UCBCSFLG - Miscellaneous flags                                       01030000
+UCBNCC3  EQUOVR ,,b,UCBCSFLG                                            01040000
+.*                                                                      01050000
+.* UCBJBNR  - Flag byte                                                 01060000
+UCBVRDEV EQUOVR ,,b,UCBJBNR                                             01070000
+UCBJES3  EQUOVR ,,b,UCBJBNR                                             01080000
+UCBDUC   EQUOVR ,,b,UCBJBNR                                             01090000
+UCBJ3DV  EQUOVR ,,b,UCBJBNR                                             01100000
+UCBOLDSM EQUOVR ,,b,UCBJBNR                                             01110000
+UCBMMSGP EQUOVR ,,b,UCBJBNR                                             01120000
+UCBDCONS EQUOVR ,,b,UCBJBNR                                             01130000
+UCBMONT  EQUOVR ,,b,UCBJBNR                                             01140000
+.*                                                                      01150000
+.* UCBFL5 - Flags                                                       01160000
+UCBDCC   EQUOVR ,,b,UCBFL5                                              01170000
+UCBAF    EQUOVR ,,b,UCBFL5                                              01180000
+UCBAMV   EQUOVR ,,b,UCBFL5                                              01190000
+UCBSMS   EQUOVR ,,b,UCBFL5                                              01200000
+UCBVSDR  EQUOVR ,,b,UCBFL5                                              01210000
+UCBENVRD EQUOVR ,,b,UCBFL5                                              01220000
+UCBNALOC EQUOVR ,,b,UCBFL5                                              01230000
+UCBALTCU EQUOVR ,,b,UCBFL5                                              01240000
+UCBCUIR  EQUOVR ,,b,UCBFL5                                              01250000
+.*                                                                      01260000
+.* UCBID - UCB identification (FF)                                      01270000
+UCBSTND  EQUOVR ,,v,UCBID                                               01280000
+UCBIDCPY EQUOVR ,,v,UCBID                                               01290000
+UCBGUCB  EQUOVR ,,v,UCBID                                               01300000
+UCBST1   EQUOVR ,,v,UCBID                                               01310000
+UCBST3   EQUOVR ,,v,UCBID                                               01320000
+.*                                                                      01330000
+.* UCBSTAT - Device status                                              01340000
+UCBONLI  EQUOVR ,,b,UCBSTAT                                             01350000
+UCBCHGS  EQUOVR ,,b,UCBSTAT                                             01360000
+UCBRESV  EQUOVR ,,b,UCBSTAT                                             01370000
+UCBUNLD  EQUOVR ,,b,UCBSTAT                                             01380000
+UCBALOC  EQUOVR ,,b,UCBSTAT                                             01390000
+UCBPRES  EQUOVR ,,b,UCBSTAT                                             01400000
+UCBSYSR  EQUOVR ,,b,UCBSTAT                                             01410000
+UCBDADI  EQUOVR ,,b,UCBSTAT                                             01420000
+.*                                                                      01430000
+.* UCBFLA - I/O supervisor flag byte A                                  01440000
+UCBDEFER EQUOVR ,,b,UCBFLA                                              01450000
+UCBNRY   EQUOVR ,,b,UCBFLA                                              01460000
+UCBNOTRD EQUOVR ,,b,UCBFLA                                              01470000
+UCBPERM  EQUOVR ,,b,UCBFLA                                              01480000
+UCBPSNS  EQUOVR ,,b,UCBFLA                                              01490000
+UCBSTRT  EQUOVR ,,b,UCBFLA                                              01500000
+UCBHALT  EQUOVR ,,b,UCBFLA                                              01510000
+UCBCLEAR EQUOVR ,,b,UCBFLA                                              01520000
+UCBBOX   EQUOVR ,,b,UCBFLA                                              01530000
+.*                                                                      01540000
+.* UCBFLB - I/O supervisor flag byte B                                  01550000
+UCBINCPT EQUOVR ,,b,UCBFLB                                              01560000
+UCBNOPTH EQUOVR ,,b,UCBFLB                                              01570000
+UCBNOCON EQUOVR ,,b,UCBFLB                                              01580000
+UCBHILVL EQUOVR ,,b,UCBFLB                                              01590000
+UCBHDET  EQUOVR ,,b,UCBFLB                                              01600000
+UCBIOSN  EQUOVR ,,b,UCBFLB                                              01610000
+.*                                                                      01620000
+.* UCBWGT - Flags                                                       01630000
+UCBIN    EQUOVR ,,b,UCBWGT                                              01640000
+UCBOUT   EQUOVR ,,b,UCBWGT                                              01650000
+UCBPUB   EQUOVR ,,b,UCBWGT                                              01660000
+UCBREW   EQUOVR ,,b,UCBWGT                                              01670000
+UCBMTPXP EQUOVR ,,b,UCBWGT                                              01680000
+UCBVORSN EQUOVR ,,b,UCBWGT                                              01690000
+UCBVHRSN EQUOVR ,,b,UCBWGT                                              01700000
+UCBVLRSN EQUOVR ,,b,UCBWGT                                              01710000
+.*                                                                      01720000
+.* UCBTBYT1 - Model bits                                                01730000
+UCB1FEA0 EQUOVR ,,b,UCBTBYT1                                            01740000
+UCB1FEA1 EQUOVR ,,b,UCBTBYT1                                            01750000
+UCB1FEA2 EQUOVR ,,b,UCBTBYT1                                            01760000
+UCB1FEA3 EQUOVR ,,b,UCBTBYT1                                            01770000
+UCB1FEA4 EQUOVR ,,b,UCBTBYT1                                            01780000
+UCB1FEA5 EQUOVR ,,b,UCBTBYT1                                            01790000
+UCB1FEA6 EQUOVR ,,b,UCBTBYT1                                            01800000
+UCB1FEA7 EQUOVR ,,b,UCBTBYT1                                            01810000
+.*                                                                      01820000
+.* UCBTBYT2 - Option flags                                              01830000
+UCB2OPT0 EQUOVR ,,b,UCBTBYT2                                            01840000
+UCB2OPT1 EQUOVR ,,b,UCBTBYT2                                            01850000
+UCB2OPT2 EQUOVR ,,b,UCBTBYT2                                            01860000
+UCB2OPT3 EQUOVR ,,b,UCBTBYT2                                            01870000
+UCB2OPT4 EQUOVR ,,b,UCBTBYT2                                            01880000
+UCB2OPT5 EQUOVR ,,b,UCBTBYT2                                            01890000
+UCB2OPT6 EQUOVR ,,b,UCBTBYT2                                            01900000
+UCBVLPWR EQUOVR ,,b,UCBTBYT2                                            01910000
+UCB2OPT7 EQUOVR ,,b,UCBTBYT2                                            01920000
+UCBDVPWR EQUOVR ,,b,UCBTBYT2                                            01930000
+.*                                                                      01940000
+.* UCBTBYT3 - Class bits                                                01950000
+UCB3TAPE EQUOVR ,,b,UCBTBYT3                                            01960000
+UCB3COMM EQUOVR ,,b,UCBTBYT3                                            01970000
+UCB3CTC  EQUOVR ,,b,UCBTBYT3                                            01980000
+UCB3DACC EQUOVR ,,b,UCBTBYT3                                            01990000
+UCB3DISP EQUOVR ,,b,UCBTBYT3                                            02000000
+UCB3UREC EQUOVR ,,b,UCBTBYT3                                            02010000
+UCB3CHAR EQUOVR ,,b,UCBTBYT3                                            02020000
+UCBRSV10 EQUOVR ,,b,UCBTBYT3                                            02030000
+UCBRSV11 EQUOVR ,,b,UCBTBYT3                                            02040000
+.*                                                                      02050000
+.* UCBFLC - I/O supervisor flag byte C                                  02060000
+UCBATTP  EQUOVR ,,b,UCBFLC                                              02070000
+UCBITFP  EQUOVR ,,b,UCBFLC                                              02080000
+UCBUDE   EQUOVR ,,b,UCBFLC                                              02090000
+UCBIVRS  EQUOVR ,,b,UCBFLC                                              02100000
+UCBIVRR  EQUOVR ,,b,UCBFLC                                              02110000
+UCBDDRSW EQUOVR ,,b,UCBFLC                                              02120000
+.*                                                                      02130000
+.* UCBSTAB - Volume status                                              02140000
+UCBBSVL  EQUOVR ,,b,UCBSTAB                                             02150000
+UCBDVSHR EQUOVR ,,b,UCBSTAB                                             02160000
+UCBPGFL  EQUOVR ,,b,UCBSTAB                                             02170000
+UCBPRSRS EQUOVR ,,b,UCBSTAB                                             02180000
+UCBBALB  EQUOVR ,,b,UCBSTAB                                             02190000
+UCBBPRV  EQUOVR ,,b,UCBSTAB                                             02200000
+UCBBPUB  EQUOVR ,,b,UCBSTAB                                             02210000
+UCBBSTR  EQUOVR ,,b,UCBSTAB                                             02220000
+UCBSHAR  EQUOVR ,,b,UCBSTAB                                             02230000
+UCBBNUL  EQUOVR ,,b,UCBSTAB                                             02240000
+.*                                                                      02250000
+.* UCBDMCT - Volume use byte                                            02260000
+UCBMOUNT EQUOVR ,,b,UCBDMCT                                             02270000
+UCBDMC   EQUOVR ,,b,UCBDMCT                                             02280000
+.*                                                                      02290000
+.* UCBFL4 - Direct access flag byte                                     02300000
+UCBMDSE1 EQUOVR ,,b,UCBFL4             * First seen in z/OS V1R4        02301000
+UCBWDAV  EQUOVR ,,b,UCBFL4                                              02310000
+.* UCBATTN  EQUOVR ,,b,UCBFL4          * Last seen in OS/390 V2R6       02320000
+.* UCBHOLD  EQUOVR ,,b,UCBFL4          * Last seen in OS/390 V2R6       02330000
+.* UCBMAT   EQUOVR ,,b,UCBFL4          * Last seen in OS/390 V2R6       02340000
+UCBDPAVB EQUOVR ,,b,UCBFL4             * First seen in z/OS V1R4        02343000
+UCBDPAVA EQUOVR ,,b,UCBFL4             * First seen in z/OS V1R4        02344000
+UCBSDSE1 EQUOVR ,,b,UCBFL4             * First seen in z/OS V1R4        02345000
+UCBDCMBU EQUOVR ,,b,UCBFL4             * First seen in z/OS V1R4        02346000
+.*                                                                      02350000
+.* UCBTBYT2 flags                                                       02360000
+UCBRR    EQUOVR ,,b,UCBTBYT2                                            02370000
+UCBRPS   EQUOVR ,,b,UCBTBYT2                                            02380000
+UCBRVDEV EQUOVR ,,b,UCBTBYT2                                            02390000
+.*                                                                      02400000
+.* UCBTFL2 - Flag byte                                                  02410000
+UCBTXMS  EQUOVR ,,b,UCBTFL2                                             02420000
+UCBTPSF  EQUOVR ,,b,UCBTFL2                                             02430000
+UCBTVCMP EQUOVR ,,b,UCBTFL2                                             02440000
+UCBTLPOS EQUOVR ,,b,UCBTFL2                                             02450000
+.*                                                                      02460000
+.* UCBTFL1 - Flag byte                                                  02470000
+UCBNLTP  EQUOVR ,,b,UCBTFL1                                             02480000
+UCBNSLTP EQUOVR ,,b,UCBTFL1                                             02490000
+UCBDQDSP EQUOVR ,,b,UCBTFL1                                             02500000
+UCBTFL1S EQUOVR ,,b,UCBTFL1                                             02510000
+UCBRV005 EQUOVR ,,b,UCBTFL1                                             02520000
+UCBCSL   EQUOVR ,,b,UCBTFL1                                             02530000
+UCBCSLAC EQUOVR ,,b,UCBTFL1                                             02540000
+UCBLKAHP EQUOVR ,,b,UCBTFL1                                             02550000
+UCBBLP   EQUOVR ,,b,UCBTFL1                                             02560000
+.*                                                                      02570000
+.* UCBVOPT - VOLUME STATISTICS OPTION BITS                              02580000
+UCBESV   EQUOVR ,,b,UCBVOPT                                             02590000
+UCBEVA   EQUOVR ,,b,UCBVOPT                                             02600000
+UCBESVC  EQUOVR ,,b,UCBVOPT                                             02610000
+UCBERPC  EQUOVR ,,b,UCBVOPT                                             02620000
+UCBESVE  EQUOVR ,,b,UCBVOPT                                             02630000
+UCBPERR  EQUOVR ,,b,UCBVOPT                                             02640000
+UCBRSV21 EQUOVR ,,b,UCBVOPT                                             02650000
+UCBRSV22 EQUOVR ,,b,UCBVOPT                                             02660000
+.*                                                                      02670000
+.* UCBMTFL1 - MSGDISP dismount request                                  02680000
+UCBMTDSM EQUOVR ,,b,UCBMTFL1                                            02690000
+UCBMTKEP EQUOVR ,,b,UCBMTFL1                                            02700000
+UCBMTRET EQUOVR ,,b,UCBMTFL1                                            02710000
+.*                                                                      02720000
+.* UCBTBYT1 flags                                                       02730000
+UCBD1600 EQUOVR ,,b,UCBTBYT1                                            02740000
+UCBD6250 EQUOVR ,,b,UCBTBYT1                                            02750000
+.*                                                                      02760000
+.* UCBTBYT2 flags                                                       02770000
+UCBDUDN1 EQUOVR ,,b,UCBTBYT2                                            02780000
+UCBDUDN2 EQUOVR ,,b,UCBTBYT2                                            02790000
+UCBRWTAU EQUOVR ,,b,UCBTBYT2                                            02800000
+UCBCOMPA EQUOVR ,,b,UCBTBYT2                                            02810000
+.*                                                                      02820000
+.* UCBTBYT4 (UCBUNTYP) values                                           02830000
+UCB3400  EQUOVR ,,v,UCBTBYT4                                            02840000
+UCB3423  EQUOVR ,,v,UCBTBYT4                                            02850000
+UCB3480  EQUOVR ,,v,UCBTBYT4                                            02860000
+UCB3490  EQUOVR ,,v,UCBTBYT4                                            02870000
+UCB3591  EQUOVR ,,v,UCBTBYT4                                            02880000
+.*                                                                      02890000
+.* UCBDKBYT - Flag byte                                                 02900000
+UCBDKAMX EQUOVR ,,b,UCBDKBYT                                            02910000
+UCBVLVER EQUOVR ,,b,UCBDKBYT                                            02920000
+UCBRV067 EQUOVR ,,b,UCBDKBYT                                            02930000
+UCBRV068 EQUOVR ,,b,UCBDKBYT                                            02940000
+UCBRV069 EQUOVR ,,b,UCBDKBYT                                            02950000
+UCBRV070 EQUOVR ,,b,UCBDKBYT                                            02960000
+UCBRV071 EQUOVR ,,b,UCBDKBYT                                            02970000
+UCBRV072 EQUOVR ,,b,UCBDKBYT                                            02980000
+.*                                                                      02990000
+.* UCBOPTNS - Optional features installed on                            03000000
+UCBMDLBT EQUOVR ,,b,UCBOPTNS                                            03010000
+UCBRV055 EQUOVR ,,b,UCBOPTNS                                            03020000
+UCBRV056 EQUOVR ,,b,UCBOPTNS                                            03030000
+UCBBRSTR EQUOVR ,,b,UCBOPTNS                                            03040000
+UCBRV083 EQUOVR ,,b,UCBOPTNS                                            03050000
+.*                                                                      03060000
+.* UCBGRAFS - Graphic character flag byte                               03070000
+UCBRV046 EQUOVR ,,b,UCBGRAFS                                            03080000
+UCBRV047 EQUOVR ,,b,UCBGRAFS                                            03090000
+UCBRV048 EQUOVR ,,b,UCBGRAFS                                            03100000
+UCBRV049 EQUOVR ,,b,UCBGRAFS                                            03110000
+UCBGRAF0 EQUOVR ,,b,UCBGRAFS                                            03120000
+UCBGRAF1 EQUOVR ,,b,UCBGRAFS                                            03130000
+UCBGRAF2 EQUOVR ,,b,UCBGRAFS                                            03140000
+UCBGRAF3 EQUOVR ,,b,UCBGRAFS                                            03150000
+.*                                                                      03160000
+.* UCBACTIV - Active features                                           03170000
+UCBRV057 EQUOVR ,,b,UCBACTIV                                            03180000
+UCBRV058 EQUOVR ,,b,UCBACTIV                                            03190000
+UCBRV059 EQUOVR ,,b,UCBACTIV                                            03200000
+UCBRV060 EQUOVR ,,b,UCBACTIV                                            03210000
+UCBRV061 EQUOVR ,,b,UCBACTIV                                            03220000
+UCBRV062 EQUOVR ,,b,UCBACTIV                                            03230000
+UCBRV063 EQUOVR ,,b,UCBACTIV                                            03240000
+UCBBRSTA EQUOVR ,,b,UCBACTIV                                            03250000
+.*                                                                      03260000
+.* UCBUCSOP - Format of UCS image in buffer                             03270000
+UCBUCSO1 EQUOVR ,,b,UCBUCSOP                                            03280000
+UCBUCSO2 EQUOVR ,,b,UCBUCSOP                                            03290000
+UCBRSV39 EQUOVR ,,b,UCBUCSOP                                            03300000
+UCBRSV40 EQUOVR ,,b,UCBUCSOP                                            03310000
+UCBRSV41 EQUOVR ,,b,UCBUCSOP                                            03320000
+UCBRSV42 EQUOVR ,,b,UCBUCSOP                                            03330000
+UCBRSV43 EQUOVR ,,b,UCBUCSOP                                            03340000
+UCBUCSPE EQUOVR ,,b,UCBUCSOP                                            03350000
+.*                                                                      03360000
+.* UCBFCBOP - Reserved (1403) or FCB options                            03370000
+UCBFCBO1 EQUOVR ,,b,UCBFCBOP                                            03380000
+UCBRSV44 EQUOVR ,,b,UCBFCBOP                                            03390000
+UCBRSV45 EQUOVR ,,b,UCBFCBOP                                            03400000
+UCBRSV46 EQUOVR ,,b,UCBFCBOP                                            03410000
+UCBFCBPS EQUOVR ,,b,UCBFCBOP                                            03420000
+UCBRSV49 EQUOVR ,,b,UCBFCBOP                                            03430000
+UCBFCBPE EQUOVR ,,b,UCBFCBOP                                            03440000
+.*                                                                      03450000
+.* UCBUNTYP (UCBTBYT4) Flag Byte                                        03460000
+UCBAFP1  EQUOVR ,,v,UCBUNTYP                                            03470000
+UCBDSM   EQUOVR ,,v,UCBUNTYP                                            03480000
+UCB3211  EQUOVR ,,v,UCBUNTYP                                            03490000
+UCB3263  EQUOVR ,,v,UCBUNTYP                                            03500000
+UCB3800  EQUOVR ,,v,UCBUNTYP                                            03510000
+UCB3838  EQUOVR ,,v,UCBUNTYP                                            03520000
+UCB3895  EQUOVR ,,v,UCBUNTYP                                            03530000
+UCB4245  EQUOVR ,,v,UCBUNTYP                                            03540000
+UCB4248  EQUOVR ,,v,UCBUNTYP                                            03550000
+.*                                                                      03560000
+.* UCBAOF1 - First byte of UCBAOF                                       03570000
+UCBOFMCR EQUOVR ,,b,UCBAOF1                                             03580000
+UCBOFSP  EQUOVR ,,b,UCBAOF1                                             03590000
+UCBOFNL  EQUOVR ,,b,UCBAOF1                                             03600000
+UCBOFPTR EQUOVR ,,b,UCBAOF1                                             03610000
+UCBRSV65 EQUOVR ,,b,UCBAOF1                                             03620000
+UCBRSV66 EQUOVR ,,b,UCBAOF1                                             03630000
+UCBRSV67 EQUOVR ,,b,UCBAOF1                                             03640000
+UCBRSV68 EQUOVR ,,b,UCBAOF1                                             03650000
+.*                                                                      03660000
+.* UCBAOF2 - Second byte of UCBAOF                                      03670000
+UCBRSV69 EQUOVR ,,b,UCBAOF2                                             03680000
+UCBRSV70 EQUOVR ,,b,UCBAOF2                                             03690000
+UCBRSV71 EQUOVR ,,b,UCBAOF2                                             03700000
+UCBRSV72 EQUOVR ,,b,UCBAOF2                                             03710000
+UCBRSV73 EQUOVR ,,b,UCBAOF2                                             03720000
+UCBRSV74 EQUOVR ,,b,UCBAOF2                                             03730000
+UCBRSV75 EQUOVR ,,b,UCBAOF2                                             03740000
+UCBRSV76 EQUOVR ,,b,UCBAOF2                                             03750000
+.*                                                                      03760000
+.* UCBGCB - control byte.                                               03770000
+UCBOLTEP EQUOVR ,,b,UCBGCB                                              03780000
+UCBRSV77 EQUOVR ,,b,UCBGCB                                              03790000
+UCBRSV78 EQUOVR ,,b,UCBGCB                                              03800000
+UCBRSV79 EQUOVR ,,b,UCBGCB                                              03810000
+UCBRTIAC EQUOVR ,,b,UCBGCB                                              03820000
+UCBRIPND EQUOVR ,,b,UCBGCB                                              03830000
+UCBSKPFG EQUOVR ,,b,UCBGCB                                              03840000
+UCBATRCD EQUOVR ,,b,UCBGCB                                              03850000
+.*                                                                      03860000
+.* UCBGRAF - Graphics status flags (BTAM)                               03870000
+UCBOIP   EQUOVR ,,b,UCBGRAF                                             03880000
+UCBDRO   EQUOVR ,,b,UCBGRAF                                             03890000
+UCBDRNO  EQUOVR ,,b,UCBGRAF                                             03900000
+UCBBTAM  EQUOVR ,,b,UCBGRAF                                             03910000
+UCBUPM   EQUOVR ,,b,UCBGRAF                                             03920000
+UCBRPND  EQUOVR ,,b,UCBGRAF                                             03930000
+UCBDWNR  EQUOVR ,,b,UCBGRAF                                             03940000
+UCBRV039 EQUOVR ,,b,UCBGRAF                                             03950000
+.*                                                                      03960000
+.* UCBTBYT4 Flag Byte                                                   03970000
+UCB3791L  EQUOVR ,,v,UCBTBYT4                                           03980000
+UCB42AD1  EQUOVR ,,v,UCBTBYT4                                           03990000
+.*                                                                      04000000
+.* UCBCTCF1 - Channel-to-channel (CTC) device flag                      04010000
+UCBCTC80 EQUOVR ,,b,UCBCTCF1                                            04020000
+UCBRV076 EQUOVR ,,b,UCBCTCF1                                            04030000
+UCBRV077 EQUOVR ,,b,UCBCTCF1                                            04040000
+UCBRV078 EQUOVR ,,b,UCBCTCF1                                            04050000
+UCBRV079 EQUOVR ,,b,UCBCTCF1                                            04060000
+UCBRV080 EQUOVR ,,b,UCBCTCF1                                            04070000
+UCBRV081 EQUOVR ,,b,UCBCTCF1                                            04080000
+UCBRV082 EQUOVR ,,b,UCBCTCF1                                            04090000
+.*                                                                      04100000
+.* UCBCTCF2 - IOS CTC Flags, serialized via                             04110000
+UCBCCLAW EQUOVR ,,b,UCBCTCF2                                            04120000
+UCBCABYP EQUOVR ,,b,UCBCTCF2                                            04130000
+.*                                                                      04140000
+.* UCBTBYT4 mapping                                                     04150000
+UCBPCTC  EQUOVR ,,v,UCBTBYT4                                            04160000
+UCBSCTC  EQUOVR ,,v,UCBTBYT4                                            04170000
+UCBBCTC  EQUOVR ,,v,UCBTBYT4                                            04180000
+UCBRS6K  EQUOVR ,,v,UCBTBYT4                                            04190000
+UCB3172  EQUOVR ,,v,UCBTBYT4                                            04200000
+UCBOSA   EQUOVR ,,v,UCBTBYT4                                            04210000
+UCBOSAD  EQUOVR ,,v,UCBTBYT4                                            04220000
+UCBOSAF  EQUOVR ,,v,UCBTBYT4                                            04230000
+.*                                                                      04240000
+         MNOTE *,'Including IEFUCBOB mapping macro'                     04250000
+         IEFUCBOB SSMD=YES,            * Include prefix area mapping   *04260000
+               LIST=YES                * With unchanged list-options    04270000
+         EQUOVR *END                                                    04280000
+*                                                                       04290000
+UCB      DSECT ,                       * Reset to UCB                   04300000
+         ORG   ,                       *                                04310000
+UCB_LEN  EQU   *-UCB                   * Length of UCB                  04320000
+*                                                                       04330000
+UCBOCR   DSECT ,                       * Reset to UCB OCR extension     04340000
+         ORG   ,                       *                                04350000
+UCBOCR_LEN EQU *-UCBOCR                * Length of UCBOCR               04360000
+*                                                                       04370000
+UCB3540X DSECT ,                       * Reset to UCB 3540 extension    04380000
+         ORG   ,                       *                                04390000
+UCB3540X_LEN EQU *-UCB3540X            * Length of UCB3540X             04400000
+*                                                                       04410000
+UCB3800X DSECT ,                       * Reset to UCB 3800 extension    04420000
+         ORG   ,                       *                                04430000
+UCB3800_LEN EQU *-UCB3800X             * Length of UCB3800X             04440000
+*                                                                       04450000
+UCBUCS   DSECT ,                       * Reset to UCB UCS               04460000
+         ORG   ,                       *                                04470000
+UCBUCS_LEN EQU *-UCBUCS                * Length of UCBUCS               04480000
+*                                                                       04490000
+UCBPDCTA DSECT ,                       * Reset to UCB PDCTA             04500000
+         ORG   ,                       *                                04510000
+UCBPDCTA_LEN EQU *-UCBPDCTA            * Length of UCBPDCTA             04520000
+.*                                                                      04530000
+.* Return to our original CSECT name                                    04540000
+&SYSECT  &SYSSTYP                                                       04550000
+.*                                                                      04560000
+.MEND    MEND                                                           04580002

@@ -1,0 +1,227 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Address Space Control Block                      00180000
+.*                                                                      00190000
+&LABEL   MAPASCB &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPASCB                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPASCB        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'ASCB').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPASCB).MEND                                  00460002
+&BXA_MAC_MAPASCB SETB 1                                                 00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_ASCB                                             00490000
+&BXA_CB_ASCB SETC 'ASCB'                                                00500000
+.*                                                                      00510000
+.* Flag bit overrides                                                   00520000
+ASCBURRQ EQUOVR ,,b,ASCBSAWQ                                            00530000
+ASCBS3S  EQUOVR ,,b,ASCBLL5                                             00540000
+.*                                                                      00550000
+.* ASCBRSMF - RSM ADDRESS SPACE FLAGS                                   00560000
+ASCB2LPU EQUOVR ,,b,ASCBRSMF                                            00570000
+ASCB1LPU EQUOVR ,,b,ASCBRSMF                                            00580000
+ASCBN2LP EQUOVR ,,b,ASCBRSMF                                            00590000
+ASCBVEQR EQUOVR ,,b,ASCBRSMF                                            00600000
+.*                                                                      00610000
+.* ASCBRCTF - FLAGS FOR RCT SERIALIZED BY COMPARE                       00620000
+ASCBTMNO EQUOVR ,,b,ASCBRCTF                                            00630000
+ASCBFRS  EQUOVR ,,b,ASCBRCTF                                            00640000
+ASCBFQU  EQUOVR ,,b,ASCBRCTF                                            00650000
+ASCBJSTE EQUOVR ,,b,ASCBRCTF                                            00660000
+ASCBWAIT EQUOVR ,,b,ASCBRCTF                                            00670000
+ASCBOUT  EQUOVR ,,b,ASCBRCTF                                            00680000
+ASCBTMLW EQUOVR ,,b,ASCBRCTF                                            00690000
+ASCBTOFF EQUOVR ,,b,ASCBRCTF                                            00700000
+.*                                                                      00710000
+.* ASCBFLG1 - FLAG FIELD                                                00720000
+ASCBLSAS EQUOVR ,,b,ASCBFLG1                                            00730000
+ASCBDSTK EQUOVR ,,b,ASCBFLG1                                            00740000
+ASCBDSTZ EQUOVR ,,b,ASCBFLG1                                            00750000
+ASCBTERM EQUOVR ,,b,ASCBFLG1                                            00760000
+ASCBABNT EQUOVR ,,b,ASCBFLG1                                            00770000
+ASCBMEMP EQUOVR ,,b,ASCBFLG1                                            00780000
+.*                                                                      00790000
+.* ASCBDSP1 - NONDISPATCHABILITY FLAGS.                                 00800000
+ASCBSSND EQUOVR ,,b,ASCBDSP1                                            00810000
+ASCBFAIL EQUOVR ,,b,ASCBDSP1                                            00820000
+ASCBSNQS EQUOVR ,,b,ASCBDSP1                                            00830000
+ASCBSSSS EQUOVR ,,b,ASCBDSP1                                            00840000
+ASCBSTND EQUOVR ,,b,ASCBDSP1                                            00850000
+ASCBUWND EQUOVR ,,b,ASCBDSP1                                            00860000
+ASCBNOQ  EQUOVR ,,b,ASCBDSP1                                            00870000
+.*                                                                      00880000
+.* ASCBFLG2 - FLAG BYTE.                                                00890000
+ASCBXMPT EQUOVR ,,b,ASCBFLG2                                            00900000
+ASCBPXMT EQUOVR ,,b,ASCBFLG2                                            00910000
+ASCBCEXT EQUOVR ,,b,ASCBFLG2                                            00920000
+ASCBS2S  EQUOVR ,,b,ASCBFLG2                                            00930000
+ASCBNCML EQUOVR ,,b,ASCBFLG2                                            00940000
+ASCBNOMT EQUOVR ,,b,ASCBFLG2                                            00950000
+ASCBNOMD EQUOVR ,,b,ASCBFLG2                                            00960000
+.*                                                                      00970000
+.* ASCBLSWQ - ADDRESS SPACE LOCAL LOCK WEB SUSPEND QUEUE                00980000
+ASCBS3NL EQUOVR ,,b,ASCBLSWQ                                            00990000
+ASCBLTCL EQUOVR ,,b,ASCBLSWQ+3                                          01000000
+.*                                                                      01010000
+.* ASCBLEVL - LEVEL NUMBER OF ASCB                                      01020000
+ASCBVS00 EQUOVR ,,v,ASCBLEVL                                            01030000
+ASCBVS01 EQUOVR ,,v,ASCBLEVL                                            01040000
+ASCBVS02 EQUOVR ,,v,ASCBLEVL                                            01050000
+ASCBVS03 EQUOVR ,,v,ASCBLEVL                                            01060000
+ASCBVERS EQUOVR ,,v,ASCBLEVL                                            01070000
+.*                                                                      01080000
+.* ASCBFL2A - FLAG BYTE.                                                01090000
+ASCBNOPR EQUOVR ,,b,ASCBFL2A                                            01100000
+.*                                                                      01110000
+.* ASCBSRQ1 - FIRST BYTE OF ASCBSRQ                                     01120000
+ASCBDSG4 EQUOVR ,,b,ASCBSRQ1                                            01130000
+ASCBDFLT EQUOVR ,,b,ASCBSRQ1                                            01140000
+.*                                                                      01150000
+.* ASCBSRQ2 - SECOND BYTE OF ASCBSRQ                                    01160000
+ASCBDSG3 EQUOVR ,,b,ASCBSRQ2                                            01170000
+ASCBSRM1 EQUOVR ,,b,ASCBSRQ2                                            01180000
+ASCBQVER EQUOVR ,,b,ASCBSRQ2                                            01190000
+.*                                                                      01200000
+.* ASCBSRQ3 - THIRD BYTE OF ASCBSRQ                                     01210000
+ASCBDSG2 EQUOVR ,,b,ASCBSRQ3                                            01220000
+ASCBRCTI EQUOVR ,,b,ASCBSRQ3                                            01230000
+ASCBTCBV EQUOVR ,,b,ASCBSRQ3                                            01240000
+ASCBACHA EQUOVR ,,b,ASCBSRQ3                                            01250000
+ASCBMTER EQUOVR ,,b,ASCBSRQ3                                            01260000
+ASCBMINI EQUOVR ,,b,ASCBSRQ3                                            01270000
+ASCBCBVE EQUOVR ,,b,ASCBSRQ3                                            01280000
+.*                                                                      01290000
+.* ASCBSRQ4 - FOURTH BYTE OF ASCBSRQ                                    01300000
+ASCBDSG1 EQUOVR ,,b,ASCBSRQ4                                            01310000
+ASCBDETA EQUOVR ,,b,ASCBSRQ4                                            01320000
+ASCBATTA EQUOVR ,,b,ASCBSRQ4                                            01330000
+ASCBRTM2 EQUOVR ,,b,ASCBSRQ4                                            01340000
+ASCBRTM1 EQUOVR ,,b,ASCBSRQ4                                            01350000
+ASCBCHAP EQUOVR ,,b,ASCBSRQ4                                            01360000
+ASCBSTAT EQUOVR ,,b,ASCBSRQ4                                            01370000
+ASCBPURD EQUOVR ,,b,ASCBSRQ4                                            01380000
+.*                                                                      01390000
+.* ASCBSRBM - MODEL PSW BYTE 0 USED BY SRB DISPATCHER                   01400000
+ASCBPER  EQUOVR ,,b,ASCBSRBM                                            01410000
+.*                                                                      01420000
+.* ASCBSSO4 - SPACE SWITCH EVENT OWNER MASK BYTE 4.                     01430000
+ASCBSSSP EQUOVR ,,b,ASCBSSO4                                            01440000
+ASCBSSJS EQUOVR ,,b,ASCBSSO4                                            01450000
+.*                                                                      01460000
+.* ASCBCS1 - FIRST BYTE OF COMPARE AND SWAP FLAGS.                      01470000
+ASCBXMET EQUOVR ,,b,ASCBCS1                                             01480000
+ASCBXMEC EQUOVR ,,b,ASCBCS1                                             01490000
+ASCBXMPA EQUOVR ,,b,ASCBCS1                                             01500000
+ASCBXMLK EQUOVR ,,b,ASCBCS1                                             01510000
+ASCBPERS EQUOVR ,,b,ASCBCS1                                             01520000
+ASCBDTER EQUOVR ,,b,ASCBCS1                                             01530000
+ASCBPERO EQUOVR ,,b,ASCBCS1                                             01540000
+ASCBSWOP EQUOVR ,,b,ASCBCS1                                             01550000
+.*                                                                      01560000
+.* ASCBCS2 - SECOND BYTE OF COMPARE AND SWAP FLAGS.                     01570000
+ASCBSAS  EQUOVR ,,b,ASCBCS2                                             01580000
+.*                                                                      01590000
+.* ASCBLL1 - FIRST BYTE OF FLAGS.                                       01600000
+ASCBSSPC EQUOVR ,,b,ASCBLL1                                             01610000
+.*                                                                      01620000
+.* ASCBLL4 - FOURTH BYTE OF FLAGS.                                      01630000
+ASCBTYP1 EQUOVR ,,b,ASCBLL4                                             01640000
+.*                                                                      01650000
+.* BYTE 0 OF ASCBGQIR                                                   01660000
+ASCBGQAB EQUOVR ,,b,ASCBGQIR                                            01670000
+.*                                                                      01680000
+.* ASCBGQI3 - BYTE 3 OF ASCBGQIR                                        01690000
+ASCBGQDS EQUOVR ,,b,ASCBGQI3                                            01700000
+.*                                                                      01710000
+         MNOTE *,'Including IHAASCB mapping macro'                      01720000
+         IHAASCB DSECT=YES,            * Generate ASCB                 *01730000
+               LIST=YES                * with unchanged PRINT option    01740000
+         EQUOVR *END                                                    01750000
+*                                                                       01760000
+ASCB     DSECT ,                       * Reset to ASCB DSECT            01770000
+         ORG                                                            01780000
+ASCB_LEN EQU   *-ASCB                  * Length of ASCB                 01790000
+.*                                                                      01800000
+.* Return to our original CSECT name                                    01810000
+&SYSECT  &SYSSTYP                                                       01820000
+.*                                                                      01830000
+.MEND    MEND                                                           01850002

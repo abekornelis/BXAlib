@@ -1,0 +1,116 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro creates the DROP_REG macro                                00180000
+.*                                                                      00190000
+         DROP0 ,                       *                                00200000
+.*                                                                      00210000
+.* Declare variables                                                    00220000
+         GBLB  &BXA_DROP               * Macro expanded before?         00230000
+.*                                                                      00240000
+.* Include DROP_REG on first invocation                                 00250000
+         AIF   (&BXA_DROP).MEND                                         00260001
+&BXA_DROP SETB 1                                                        00270000
+         PUSH  PRINT,NOPRINT                                            00280000
+         PRINT OFF,NOPRINT                                              00290000
+.*                                                                      00300000
+.* Following macro removes a single entry from the                      00310000
+.* &BXA_USELBL, &BXA_USEREG, and &BXA_USEFLD tables                     00320000
+         MACRO                                                          00330000
+         DROP_REG &LAB,&NDX,&I=0                                        00340000
+.*                                                                      00350000
+.* &LAB is label to search/remove                                       00360000
+.* &NDX is register index to search/remove                              00370000
+.* &I   is index in BXA_USE... tables                                   00380000
+.* Returncode will be set as follows:                                   00390000
+.* 0 - all information removed, no register USE                         00400000
+.* 4 - information removed for a register USE                           00410000
+.* 8 - no found: no information removed                                 00420000
+.*                                                                      00430000
+         GBLC  &BXA_USELBL(50)         * Used labels ...                00440000
+         GBLA  &BXA_USEREG(50)         *   and associated registers     00450000
+         GBLC  &BXA_USEFLD(50)         *   and associated base fields   00460000
+         GBLA  &BXA_USENDX0(5)         * Low valid pointers             00470000
+         GBLA  &BXA_USENDX1(5)         * High valid pointers            00480000
+         GBLA  &BXA_USENDX             * Pointer for USENDX0/USENDX1    00490000
+         GBLA  &BXA_RC                 * returncode                     00500000
+         LCLA  &N                      * Index for BXA_USE...           00510000
+         LCLA  &R                      * Register index value           00520000
+         LCLC  &REG                    * Register                       00530000
+.*                                                                      00540000
+.* If index not specified: find entry for register specified            00550000
+.* Skip any entry for USING PSA,R0 (doesnt use reg & cannot be dropped) 00560000
+&N       SETA  &I                                                       00570000
+         AIF   (&N GT 0).LOOP1OK                                        00580000
+.LOOP1   ANOP  ,                                                        00590000
+&N       SETA  &N+1                                                     00600000
+         AIF   (&N GT &BXA_USENDX1(&BXA_USENDX)).LOOP1NF                00610000
+         AIF   ('&BXA_USELBL(&N)' NE '&LAB').LOOP1                      00620000
+         AIF   (&BXA_USEREG(&N) NE &NDX).LOOP1                          00630000
+         AIF   (&NDX EQ 1 AND '&BXA_USEFLD(&N)' EQ 'PSA').LOOP1         00640000
+         AGO   .LOOP1OK                                                 00650000
+.LOOP1NF ANOP                                                           00660000
+&N       SETA  &NDX-1                  * Obtain register number         00670000
+&REG     SETC  'R&N'                                                    00680000
+         MNOTE 8,'No unlabeled USING active for &REG'                   00690000
+&BXA_RC  SETA  8                                                        00700000
+         MEXIT                                                          00710000
+.*                                                                      00720000
+.LOOP1OK ANOP  ,                       * &N now points removable entry  00730000
+.* Determine returncode value before removing entry: 0 or 4             00740000
+&BXA_RC  SETA  0                       * Found entry: rc=0              00750000
+         AIF   ('&BXA_USEFLD(&N)' NE '').RCOK * Except for:             00760000
+&BXA_RC  SETA  4                       * Register USE: rc=4             00770000
+.RCOK    ANOP                                                           00780000
+.* Overwrite entry with current last in table, then remove last         00790000
+&R       SETA  &BXA_USENDX1(&BXA_USENDX) * Point last entry             00800000
+         AIF   (&N EQ &R).NOCOPY       * Copy to self not useful        00810000
+&BXA_USELBL(&N) SETC '&BXA_USELBL(&R)' * Copy label                     00820000
+&BXA_USEREG(&N) SETA &BXA_USEREG(&R)   * Copy register                  00830000
+&BXA_USEFLD(&N) SETC '&BXA_USEFLD(&R)' * Copy base field/location       00840000
+.NOCOPY  ANOP  ,                       * Copy done                      00850000
+&BXA_USENDX1(&BXA_USENDX) SETA &R-1    * Decrement last valid           00860000
+.*                                                                      00870000
+.MEND    MEND                                                           00880001
+         POP   PRINT,NOPRINT                                            00890000
+.*                                                                      00900000
+.MEND    MEND                                                           00920001

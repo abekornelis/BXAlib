@@ -1,0 +1,191 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro handles the stack of EQU modifications for use by the     00180000
+.* EQU macro, which replaces the assembler's EQU instruction            00190000
+.*                                                                      00200000
+&LABEL   EQUOVR &VALUE,                * Value to be assigned          *00210000
+               &LEN,                   * Length attribute              *00220000
+               &TYPE,                  * Type attribute                *00230000
+               &LOC                    * Location                       00240000
+.*                                                                      00250000
+.* &LABEL mandatory, except when &VALUE=*END                            00260000
+.* &VALUE specifies the value to be assigned to &LABEL.                 00270000
+.*        *END cancels all outstanding EQUOVR requests                  00280000
+.*        *SUPPRESS suppresses the EQU of &LABEL                        00290000
+.*        *NEWNAME changes the EQU for &LABEL into one for &LEN,        00300000
+.*              i.e. Specify *NEWNAME,newname                           00310000
+.*        Other values override the EQU-value with the same label       00320000
+.* &LEN   specifies an explicit length attribute                        00330000
+.* &TYPE  specifies an explicit type attribute                          00340000
+.*        Assigned types are documented in the EQU macro                00350000
+.* &LOC   Valid only if &TYPE=C'b' or C'v'. Specifies a relocatable     00360000
+.*        expression, which resolves to the location of the byte for    00370000
+.*        which the override specifies a mask, bit pattern, or value.   00380000
+.*                                                                      00390000
+.********************************************************************** 00391001
+.*                                                                      00392001
+.*       IMPORTANT NOTICE                                               00393001
+.*       ========= ======                                               00394001
+.*                                                                      00395001
+.* Code below checks whether 'USER' accepted the terms and conditions   00396001
+.* of the license for the BXA macro library. This code is to be treated 00397001
+.* as part of the Copyright Notice and therefore may not be changed     00398001
+.* or disabled in any way.                                              00399001
+.*                                                                      00399101
+.********************************************************************** 00399201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00399301
+         CHKLIC EQUOVR                 * Check license acceptance       00399401
+         AIF   (&BXA_RC NE 0).MEND                                      00399502
+.********************************************************************** 00399601
+.*                                                                      00399701
+.* End of special code that is part of the Copyright Notice             00399801
+.*                                                                      00399901
+.********************************************************************** 00400001
+.*                                                                      00400101
+.* Declare variables                                                    00401000
+         GBLA  &BXA_EQUOVR             * Ptr to last valid              00410000
+         GBLC  &BXA_EQUOVR_LAB(50)     * Labels                         00420000
+         GBLC  &BXA_EQUOVR_VAL(50)     * Values                         00430000
+         GBLC  &BXA_EQUOVR_LEN(50)     * Lengths                        00440000
+         GBLC  &BXA_EQUOVR_LOC(50)     * Locations                      00450000
+         GBLC  &BXA_EQUOVR_TYP(50)     * Types                          00460000
+         LCLA  &I                      * Index                          00470000
+         LCLC  &_TYPE                  *                                00480000
+.*                                                                      00490000
+.* Check LABEL parameter                                                00500000
+         AIF   (K'&LABEL GT 0).NOERR1                                   00510000
+         AIF   ('&VALUE' EQ '*END').NOERR1                              00520000
+.ERR1    MNOTE 8,'Missing label parameter on EQUOVR'                    00530000
+         MEXIT                                                          00540000
+.NOERR1  ANOP                                                           00550000
+.*                                                                      00560000
+.* At least 1 parameter must be specified                               00570000
+         AIF   (K'&VALUE NE 0).NOERR2                                   00580000
+         AIF   (K'&LEN NE 0).NOERR2                                     00590000
+         AIF   (K'&TYPE NE 0).NOERR2                                    00600000
+.ERR2A   MNOTE 8,'No arguments supplied to EQUOVR: ignored'             00610000
+         MEXIT ,                                                        00620000
+.NOERR2  ANOP  ,                                                        00630000
+.*                                                                      00640000
+.* Check the LEN parameter (must be present if VALUE = *NEWNAME)        00650000
+         AIF   ('&VALUE' EQ '*NEWNAME' AND K'&LEN EQ 0).ERR3A           00660000
+         AGO   .NOERR3                                                  00670000
+.ERR3A   MNOTE 8,'New name for &LABEL not specified with option *NEWNAM*00680000
+               E'                                                       00690000
+         MEXIT                                                          00700000
+.NOERR3  ANOP                                                           00710000
+.*                                                                      00720000
+.* Check type parameter                                                 00730000
+&_TYPE   SETC  '&TYPE'                 * Use specified value            00740000
+         AIF   (K'&TYPE EQ 0).NOERR4   * Unless specified as            00750000
+         AIF   (K'&TYPE GT 1).NOERR4   *    a single character          00760000
+&_TYPE   SETC  'C'''.'&TYPE'.''''      * change to C'.'                 00770000
+.NOERR4  ANOP                                                           00780000
+.*                                                                      00790000
+.* Check the LOC parameter                                              00800000
+         AIF   ('&_TYPE' EQ 'C''b''' AND K'&LOC EQ 0).ERR5A             00810000
+         AIF   ('&_TYPE' EQ 'C''v''' AND K'&LOC EQ 0).ERR5B             00820000
+         AIF   ('&_TYPE' EQ 'C''b''').NOERR5                            00830000
+         AIF   ('&_TYPE' EQ 'C''v''').NOERR5                            00840000
+         AIF   (K'&LOC NE 0).ERR5C                                      00850000
+         AGO   .NOERR5                                                  00860000
+.ERR5A   MNOTE 8,'Overriding &LABEL to a bit field: missing location'   00870000
+         MEXIT                                                          00880000
+.ERR5B   MNOTE 8,'Overriding &LABEL to a code value: missing location'  00890000
+         MEXIT                                                          00900000
+.ERR5C   MNOTE 4,'Location not valid for new field type of &LABEL: igno*00910000
+               red'                                                     00920000
+.NOERR5  ANOP                                                           00930000
+.*                                                                      00940000
+.* Check number of parameters                                           00950000
+         AIF   ('&VALUE' EQ '*END' AND N'&SYSLIST GT 1).ERR6A           00960000
+         AIF   ('&VALUE' EQ '*END').NOERR6                              00970000
+         AIF   ('&VALUE' EQ '*SUPPRESS' AND N'&SYSLIST GT 1).ERR6A      00980000
+         AIF   ('&VALUE' EQ '*SUPPRESS').NOERR6                         00990000
+         AIF   ('&VALUE' EQ '*NEWNAME' AND N'&SYSLIST GT 2).ERR6B       01000000
+         AIF   ('&VALUE' EQ '*NEWNAME').NOERR6                          01010000
+         AIF   ('&_TYPE' EQ 'C''b''' AND N'&SYSLIST GT 4).ERR6D         01020000
+         AIF   ('&_TYPE' EQ 'C''v''' AND N'&SYSLIST GT 4).ERR6D         01030000
+         AIF   ('&_TYPE' EQ 'C''b''').NOERR6                            01040000
+         AIF   ('&_TYPE' EQ 'C''v''').NOERR6                            01050000
+         AIF   (N'&SYSLIST GT 3).ERR6C                                  01060000
+         AGO   .NOERR6                                                  01070000
+.ERR6A   MNOTE 4,'EQUOVR &LABEL with more than 1 argument: remainder ig*01080000
+               nored'                                                   01090000
+         AGO   .NOERR6                                                  01100000
+.ERR6B   MNOTE 4,'EQUOVR &LABEL with more than 2 arguments: remainder i*01110000
+               gnored'                                                  01120000
+         AGO   .NOERR6                                                  01130000
+.ERR6C   MNOTE 4,'EQUOVR &LABEL with more than 3 arguments: remainder i*01140000
+               gnored'                                                  01150000
+         AGO   .NOERR6                                                  01160000
+.ERR6D   MNOTE 4,'EQUOVR &LABEL with more than 4 arguments: remainder i*01170000
+               gnored'                                                  01180000
+.NOERR6  ANOP                                                           01190000
+.*                                                                      01200000
+.* *END or a normal EQUOVR?                                             01210000
+         AIF   ('&VALUE' EQ '*END').END                                 01220000
+.*                                                                      01230000
+.* Normal: add entries to tables                                        01240000
+&I       SETA  &BXA_EQUOVR+1           * Next free entry                01250000
+&BXA_EQUOVR_LAB(&I) SETC '&LABEL'      * Insert label, value, length,   01260000
+&BXA_EQUOVR_VAL(&I) SETC '&VALUE'      *   and type parameters          01270000
+&BXA_EQUOVR_LEN(&I) SETC '&LEN'        *   into tables                  01280000
+&BXA_EQUOVR_TYP(&I) SETC '&_TYPE'      *                                01290000
+&BXA_EQUOVR_LOC(&I) SETC '&LOC'        *                                01300000
+&BXA_EQUOVR SETA &I                    * And update ptr to last valid   01310000
+         MEXIT                                                          01320000
+.*                                                                      01330000
+.* Ending current EQUOVR requests. Issue a message for any unused       01340000
+.* entries in BXA_EQUOVR tables.                                        01350000
+.END     ANOP                                                           01360000
+&I       SETA  0                       * I indexes BXA_EQUOVR_xxx       01370000
+.LOOP1   ANOP  ,                       * For all current entries        01380000
+&I       SETA  &I+1                    * Point next entry               01390000
+         AIF   (&I GT &BXA_EQUOVR).LOOP1OK * At end: quit loop          01400000
+         MNOTE 4,'EQUOVR for &BXA_EQUOVR_LAB(&I) discarded'             01410000
+         AGO   .LOOP1                                                   01420000
+.LOOP1OK ANOP                                                           01430000
+&BXA_EQUOVR SETA 0                     * Reset valid counter to 0       01440000
+.*                                                                      01450000
+.MEND    MEND                                                           01460002

@@ -1,0 +1,330 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: IF                                     00180000
+.* Combines with ELSE and ENDIF to conditionally execute code-blocks    00190000
+.*                                                                      00200000
+.* If the SYSLIST conatains only a single argument, which is enclosed   00210000
+.* in parentheses, then that string must be passed to IF$ as is.        00220000
+.* Otherwise, the arguments must be assembled into a parenthesized      00230000
+.* string, which is then passed to IF$.                                 00240000
+.*                                                                      00250000
+&LABEL   IF    &TARGET=,               * Optional target if cond. met  *00260000
+               &COND=                  * Condition for use with TARGET  00270000
+.*                                     * Condition in &SYSLIST          00280000
+.*                                                                      00290000
+.* Syntax - See IF$ for basic IF-syntax                                 00300000
+.* A) Basic condition - as in IF$                                       00310000
+.* B) Several basic conditions, separated by AND:                       00320000
+.*    cond1,AND,cond2,AND,cond3,...                                     00330000
+.* C) Several basic conditions, separated by OR:                        00340000
+.*    cond1,OR,cond2,OR,cond3,...                                       00350000
+.* D) Mixing AND and OR is not supported.                               00360000
+.* E) Condition nesting by means of parentheses is not supported.       00370000
+.*                                                                      00380000
+.* If TARGET is not specified, a normal IF-THEN-ELSE will be built.     00390000
+.* For TARGET specified and COND=TRUE or omitted, if the specified      00400000
+.*   condition is met, a branch to TARGET will be taken.                00410000
+.* For TARGET specified and COND=FALSE, if the specified condition is   00420000
+.*   not met, a branch to TARGET will be taken.                         00430000
+.*                                                                      00440000
+.********************************************************************** 00441001
+.*                                                                      00442001
+.*       IMPORTANT NOTICE                                               00443001
+.*       ========= ======                                               00444001
+.*                                                                      00445001
+.* Code below checks whether 'USER' accepted the terms and conditions   00446001
+.* of the license for the BXA macro library. This code is to be treated 00447001
+.* as part of the Copyright Notice and therefore may not be changed     00448001
+.* or disabled in any way.                                              00449001
+.*                                                                      00449101
+.********************************************************************** 00449201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00449301
+         CHKLIC IF                     * Check license acceptance       00449401
+         AIF   (&BXA_RC NE 0).MEND                                      00449502
+.********************************************************************** 00449601
+.*                                                                      00449701
+.* End of special code that is part of the Copyright Notice             00449801
+.*                                                                      00449901
+.********************************************************************** 00450001
+.*                                                                      00450101
+.* Declare variables                                                    00451000
+         GBLA  &BXA_STK                * Index to last valid            00460000
+         GBLC  &BXA_STK_OP(5)          * Opcodes                        00470000
+         GBLC  &BXA_STK_LBL(5)         * Labels                         00480000
+         GBLA  &BXA_STK_LVL(5)         * Levels                         00490000
+         LCLC  &ARGS                   * SYSLIST as a string            00500000
+         LCLA  &I,&J                   * Index into SYSLIST             00510000
+         LCLA  &LVL                    * Current level                  00520000
+         LCLC  &OP                     * A single operator from SYSLIST 00530000
+         LCLC  &LOGOP                  * Logical operation AND/OR       00540000
+         LCLC  &ARG(5)                 * Condition strings              00550000
+         LCLA  &A                      * Index into &ARG                00560000
+         LCLB  &SYSL1                  * On if condition in SYSLIST(1)  00570000
+.*                                                                      00580000
+.* Variables for steering generation of IF$ statements                  00590000
+         LCLC  &_LABEL                 * Label of IF                    00600000
+         LCLC  &NCOND                  * Normal condition               00610000
+         LCLC  &FCOND                  * Final condition                00620000
+         LCLC  &NTARG                  * Normal target                  00630000
+         LCLC  &FTARG                  * Final target                   00640000
+         LCLC  &LABEOT                 * End-of-then label              00650000
+         LCLC  &LABEIF                 * End-of-if-statement label      00660000
+.*                                                                      00670000
+.* Check number of parameters                                           00680000
+         AIF   (N'&SYSLIST EQ 0).ERR1                                   00690000
+         AIF   (K'&SYSLIST(1) EQ 0).ERR1                                00700000
+         AGO   .NOERR1                                                  00710000
+.ERR1    MNOTE 8,'No condition specified'                               00720000
+         MEXIT                                                          00730000
+.NOERR1  ANOP                                                           00740000
+.*                                                                      00750000
+.* Check COND parameter                                                 00760000
+         AIF   (K'&COND EQ 0).NOERR2                                    00770000
+         AIF   ('&COND' NE 'TRUE' AND '&COND' NE 'FALSE').ERR2A         00780000
+         AIF   (K'&TARGET EQ 0).ERR2B                                   00790000
+         AGO   .NOERR2                                                  00800000
+.ERR2A   MNOTE 8,'COND must be either TRUE or FALSE'                    00810000
+         MEXIT                                                          00820000
+.ERR2B   MNOTE 4,'No TARGET specified, COND ignored'                    00830000
+.NOERR2  ANOP                                                           00840000
+.*                                                                      00850000
+.* Condition may be in &SYSLIST or in &SYSLIST(1)                       00860000
+&J       SETA  (N'&SYSLIST)            * Nr of operands to extract      00870000
+         AIF   (N'&SYSLIST GT 1).SYSLIST                                00880000
+         AIF   ('&SYSLIST(1)'(1,1) NE '(').SYSLIST                      00890000
+&SYSL1   SETB  1                       * Condition is in &SYSLIST(1)    00900000
+&J       SETA  (N'&SYSLIST(1))         * Nr of operands to extract      00910000
+.*                                                                      00920000
+.* Build array ARG and check logical operators in condition string      00930000
+.SYSLIST ANOP  ,                                                        00940000
+&I       SETA  0                       * I indexes &SYSLIST             00950000
+&A       SETA  0                       * A indexes &ARGS                00960000
+.LOOP3   ANOP  ,                       * For all entries in SYSLIST     00970000
+&I       SETA  &I+1                    * Point next entry               00980000
+         AIF   (&I GT &J).LOOP3OK      * At end: quit loop              00990000
+.* Extract operator, add to ARGS string                                 01000000
+         AIF   (&SYSL1).LOOP3L1                                         01010000
+&OP      SETC  '&SYSLIST(&I)'          * Extract operator from Syslist  01020000
+         AGO   .LOOP3OP                                                 01030000
+.LOOP3L1 ANOP  ,                                                        01040000
+&OP      SETC  '&SYSLIST(1,&I)'        * Extract operator from Syslist  01050000
+.LOOP3OP ANOP  ,                       * &OP extracted from SYSLIST     01060000
+         AIF   ('&OP' EQ 'AND').LOOP3LO * Handle logical                01070000
+         AIF   ('&OP' EQ 'OR').LOOP3LO *   operator                     01080000
+&ARGS    SETC  '&ARGS'.','.'&OP'       * Add entry to ARGS              01090000
+         AGO   .LOOP3                  * And go process next entry      01100000
+.*                                                                      01110000
+.LOOP3LO ANOP  ,                       * Logical Operator handling      01120000
+         AIF   (K'&ARGS EQ 0).ERR3A    * Valid condition?               01130000
+&A       SETA  &A+1                    * Point next ARG-entry           01140000
+&ARG(&A) SETC  '&ARGS'(2,*)            * Remove lead comma in array     01150000
+&ARGS    SETC  ''                      * Reset ARGS for next condition  01160000
+         AIF   ('&OP' EQ '&LOGOP').LOOP3 * Next if logop ok.            01170000
+         AIF   ('&LOGOP' NE '').ERR3B  * Not first logop: error         01180000
+&LOGOP   SETC  '&OP'                   * Set logop on first pass        01190000
+         AGO   .LOOP3                                                   01200000
+.*                                                                      01210000
+.ERR3A   MNOTE 4,'Logical operator &OP ignored: not preceded by a valid*01220000
+                condition'                                              01230000
+         AGO   .LOOP3                                                   01240000
+.ERR3B   MNOTE 8,'Cannot mix AND and OR in a single condition: &OP repl*01250000
+               aced by &LOGOP'                                          01260000
+         AGO   .LOOP3                                                   01270000
+.LOOP3OK ANOP                                                           01280000
+.*                                                                      01290000
+.* Check last condition string in ARGS                                  01300000
+         AIF   (K'&ARGS EQ 0).ARGSMT   * ARGS empty?                    01310000
+&A       SETA  &A+1                    * Point next ARG-entry           01320000
+&ARG(&A) SETC  '&ARGS'(2,*)            * Omit lead.comma in array       01330000
+.ARGSMT  ANOP  ,                       * &ARGS is empty                 01340000
+.*                                                                      01350000
+.* If no valid condition in ARG, issue error and abort                  01360000
+         AIF   (&A GT 0).NOERR4                                         01370000
+.ERR4A   MNOTE 8,'No valid condition found'                             01380000
+         MEXIT                                                          01390000
+.NOERR4  ANOP                                                           01400000
+.*                                                                      01410000
+.* Generate code: if there is only one condition, pass it to IF$ as is. 01420000
+.* For more than 1 condition: generate successive IF$ invocations.      01430000
+         AIF   (&A EQ 1).SIMPEXP       * 1 condition: simple expression 01440000
+         AIF   ('&LOGOP' EQ 'AND').ANDEXP                               01450000
+         AIF   ('&LOGOP' EQ 'OR').OREXP                                 01460000
+         MNOTE 12,'Internal error'                                      01470000
+         MEXIT                                                          01480000
+.*                                                                      01490000
+.* Handle AND expression                                                01500000
+.ANDEXP  ANOP                                                           01510000
+         AIF   (K'&TARGET GT 0 AND '&COND' EQ 'TRUE').ANDTT             01520000
+         AIF   (K'&TARGET GT 0 AND '&COND' EQ 'FALSE').ANDTF            01530000
+.*                                                                      01540000
+.* Normal AND of conditions; no target specified.                       01550000
+.* For each condition we must generate a                                01560000
+.*       GOTO  End_of_then,UNLESS,condition                             01570000
+.* If all conditions are met we will drop thru into the then block.     01580000
+&NCOND   SETC  'FALSE'                 * Set UNLESS option for          01590000
+&FCOND   SETC  'FALSE'                 *  normal and final GOTO         01600000
+&LABEOT  SETC  '_IF_&SYSNDX'           * Determine end-of-then label    01610000
+&LABEIF  SETC  ''                      * End-of-if not needed           01620000
+&NTARG   SETC  '&LABEOT'               * Set target for normal          01630000
+&FTARG   SETC  '&LABEOT'               *  and final GOTO                01640000
+         AGO   .COMPEXP                * And go generate code           01650000
+.*                                                                      01660000
+.* AND of conditions, target specified with COND=TRUE                   01670000
+.* For each condition but the last we must generate a                   01680000
+.*       GOTO  End_of_if,UNLESS,condition                               01690000
+.* For the last condition we must generate a                            01700000
+.*       GOTO  TARGET,condition                                         01710000
+.ANDTT   ANOP  ,                                                        01720000
+&NCOND   SETC  'FALSE'                 * Set UNLESS for normal GOTOs    01730000
+&FCOND   SETC  'TRUE'                  * No UNLESS for final GOTO       01740000
+&LABEOT  SETC  ''                      * End-of-then label not needed   01750000
+&LABEIF  SETC  '_IF_&SYSNDX'           * End-of-if for failing condit.s 01760000
+&NTARG   SETC  '&LABEIF'               * Set target for normal          01770000
+&FTARG   SETC  '&TARGET'               *  and final GOTO                01780000
+         AGO   .COMPEXP                * And go generate code           01790000
+.*                                                                      01800000
+.* AND of conditions, target specified with COND=FALSE                  01810000
+.* For each condition we must generate a                                01820000
+.*       GOTO  TARGET,UNLESS,condition                                  01830000
+.ANDTF   ANOP  ,                                                        01840000
+&NCOND   SETC  'FALSE'                 * Set UNLESS for normal          01850000
+&FCOND   SETC  'FALSE'                 *  and final GOTO                01860000
+&LABEOT  SETC  ''                      * End-of-then label not needed   01870000
+&LABEIF  SETC  ''                      * End-of-if label not needed     01880000
+&NTARG   SETC  '&TARGET'               * Set target for normal          01890000
+&FTARG   SETC  '&TARGET'               *  and final GOTO                01900000
+         AGO   .COMPEXP                * And go generate code           01910000
+.*                                                                      01920000
+.* Handle OR expression                                                 01930000
+.OREXP   ANOP                                                           01940000
+         AIF   (K'&TARGET GT 0 AND '&COND' EQ 'TRUE').ORTT              01950000
+         AIF   (K'&TARGET GT 0 AND '&COND' EQ 'FALSE').ORTF             01960000
+.*                                                                      01970000
+.* Normal OR of conditions; no target specified.                        01980000
+.* For each condition but the last we must generate a                   01990000
+.*       GOTO  Then,condition                                           02000000
+.* For the last condition we must generate a                            02010000
+.*       GOTO  End-of-then,UNLESS,condition                             02020000
+&NCOND   SETC  'TRUE'                  * No UNLESS for nornal GOTOs     02030000
+&FCOND   SETC  'FALSE'                 * Set UNLESS for final GOTO      02040000
+&LABEOT  SETC  '_IF_&SYSNDX'           * Determine end-of-then label    02050000
+&LABEIF  SETC  '_THEN_&SYSNDX'         * End-of-if label                02060000
+&NTARG   SETC  '&LABEIF'               * Set target for normal          02070000
+&FTARG   SETC  '&LABEOT'               *  and final GOTO                02080000
+         AGO   .COMPEXP                * And go generate code           02090000
+.*                                                                      02100000
+.* OR of conditions, target specified with COND=TRUE                    02110000
+.* For each condition we must generate a                                02120000
+.*       GOTO  TARGET,condition                                         02130000
+.ORTT    ANOP  ,                                                        02140000
+&NCOND   SETC  'TRUE'                  * Remove UNLESS for normal       02150000
+&FCOND   SETC  'TRUE'                  *  and final GOTO                02160000
+&LABEOT  SETC  ''                      * End-of-then label not needed   02170000
+&LABEIF  SETC  ''                      * End-of-if label not needed     02180000
+&NTARG   SETC  '&TARGET'               * Set target for normal          02190000
+&FTARG   SETC  '&TARGET'               *  and final GOTO                02200000
+         AGO   .COMPEXP                * And go generate code           02210000
+.*                                                                      02220000
+.* OR of conditions, target specified with COND=FALSE                   02230000
+.* For each condition but the last we must generate a                   02240000
+.*       GOTO  End_of_if,condition                                      02250000
+.* For the last condition we must generate a                            02260000
+.*       GOTO  TARGET,UNLESS,condition                                  02270000
+.ORTF    ANOP  ,                                                        02280000
+&NCOND   SETC  'TRUE'                  * Remove UNLESS for normal GOTOs 02290000
+&FCOND   SETC  'FALSE'                 * Set UNLESS for final GOTO      02300000
+&LABEOT  SETC  ''                      * End-of-then label not needed   02310000
+&LABEIF  SETC  '_IF_&SYSNDX'           * End-of-if for failing condit.s 02320000
+&NTARG   SETC  '&LABEIF'               * Set target for normal          02330000
+&FTARG   SETC  '&TARGET'               *  and final GOTO                02340000
+         AGO   .COMPEXP                * And go generate code           02350000
+.*                                                                      02360000
+.* Generate code as specified above                                     02370000
+.COMPEXP ANOP  ,                                                        02380000
+&I       SETA  &BXA_STK                * Save current stack pointer     02390000
+&_LABEL  SETC  '&LABEL'                * Copy label for first IF$       02400000
+&A       SETA  0                       * I indexes &ARG array           02410000
+.LOOP1   ANOP  ,                       * For all conditions but last    02420000
+&A       SETA  &A+1                    * Point next condition           02430000
+         AIF   (&A GE N'&ARG).LOOP1OK  * End before processing last one 02440000
+&ARGS    SETC  '('.'&ARG(&A)'.')'      * Parenthesize condition string  02450000
+&_LABEL  IF$   &ARGS,TARGET=&NTARG,COND=&NCOND                          02460000
+&_LABEL  SETC  ''                      * Do not generate label again    02470000
+         AGO   .LOOP1                  * and go gen. next condition     02480000
+.LOOP1OK ANOP  ,                                                        02490000
+.* Generate final condition                                             02500000
+&ARGS    SETC  '('.'&ARG(&A)'.')'      * Parenthesize condition string  02510000
+         IF$   &ARGS,TARGET=&FTARG,COND=&FCOND                          02520000
+.*                                                                      02530000
+.* Insert End-of-if label, if it has been used                          02540000
+         AIF   (K'&LABEIF EQ 0).SKIPEIF                                 02550000
+&LABEIF  LABEL ,                                                        02560000
+.SKIPEIF ANOP  ,                                                        02570000
+.*                                                                      02580000
+.* Reset stack pointer to original position                             02590000
+.* Add an entry if the end-of-then label has been used                  02600000
+&BXA_STK SETA  &I                      * Reset ptr to saved value       02610000
+         AIF   (K'&LABEOT EQ 0).MEND   * No new entry needed            02620002
+.*                                                                      02630000
+&LVL     SETA  1                       * Level is 1 if ...              02640000
+         AIF   (&BXA_STK EQ 0).LVLOK   * the stack is empty             02650000
+&LVL     SETA  &BXA_STK_LVL(&BXA_STK)+1 * otherwise: create next level  02660000
+.LVLOK   ANOP  ,                                                        02670000
+&I       SETA  &BXA_STK+1              * Point next stack entry         02680000
+&BXA_STK_OP(&I)  SETC 'IF'             * Indicate IF block in progress  02690000
+&BXA_STK_LBL(&I) SETC '&LABEOT'        * Label for ELSE or ENDIF        02700000
+&BXA_STK_LVL(&I) SETA &LVL             * Level for this structure       02710000
+&BXA_STK SETA  &I                      * Update stack pointer           02720000
+         MEXIT                                                          02730000
+.*                                                                      02740000
+.* Generate embedded IF statement with parenthesized SYSLIST            02750000
+.SIMPEXP ANOP  ,                                                        02760000
+&I       SETA  &BXA_STK                * Copy current stack pointer     02770000
+&ARGS    SETC  '('.'&ARG(1)'.')'       * Parenthesize condition string  02780000
+&LABEL   IF$   &ARGS,TARGET=&TARGET,COND=&COND                          02790000
+.*                                                                      02800000
+.* Modify stack to reflect IF in stead of IF$                           02810000
+         AIF   (&I EQ &BXA_STK).MEND   * No new stack entry!            02820002
+&BXA_STK_OP(&BXA_STK) SETC 'IF'        * Change IF$ into IF             02830000
+.*                                                                      02840000
+.MEND    MEND                                                           02860002

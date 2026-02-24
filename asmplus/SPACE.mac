@@ -1,0 +1,100 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro replaces the assembler's SPACE statement                  00180000
+.*                                                                      00190000
+&LABEL   SPACE ,                       * Arguments in SYSLIST           00200000
+.********************************************************************** 00201001
+.*                                                                      00202001
+.*       IMPORTANT NOTICE                                               00203001
+.*       ========= ======                                               00204001
+.*                                                                      00205001
+.* Code below checks whether 'USER' accepted the terms and conditions   00206001
+.* of the license for the BXA macro library. This code is to be treated 00207001
+.* as part of the Copyright Notice and therefore may not be changed     00208001
+.* or disabled in any way.                                              00209001
+.*                                                                      00209101
+.********************************************************************** 00209201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00209301
+         CHKLIC SPACE                  * Check license acceptance       00209401
+         AIF   (&BXA_RC NE 0).MEND                                      00209502
+.********************************************************************** 00209601
+.*                                                                      00209701
+.* End of special code that is part of the Copyright Notice             00209801
+.*                                                                      00209901
+.********************************************************************** 00210001
+.*                                                                      00211000
+.* Declare variables                                                    00220000
+         LCLA  &I                      * Index into &SYSLIST            00230000
+         LCLC  &ARG                    * 1 Argument from SYSLIST        00240000
+         LCLC  &ARGS                   * Arguments from SYSLIST         00250000
+.*                                                                      00260000
+.* Check LABEL parameter                                                00270000
+         AIF   (K'&LABEL EQ 0).NOERR1                                   00280000
+         AIF   (&SYSNEST GT 1).NOERR1                                   00290000
+.ERR1A   MNOTE 4,'No label parameter allowed with SPACE: label ignored' 00300000
+.NOERR1  ANOP                                                           00310000
+.*                                                                      00320000
+.* Build ARGS from &SYSLIST                                             00330000
+&I       SETA  0                       * I indexes &SYSLIST             00340000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     00350000
+&I       SETA  &I+1                    * Point next entry               00360000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           00370000
+         AIF   (K'&ARG GT 0 AND &I GT 1).ERR2A                          00380000
+&ARG     SETC  '&SYSLIST(&I)'          * Extract 1 argument             00390000
+&ARGS    SETC  '&ARGS'.','.'&SYSLIST(&I)' * Add entry to ARGS           00400000
+         AGO   .LOOP1                                                   00410000
+.ERR2A   MNOTE 4,'Only 1 argument allowed on SPACE: remainder ignored'  00420000
+.LOOP1OK ANOP                                                           00430000
+         AIF   (K'&ARGS LT 2).ARGSOK                                    00440000
+&ARGS    SETC  '&ARGS'(2,*)            * Remove leading comma           00450000
+.ARGSOK  ANOP                                                           00460000
+.*                                                                      00470000
+.* Generate _SPACE statement                                            00480000
+         AIF   (K'&ARGS EQ 0).NOARGS                                    00490000
+         _SPACE &ARGS                                                   00500000
+         MEXIT                                                          00510000
+.*                                                                      00520000
+.NOARGS  ANOP                                                           00530000
+         _SPACE                                                         00540000
+.*                                                                      00550000
+.MEND    MEND                                                           00560002

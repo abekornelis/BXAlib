@@ -1,0 +1,132 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the External Parameter Area and the parameter list   00180000
+.* for the Locate mode SWA manager (SWAREQ).                            00190000
+.*                                                                      00200000
+&LABEL   MAPEPAL &DSECT=YES,           * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPEPAL                * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLB  &BXA_MAC_MAPEPAL        * Map has been generated?        00260000
+.*                                                                      00280000
+.* Check parameters                                                     00290000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00300000
+               CB=&CB,                 *                               *00310000
+               PRFX=&PRFX              *                                00320000
+         AIF   (&BXA_RC GT 4).MEND                                      00330002
+.*                                                                      00340000
+.* Check the CB parameter                                               00350000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00360000
+         AIF   ('&CB' EQ 'EPAL').EMBED                                  00370000
+         AIF   ('&CB' EQ 'EPAX').EMBED                                  00380000
+         AIF   ('&CB' EQ 'SWAREQPL').EMBED                              00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded deinition                                          00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPEPAL).MEND                                  00490002
+&BXA_MAC_MAPEPAL SETB 1                                                 00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_EPAL                                             00520000
+         GBLC  &BXA_CB_EPAX                                             00530000
+         GBLC  &BXA_CB_SWAREQPL                                         00540000
+&BXA_CB_EPAL     SETC 'EPAL'                                            00550000
+&BXA_CB_EPAX     SETC 'EPAL'                                            00560000
+&BXA_CB_SWAREQPL SETC 'EPAL'                                            00570000
+.*                                                                      00580000
+.* Change field definitions                                             00590000
+SWVA     DSOVR XL3                     * Change char to hex field       00600000
+SWBLKID  DSOVR XL1                     * Change char to hex field       00610000
+SWLVERS  DSOVR XL2                     * Change char to hex field       00620000
+.*                                                                      00630000
+         MNOTE *,'Including IEFZB505 mapping macro'                     00640000
+         IEFZB505 LOCEPAX=YES          * Include extended EPAL fields   00650000
+         DSOVR *END                                                     00660000
+.*                                                                      00670000
+ZB505    DSECT ,                       * Reset to macro-defined DSECT   00680000
+EPAL     EQU   SWAEPA,,C'X'            * Define USING labels for EPAL   00690000
+EPAL_LEN EQU   L'SWAEPA                * Length of EPAL                 00700000
+EPAX     EQU   SWAEPAX,,C'X'           *    and for EPAX                00710000
+EPAX_LEN EQU   L'SWAEPAX               * Length of eXtended EPAL        00720000
+.*                                                                      00730000
+.* Generate mapping macro for the SWAREQ parmlist                       00740000
+         MNOTE *,'Generating SWAREQPL mapping macro'                    00750000
+SWAREQPL DSECT                                                          00760000
+SWARQPL  DS    0XL8                    * Define whole SWAREQPL          00770000
+SWAEPAL  DS    AL4                     * Pointer to EPAL/EPAX           00780000
+SWAFCD   DS    AL4                     * Pointer to function code       00790000
+.*                                     * CL2'RL' or CL2'WL'             00800000
+SWAREQPL_LEN EQU *-SWAREQPL            * Length of parmlist             00810000
+.*                                                                      00820000
+.* Include Equates in IEFQMIDS                                          00830000
+         GENMAPS (QMIDS)                                                00840000
+.*                                                                      00850000
+.* Return to our original CSECT name                                    00860000
+&SYSECT  &SYSSTYP                                                       00870000
+.*                                                                      00880000
+.MEND    MEND                                                           00900002

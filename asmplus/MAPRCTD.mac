@@ -1,0 +1,188 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Region Control Task Data area                    00180000
+.*                                                                      00190000
+&LABEL   MAPRCTD &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPRCTD                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPRCTD        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'RCTD').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPRCTD).MEND                                  00460002
+&BXA_MAC_MAPRCTD SETB 1                                                 00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_RCTD                                             00490000
+&BXA_CB_RCTD SETC 'RCTD'                                                00500000
+.*                                                                      00510000
+.* RCTDFLG1 - FLAGS                                                     00520000
+RCTDCLAS EQUOVR ,,b,RCTDFLG1                                            00530000
+.*                                                                      00540000
+.* RCTDWPTR - POINTER TO ASCBECB                                        00550000
+RCTDECBE EQUOVR ,,b,RCTDWPTR                                            00560000
+.*                                                                      00570000
+.* RCTDTECB - RCT TERMINATION ECB                                       00580000
+RCTDPOST EQUOVR ,,b,RCTDTECB                                            00590000
+.*                                                                      00600000
+.* RCTDMOID - MODULE IDENTIFIER                                         00610000
+RCTDINIT EQUOVR ,,b,RCTDMOID                                            00620000
+RCTDCOMN EQUOVR ,,b,RCTDMOID                                            00630000
+RCTDQUIS EQUOVR ,,b,RCTDMOID                                            00640000
+RCTDREST EQUOVR ,,b,RCTDMOID                                            00650000
+RCTDATTN EQUOVR ,,b,RCTDMOID                                            00660000
+RCTDTERM EQUOVR ,,b,RCTDMOID                                            00670000
+RCTDDUMP EQUOVR ,,b,RCTDMOID                                            00680000
+.*                                                                      00690000
+.* RCTDFLGS - RECOVERY FLAGS                                            00700000
+RCTDATTD EQUOVR ,,b,RCTDFLGS                                            00710000
+RCTDRES3 EQUOVR ,,b,RCTDFLGS                                            00720000
+RCTDATTS EQUOVR ,,b,RCTDFLGS                                            00730000
+RCTDBRCP EQUOVR ,,b,RCTDFLGS                                            00740000
+RCTDWAIT EQUOVR ,,b,RCTDFLGS                                            00750000
+RCTDLOOP EQUOVR ,,b,RCTDFLGS                                            00760000
+RCTDBR2T EQUOVR ,,b,RCTDFLGS                                            00770000
+RCTDBR2Q EQUOVR ,,b,RCTDFLGS                                            00780000
+RCTDBR2R EQUOVR ,,b,RCTDFLGS                                            00790000
+RCTDBR2A EQUOVR ,,b,RCTDFLGS                                            00800000
+RCTDRES4 EQUOVR ,,b,RCTDFLGS                                            00810000
+RCTDDETS EQUOVR ,,b,RCTDFLGS                                            00820000
+RCTDDETD EQUOVR ,,b,RCTDFLGS                                            00830000
+RCTDCANE EQUOVR ,,b,RCTDFLGS                                            00840000
+RCTDAFPE EQUOVR ,,b,RCTDFLGS                                            00850000
+RCTDAFPC EQUOVR ,,b,RCTDFLGS                                            00860000
+RCTDPMSG EQUOVR ,,b,RCTDFLGS                                            00870000
+RCTDIGAT EQUOVR ,,b,RCTDFLGS                                            00880000
+RCTDENQ  EQUOVR ,,b,RCTDFLGS                                            00890000
+RCTDOLL1 EQUOVR ,,b,RCTDFLGS                                            00900000
+RCTDRLL1 EQUOVR ,,b,RCTDFLGS                                            00910000
+RCTDPSUB EQUOVR ,,b,RCTDFLGS                                            00920000
+RCTDSY12 EQUOVR ,,b,RCTDFLGS                                            00930000
+RCTDSV16 EQUOVR ,,b,RCTDFLGS                                            00940000
+RCTDDEQ  EQUOVR ,,b,RCTDFLGS                                            00950000
+RCTDPSRB EQUOVR ,,b,RCTDFLGS                                            00960000
+RCTDSY13 EQUOVR ,,b,RCTDFLGS+1                                          00970000
+RCTDSSUB EQUOVR ,,b,RCTDFLGS+1                                          00980000
+RCTDSSRB EQUOVR ,,b,RCTDFLGS+1                                          00990000
+RCTDSWOT EQUOVR ,,b,RCTDFLGS+1                                          01000000
+RCTDQWAI EQUOVR ,,b,RCTDFLGS+1                                          01010000
+RCTDSLFL EQUOVR ,,b,RCTDFLGS+1                                          01020000
+RCTDPRGF EQUOVR ,,b,RCTDFLGS+1                                          01030000
+RCTDSYBC EQUOVR ,,b,RCTDFLGS+1                                          01040000
+RCTDSWPF EQUOVR ,,b,RCTDFLGS+2                                          01050000
+RCTDOLL2 EQUOVR ,,b,RCTDFLGS+2                                          01060000
+RCTDRLL2 EQUOVR ,,b,RCTDFLGS+2                                          01070000
+RCTDOGL1 EQUOVR ,,b,RCTDFLGS+2                                          01080000
+RCTDRGL1 EQUOVR ,,b,RCTDFLGS+2                                          01090000
+RCTDQABD EQUOVR ,,b,RCTDFLGS+2                                          01100000
+RCTDRS17 EQUOVR ,,b,RCTDFLGS                                            01110000
+RCTDOBLK EQUOVR ,,b,RCTDFLGS                                            01120000
+RCTDSTAT EQUOVR ,,b,RCTDFLGS                                            01130000
+RCTDRLLK EQUOVR ,,b,RCTDFLGS                                            01140000
+RCTDSY19 EQUOVR ,,b,RCTDFLGS                                            01150000
+RCTDSY18 EQUOVR ,,b,RCTDFLGS                                            01160000
+RCTDFAIL EQUOVR ,,b,RCTDFLGS                                            01170000
+RCTDRSLW EQUOVR ,,b,RCTDFLGS                                            01180000
+RCTDRIOC EQUOVR ,,b,RCTDFLGS+1                                          01190000
+RCTDWTLB EQUOVR ,,b,RCTDFLGS+1                                          01200000
+RCTDSTAC EQUOVR ,,b,RCTDFLGS+1                                          01210000
+RCTDRLWC EQUOVR ,,b,RCTDFLGS+1                                          01220000
+RCTDRLWB EQUOVR ,,b,RCTDFLGS+1                                          01230000
+RCTDWTLC EQUOVR ,,b,RCTDFLGS+2                                          01240000
+RCTDOPTC EQUOVR ,,b,RCTDFLGS+2                                          01250000
+.*                                                                      01260000
+.* RCTDRCTF - RCT'S CROSS COMMUNICATIONS RECOVERRY FLAGS                01270000
+RCTDRSBO EQUOVR ,,b,RCTDRCTF                                            01280000
+RCTDSUBN EQUOVR ,,b,RCTDRCTF                                            01290000
+RCTDPRGR EQUOVR ,,b,RCTDRCTF                                            01300000
+RCTDSRBN EQUOVR ,,b,RCTDRCTF                                            01310000
+RCTDDLCK EQUOVR ,,b,RCTDRCTF                                            01320000
+.*                                                                      01330000
+         MNOTE *,'Including IEARCTD mapping macro'                      01340000
+         IEARCTD LIST=YES              * Keep current listing options   01350000
+         EQUOVR *END                                                    01360000
+*                                                                       01370000
+RCTD     DSECT ,                       * Resume RCTD DSECT              01380000
+         ORG   ,                                                        01390000
+RCTD_LEN EQU   *-RCTD                  * Length of RCTD                 01400000
+.*                                                                      01410000
+.* Return to our original CSECT name                                    01420000
+&SYSECT  &SYSSTYP                                                       01430000
+.*                                                                      01440000
+.MEND    MEND                                                           01460002

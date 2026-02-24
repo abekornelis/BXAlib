@@ -1,0 +1,434 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Clear an area of storage                                             00180000
+.*                                                                      00190000
+.* For TYPE=LONG, registers R0, R1, and R15 will be used                00200000
+.* For TYPE=SHORT, all registers retain their values                    00210000
+.*                                                                      00220000
+&LABEL   CLEAR &AREA,                  * Area to be cleared            *00230000
+               &FILL,                  * Filler to use for clearing    *00240000
+               &TYPE                   * LONG, SHORT, XC                00250000
+.*                                                                      00260000
+.* &AREA  specifies the area of storage to be cleared                   00270000
+.*        can be specified as a label, or as (label,length).            00280000
+.*            label and/or length may be specified as (reg)             00290000
+.*        May also be specified as (gpr,*ADDR) to clear high-order bit  00300000
+.*            in specified general purpose register.                    00310000
+.*        If area specifies R0-R15 or AR0-AR15 and &FILL and &TYPE are  00320000
+.*        both omitted, then the designated register will be cleared    00330000
+.*        to hex zeroes.                                                00340000
+.* &FILL  specifies the filler value to use, defaults to blanks for     00350000
+.*        character fields, otherwise to binary zeros.                  00360000
+.* &TYPE  SHORT for areas up to 257 bytes in length, LONG for all other 00370000
+.*        defaults to SHORT. XC for short areas to be cleared using XC. 00380000
+.*                                                                      00390000
+.********************************************************************** 00391001
+.*                                                                      00392001
+.*       IMPORTANT NOTICE                                               00393001
+.*       ========= ======                                               00394001
+.*                                                                      00395001
+.* Code below checks whether 'USER' accepted the terms and conditions   00396001
+.* of the license for the BXA macro library. This code is to be treated 00397001
+.* as part of the Copyright Notice and therefore may not be changed     00398001
+.* or disabled in any way.                                              00399001
+.*                                                                      00399101
+.********************************************************************** 00399201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00399301
+         CHKLIC CLEAR                  * Check license acceptance       00399401
+         AIF   (&BXA_RC NE 0).MEND                                      00399502
+.********************************************************************** 00399601
+.*                                                                      00399701
+.* End of special code that is part of the Copyright Notice             00399801
+.*                                                                      00399901
+.********************************************************************** 00400001
+.*                                                                      00400101
+.* Declare variables                                                    00401000
+         GBLA  &BXA_NUMVAL             * Result from CHKREG/CHKNUM      00410000
+         GBLC  &SYSASCE                * ASC mode                       00430000
+         LCLC  &_AREA                  * Area designation               00440000
+         LCLC  &_AREG                  * Register used as area pointer  00450000
+         LCLC  &_LEN                   * Length of area                 00460000
+         LCLC  &_LREG                  * Register used as length ptr    00470000
+         LCLC  &_FILL                  * Filler to use                  00480000
+         LCLC  &_TYPE                  * Type indication: SHORT/LONG    00490000
+         LCLC  &EREG                   * Even register of a pair        00500000
+         LCLC  &OREG                   * Odd register of a pair         00510000
+         LCLC  &R0                     * YES/NO allow use of R0         00520000
+         LCLA  &I                      *                                00530000
+         LCLB  &BIT0                   * BIT0 option specified          00540000
+.*                                                                      00550000
+.* Check Area parameter                                                 00560000
+&_AREA   SETC  '&AREA'                 * Assume a single operand        00570000
+         AIF   (K'&AREA NE 0).NOERR1A                                   00580000
+.ERR1A   MNOTE 8,'First operand must specify area to clear'             00590000
+.NOERR1A ANOP                                                           00600000
+         AIF   ('&AREA'(1,1) NE '(').DFTLEN                             00610000
+.* Sublist notation: must specify location and length                   00620000
+         AIF   (N'&AREA EQ 0).ERR1B                                     00630000
+         AIF   (N'&AREA EQ 1).ERR1C                                     00640000
+         AIF   (N'&AREA GT 2).ERR1D                                     00650000
+&_AREA   SETC  '&AREA(1)'              * Extract area designation       00660000
+&_LEN    SETC  '&AREA(2)'              * Extract length designation     00670000
+         AGO   .NOERR1D                                                 00680000
+.ERR1B   MNOTE 8,'First parameter invalid: empty sublist'               00690000
+         AGO   .NOERR1D                                                 00700000
+.ERR1C   MNOTE 8,'First parameter invalid: length missing'              00710000
+         AGO   .NOERR1D                                                 00720000
+.ERR1D   MNOTE 4,'First parameter invalid: too many sub-parameters'     00730000
+.NOERR1D ANOP                                                           00740000
+.* If Area specified as a register: extract register                    00750000
+         AIF   ('&_AREA'(1,1) NE '(').NOERR1F                           00760000
+         AIF   (N'&AREA(1) EQ 0).ERR1E                                  00770000
+         AIF   (N'&AREA(1) GT 1).ERR1F                                  00780000
+&_AREG   SETC  '&AREA(1,1)'            * Extract area register          00790000
+         AGO   .NOERR1F                                                 00800000
+.ERR1E   MNOTE 8,'First parameter invalid: missing register designation*00810000
+               '                                                        00820000
+         AGO   .NOERR1F                                                 00830000
+.ERR1F   MNOTE 8,'First parameter invalid: more than 1 register specifi*00840000
+               ed as pointer'                                           00850000
+.NOERR1F ANOP                                                           00860000
+.* If Area-length specified as a register: extract register             00870000
+         AIF   ('&_LEN'(1,1) NE '(').NOERR1H                            00880000
+         AIF   (N'&AREA(2) EQ 0).ERR1G                                  00890000
+         AIF   (N'&AREA(2) GT 1).ERR1H                                  00900000
+&_LREG   SETC  '&AREA(2,1)'            * Extract length register        00910000
+         AGO   .NOERR1H                                                 00920000
+.ERR1G   MNOTE 8,'First parameter invalid: missing length designation'  00930000
+         AGO   .NOERR1F                                                 00940000
+.ERR1H   MNOTE 8,'First parameter invalid: more than 1 register specifi*00950000
+               ed as length'                                            00960000
+.NOERR1H ANOP                                                           00970000
+.* If length specifies *ADDR area must be a general purpose register    00980000
+         AIF   ('&_LEN' NE '*ADDR').NOERR1                              00990000
+&BIT0    SETB  1                       * Indicate BIT0 was specified    01000000
+         CHKREG &_AREA,g               * Is it a valid gpr?             01010000
+         AIF   (&BXA_RC GT 4).ERR1I    * No: issue error                01020000
+         AGO   .DFTLEN                 * Ok: set length by default      01030000
+.ERR1I   ANOP  ,                       *                                01040000
+&_AREA   SETC  (DOUBLE '&_AREA')       *                                01050000
+         MNOTE 8,'&_AREA is not a valid general purpose register'       01060000
+.DFTLEN  ANOP  ,                       *                                01070000
+&I       SETA  L'&AREA                 * Default to length of field     01080000
+&_LEN    SETC  '&I'                    *   and insert into length var.  01090000
+.NOERR1  ANOP  ,                                                        01100000
+.*                                                                      01110000
+.* Check the Fill parameter                                             01120000
+&_FILL   SETC  '&FILL'                 * First default to spec'd value  01130000
+         AIF   (K'&FILL EQ 0).DFT2                                      01140000
+         AIF   (&BIT0).ERR2E                                            01150000
+         AIF   (K'&FILL LT 4).ERR2A                                     01160000
+         AIF   ('&FILL'(1,1) EQ '(').ERR2B                              01170000
+         AIF   ('&FILL'(2,1) NE '''').ERR2C                             01180000
+         AIF   ('&FILL'(K'&FILL,1) NE '''').ERR2C                       01190000
+         AIF   ('&FILL'(1,1) EQ 'B').NOERR2                             01200000
+         AIF   ('&FILL'(1,1) EQ 'C').NOERR2                             01210000
+         AIF   ('&FILL'(1,1) EQ 'X').NOERR2                             01220000
+         AGO   .ERR2D                                                   01230000
+.ERR2A   MNOTE 8,'Specified filler is not a valid literal'              01240000
+         AGO   .NOERR2                                                  01250000
+.ERR2B   MNOTE 8,'Filler cannot be specified as a register'             01260000
+         AGO   .NOERR2                                                  01270000
+.ERR2C   MNOTE 8,'Insufficient or missing quotes in literal for filler' 01280000
+         AGO   .NOERR2                                                  01290000
+.ERR2D   MNOTE 8,'Filler must be specified as B, C, or X constant'      01300000
+         AGO   .NOERR2                                                  01310000
+.ERR2E   MNOTE 8,'Filler must not be specified with *ADDR option'       01320000
+         AGO   .NOERR2                                                  01330000
+.DFT2    ANOP                                                           01340000
+&_FILL   SETC  'X''00'''               * Second default: zeroes         01350000
+         AIF   ('&_AREA'(1,1) EQ '(').NOERR2 * Ok for register          01360000
+         AIF   ('&TYPE' EQ 'XC').NOERR2 * Ok for TYPE=XC                01370000
+         AIF   (T'&_AREA NE 'C').NOERR2 * Ok for non-char data          01380000
+&_FILL   SETC  'C'' '''                * Third default: blanks          01390000
+.NOERR2  ANOP                                                           01400000
+.*                                                                      01410000
+.* Check the TYPE parameter                                             01420000
+         AIF   (K'&TYPE EQ 0).NOERR3                                    01430000
+         AIF   (&BIT0).ERR3B                                            01440000
+         AIF   ('&TYPE' EQ 'SHORT').SETSHORT                            01450000
+         AIF   ('&TYPE' EQ 'LONG').SETLONG                              01460000
+         AIF   ('&TYPE' EQ 'XC').SETXC                                  01470000
+.ERR3A   MNOTE 8,'Third parameter must specify LONG, SHORT, or XC'      01480000
+         AGO   .NOERR3                                                  01490000
+.ERR3B   MNOTE 8,'Type parameter must not be specified with *ADDR optio*01500000
+               n'                                                       01510000
+.NOERR3  ANOP                                                           01520000
+.*                                                                      01530000
+.* Type not given: determine value from other operands as follows:      01540000
+.* - If &AREA specifies a valid register (R0-R15), and                  01550000
+.*   &FILL and &TYPE are both omitted, default to XR                    01560000
+.* - If &AREA specifies a valid access register (AR0-AR15), and         01570000
+.*   &FILL and &TYPE are both omitted, default to LAE                   01580000
+.* - If &AREA specifies a valid register (R0-R15), and                  01590000
+.*   length specifies a valid access register default to LAE too        01600000
+.* - If length is in a register, default to LONG                        01610000
+.* - if length is a valid literal, check its value                      01620000
+.*   up to 257: use SHORT, beyond: use LONG                             01630000
+.* - All others: default to SHORT                                       01640000
+.*                                                                      01650000
+         AIF   (&BIT0).SETBIT0         *                                01660000
+         AIF   (K'&FILL NE 0).NOREG    * Fill specified: not a reg      01670000
+         AIF   (K'&TYPE NE 0).NOREG    * Type specified: not a reg      01680000
+         AIF   ('&AREA'(1,1) EQ '(').SLIST * Sublist may be a register  01690000
+         CHKREG &AREA,g                * Valid GPR?                     01700000
+         AIF   (&BXA_RC EQ 0).SETXR    * Yes                            01710000
+         CHKREG &AREA,a                * Valid AR?                      01720000
+         AIF   (&BXA_RC EQ 0).SETLAE   * Yes                            01730000
+         AGO   .NOREG                  * Apparently not a register      01740000
+.SLIST   ANOP  ,                       * Sublist: (reg,areg) ??         01750000
+         CHKREG &_AREA,g               * First is a GPR?                01760000
+         AIF   (&BXA_RC NE 0).NOREG    * No: not a register             01770000
+&I       SETA  &BXA_NUMVAL             * Keep register number           01780000
+         CHKREG &_LEN,a                * Second is an AR?               01790000
+         AIF   (&BXA_RC NE 0).NOREG    * No: not a register             01800000
+         AIF   (&BXA_NUMVAL EQ &I).SETLAE * Clear both GPR and AR       01810000
+         MNOTE 8,'Cannot clear &_AREA and &_LEN at the same time'       01820000
+         MEXIT ,                       *                                01830000
+.* Ok: Area is definitely not a valid register                          01840000
+.NOREG   ANOP  ,                       *                                01850000
+         AIF   (K'&_LREG GT 0).SETLONG * Register defaults to LONG      01860000
+         CHKNUM MACRO=CLEAR,           * &_LEN a valid number?         *01870000
+               NAME=LENGTH,            *                               *01880000
+               VAL=&_LEN,              *                               *01890000
+               MSGLVL=**               * No error messages              01900000
+         AIF   (&BXA_NUMVAL EQ 0).SETSHORT  * Not a num: assume SHORT   01910000
+         AIF   (&BXA_NUMVAL GT 257).SETLONG * Too long for MVC or XC    01920000
+         AIF   (&BXA_NUMVAL GT 64).SETSHORT * Too long for XC           01930000
+         AIF   ('&_FILL' EQ 'X''00''').SETXC * Use XC to clear          01940000
+         AIF   ('&_FILL' EQ 'B''00000000''').SETXC                      01950000
+         AGO   .SETSHORT               * Default to SHORT               01960000
+.*                                                                      01970000
+.SETBIT0 ANOP                                                           01980000
+&_TYPE   SETC  'BIT0'                  * BIT0: will use LA              01990000
+         AGO   .TYPEOK                                                  02000000
+.SETXC   ANOP                                                           02010000
+&_TYPE   SETC  'XC'                    * SHORT: will use XC             02020000
+         AGO   .TYPEOK                                                  02030000
+.SETSHORT ANOP                                                          02040000
+&_TYPE   SETC  'SHORT'                 * SHORT: will use MVC            02050000
+         AGO   .TYPEOK                                                  02060000
+.SETLONG ANOP                                                           02070000
+&_TYPE   SETC  'LONG'                  * LONG: will use MVCL            02080000
+         AGO   .TYPEOK                                                  02090000
+.SETXR   ANOP                                                           02100000
+&_TYPE   SETC  'XR'                    * XR: clear a register           02110000
+         AGO   .TYPEOK                                                  02120000
+.SETLAE  ANOP                                                           02130000
+&_TYPE   SETC  'LAE'                   * LAE: Clear an access register  02140000
+.TYPEOK  ANOP                                                           02150000
+.*                                                                      02160000
+.* Generate code                                                        02170000
+         AIF   ('&_TYPE' EQ 'LONG').LONG                                02180000
+         AIF   ('&_TYPE' EQ 'SHORT').SHORT                              02190000
+         AIF   ('&_TYPE' EQ 'XC').XC                                    02200000
+         AIF   ('&_TYPE' EQ 'XR').XR                                    02210000
+         AIF   ('&_TYPE' EQ 'LAE').LAE                                  02220000
+         AIF   ('&_TYPE' EQ 'BIT0').LA                                  02230000
+         MNOTE 12,'Internal error in CLEAR'                             02240000
+         MEXIT                                                          02250000
+.*                                                                      02260000
+.* Generate logic for TYPE=XC                                           02270000
+.XC      ANOP                                                           02280000
+.* Determine which work register to use                                 02290000
+         AIF   (K'&_AREG NE 0 AND K'&_LREG NE 0).XCRR                   02300000
+         AIF   (K'&_AREG NE 0 AND K'&_LREG EQ 0).XCRL                   02310000
+         AIF   (K'&_AREG EQ 0 AND K'&_LREG NE 0).XCLR                   02320000
+         AIF   (K'&_AREG EQ 0 AND K'&_LREG EQ 0).XCLL                   02330000
+.*                                                                      02340000
+.XCLL    ANOP  ,                       * Area and length are literal    02350000
+         CHKLIT &_LEN                  *                                02360000
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 1).XCLL1                02370000
+&LABEL   XC    &_AREA.(&_LEN),&_AREA   * Set whole field to zeroes      02380000
+         MEXIT ,                       *                                02390000
+.XCLL1   ANOP  ,                       *                                02400000
+&LABEL   MVI   &_AREA,X'00'            * Set whole field to zeroes      02410000
+         MEXIT ,                       *                                02420000
+.*                                                                      02430000
+.XCLR    ANOP  ,                       * Area literal, length in reg    02440000
+&LABEL   EXXC  &_AREA.(_LREG),&_AREA   * Set area to zeroes             02450000
+         B     _CLRMVD&SYSNDX          * Branch over MVC-instruction    02460000
+         MEXIT                                                          02470000
+.*                                                                      02480000
+.XCRL    ANOP  ,                       * Area in reg, length literal    02490000
+         CHKLIT &_LEN                  *                                02500000
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 1).XCRL1                02510000
+&LABEL   XC    0(&_LEN,&_AREG),0(&_AREG) * Set to all zeroes            02520000
+         MEXIT ,                       *                                02530000
+.XCRL1   ANOP  ,                       *                                02540000
+&LABEL   MVI   0(&_AREG),X'00'         * Set to all zeroes              02550000
+         MEXIT ,                       *                                02560000
+.*                                                                      02570000
+.XCRR    ANOP  ,                       * Area in reg, length in reg     02580000
+&LABEL   EXXC  0(&_LREG,&_AREG),0(&_AREG) * Set area to zeroes          02590000
+         MEXIT                                                          02600000
+.*                                                                      02610000
+.* Generate logic for TYPE=SHORT                                        02620000
+.SHORT   ANOP                                                           02630000
+.* Determine which work register to use                                 02640000
+         AIF   (K'&_AREG NE 0 AND K'&_LREG NE 0).SHORTRR                02650000
+         AIF   (K'&_AREG NE 0 AND K'&_LREG EQ 0).SHORTRL                02660000
+         AIF   (K'&_AREG EQ 0 AND K'&_LREG NE 0).SHORTLR                02670000
+         AIF   (K'&_AREG EQ 0 AND K'&_LREG EQ 0).SHORTLL                02680000
+.*                                                                      02690000
+.SHORTLL ANOP  ,                       * Area and length are literal    02700000
+&LABEL   MVI   &_AREA,&_FILL           * Move first filler byte         02710000
+         CHKLIT &_LEN                  *                                02720000
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 1).MEND                 02730002
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 2).SHORTLL2             02740000
+         MVC   1+&_AREA.(&_LEN-1),&_AREA * Propagate filler byte        02750000
+         MEXIT                                                          02760000
+.SHORTLL2 ANOP ,                       * Length of area is 2            02770000
+         MVI   1+&_AREA,&_FILL         * Move first filler byte         02780000
+         MEXIT                                                          02790000
+.*                                                                      02800000
+.SHORTLR ANOP  ,                       * Area literal, length in reg    02810000
+&LABEL   MVI   &_AREA,&_FILL           * Move first filler byte         02820000
+         DEC   &_LREG                  * Decrement for 1st filler byte  02830000
+         DEC   &_LREG                  * Decrement for EX               02840000
+         EXMVC 1+&_AREA.(&_LREG),&_AREA,NODEC * Length modified by EX   02850000
+         INC   &_LREG,2                * Reset length register          02860000
+         MEXIT                                                          02870000
+.*                                                                      02880000
+.SHORTRL ANOP  ,                       * Area in reg, length literal    02890000
+&LABEL   MVI   0(&_AREG),&_FILL        * Move first filler byte         02900000
+         CHKLIT &_LEN                  *                                02910000
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 1).MEND                 02920002
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ 2).SHORTRL2             02930000
+         MVC   1(&_LEN-1,&_AREG),0(&_AREG) * Propagate filler byte      02940000
+         MEXIT ,                       *                                02950000
+.SHORTRL2 ANOP ,                       * Length of area is 2            02960000
+         MVI   1(&_AREG),&_FILL        * Move first filler byte         02970000
+         MEXIT ,                       *                                02980000
+.*                                                                      02990000
+.SHORTRR ANOP  ,                       * Area in reg, length in reg     03000000
+&LABEL   MVI   0(&_AREG),&_FILL        * Move first filler byte         03010000
+         DEC   &_LREG                  * Decrement for 1st filler byte  03020000
+         DEC   &_LREG                  * Decrement for EX               03030000
+         EXMVC 1(&_LREG,&_AREG),0(&_AREG),NODEC * Length modified by EX 03040000
+         INC   &_LREG,2                * Reset length register          03050000
+         MEXIT                                                          03060000
+.*                                                                      03070000
+.* Generate logic for TYPE=LONG                                         03080000
+.LONG    ANOP                                                           03090000
+.* Common code for type=long                                            03100000
+         CHKLIT &_FILL                 * Determine value of literal     03110000
+         AIF   (&BXA_RC NE 0).LOADR15  * Valid literal in &_FILL ?      03120000
+         AIF   (&BXA_NUMVAL NE 0).LOADR15 * Literal of X'00'?           03130000
+&LABEL   CLEAR R15                     * Set filler/src length to zero  03140000
+         AGO   .LENOK                                                   03150000
+.LOADR15 ANOP  ,                                                        03160000
+&LABEL   LA    R15,&_FILL              * Set up filler byte             03170000
+         SLL   R15,24                  *  and length of source to zero  03180000
+.LENOK   ANOP  ,                                                        03190000
+.*                                                                      03200000
+.* Determine which work registers to use                                03210000
+&R0      SETC  'YES'                   * Normally R0/R1 will do fine    03220000
+         AIF   ('&SYSASCE' EQ 'P').EQUREG                               03230000
+&R0      SETC  'NO'                    * AR-mode: cannot use R0!        03240000
+.*                                                                      03250000
+.EQUREG  ANOP  ,                                                        03260000
+         EQUREG PAIR=YES,R0=&R0        * Try to allocate a pair of regs 03270000
+         AIF   (&BXA_RC NE 0).ERR4A    * Alloc failed                   03280000
+&EREG    SETC  'R&BXA_NUMVAL'          * Assigned even register name    03290000
+&BXA_NUMVAL SETA &BXA_NUMVAL+1         * Increment to odd register      03300000
+&OREG    SETC  'R&BXA_NUMVAL'          * Assigned odd register name     03310000
+         MNOTE *,'CLEAR - Using &EREG and &OREG'                        03320000
+         AGO   .NOERR4
+.ERR4A   MNOTE 8,'No register pair available for MVCL'
+         AGO   .MEND
+.NOERR4  ANOP  ,
+.*                                                                      03330000
+.* Load even and odd registers with destination ptr and length          03340000
+         AIF   (K'&_AREG NE 0).LONGDR  * Load dest ptr from register?   03350000
+         AIF   ('&SYSASCE' EQ 'P').LONGDL_LA * Primary or AR mode?      03360000
+         LAE   &EREG,&_AREA            * Load destination address       03370000
+         AGO   .LONGD_OK               * Destination ptr loaded         03380000
+.LONGDL_LA ANOP ,                                                       03390000
+         LA    &EREG,&_AREA            * Load destination address       03400000
+         AGO   .LONGD_OK               * Destination ptr loaded         03410000
+.LONGDR  ANOP  ,                                                        03420000
+         AIF   ('&SYSASCE' EQ 'P').LONGDR_LR * Primary or AR mode?      03430000
+         LAE   &EREG,0(,&_AREG)        * Load destination address       03440000
+         AGO   .LONGD_OK               * Destination ptr loaded         03450000
+.LONGDR_LR ANOP ,                                                       03460000
+         LR    &EREG,&_AREG            * Load destination address       03470000
+.LONGD_OK ANOP ,                       * &EREG now loaded with dest.ptr 03480000
+.*                                                                      03490000
+         AIF   (K'&_LREG NE 0).LONGLR  * Length in register?            03500000
+         L     &OREG,=A(&_LEN)         * Load length of dest. area      03510000
+         AGO   .LONGL_OK               * Length is now ok               03520000
+.LONGLR  ANOP  ,                       *                                03530000
+         LR    &OREG,&_LREG            * Load length of dest. from reg. 03540000
+.LONGL_OK ANOP ,                       * Length now in &OREG            03550000
+.*                                                                      03560000
+         MVCL  &EREG,R14               * Fill entire area               03570000
+         MEXIT                                                          03580000
+.*                                                                      03590000
+.* Generate logic for type XR                                           03600000
+.XR      ANOP  ,                       * Area in reg, length in reg     03610000
+&LABEL   XR    &AREA,&AREA             * Wipe register                  03620000
+         MEXIT                                                          03630000
+.*                                                                      03640000
+.* Generate logic for type LAE                                          03650000
+.LAE     ANOP  ,                       * Wipe an access register        03660000
+         AIF   (T'&_AREA EQ 'g').LAE3  * Clearing a GPR/AR pair?        03670000
+         CHKREG &_AREA                 * Determine register number      03680000
+&I       SETA  &BXA_NUMVAL             * Save AR number                 03690000
+&_AREA   SETC  '&_AREA'(2,*)           * Create Rnn from ARnn           03700000
+         CHKREG &_AREA,g               * Valid GPR with same nr?        03710000
+         AIF   (&BXA_RC EQ 0 AND &BXA_NUMVAL EQ &I).LAE2                03720000
+&_AREA   SETC  'R&I'                   * Use default register name      03730000
+.LAE2    ANOP  ,                       *                                03740000
+&LABEL   LAE   &_AREA,0(&_AREA,0)      * Wipe access register           03750000
+         MEXIT ,                       *                                03760000
+.LAE3    ANOP  ,                       *                                03770000
+&LABEL   LAE   &_AREA,0                * Wipe register and access reg.  03780000
+         MEXIT ,                       *                                03790000
+.*                                                                      03800000
+.* Generate logic for type BIT0                                         03810000
+.LA      ANOP  ,                       * Area in reg, length in reg     03820000
+&LABEL   LA    &_AREA,0(&_AREA,0)      * Wipe hi-order bit              03830000
+         MEXIT ,                       *                                03840000
+.*                                                                      03850000
+.MEND    MEND                                                           03870002

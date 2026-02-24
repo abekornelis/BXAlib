@@ -1,0 +1,218 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Execute an instruction with variable length                          00180000
+.*                                                                      00190000
+&LABEL   EXQ   &TO,                    * First operand                 *00200000
+               &FROM,                  * Second operand                *00210000
+               &OPCD,                  * Operation code to EXecute     *00220000
+               &DECR                   * Decrement indicator            00230000
+.*                                                                      00240000
+.* &TO   specifies the first operand for the instruction. In the length 00250000
+.*       field, a register contining the length must be specified.      00260000
+.*       For an MVC the first operand is the destination of the move.   00270000
+.* &FROM specifies the second operand of the instruction to be          00280000
+.*       executed. For an MVC this is the source of the move.           00290000
+.* &OPCD specifies the operation code for the instruction to be         00300000
+.*       executed.                                                      00310000
+.* &DECR a value of NODEC indicates that the length in the register     00320000
+.*       specified in the TO length field, contains the length of       00330000
+.*       the move minus 1 for the EX instruction.                       00340000
+.*                                                                      00350000
+.********************************************************************** 00351001
+.*                                                                      00352001
+.*       IMPORTANT NOTICE                                               00353001
+.*       ========= ======                                               00354001
+.*                                                                      00355001
+.* Code below checks whether 'USER' accepted the terms and conditions   00356001
+.* of the license for the BXA macro library. This code is to be treated 00357001
+.* as part of the Copyright Notice and therefore may not be changed     00358001
+.* or disabled in any way.                                              00359001
+.*                                                                      00359101
+.********************************************************************** 00359201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00359301
+         CHKLIC EXQ                    * Check license acceptance       00359401
+         AIF   (&BXA_RC NE 0).MEND                                      00359502
+.********************************************************************** 00359601
+.*                                                                      00359701
+.* End of special code that is part of the Copyright Notice             00359801
+.*                                                                      00359901
+.********************************************************************** 00360001
+.*                                                                      00360101
+.* Declare variables                                                    00361000
+         GBLC  &BXA_EXQ_I(50)          * Instructions to EXecute        00370000
+         GBLC  &BXA_EXQ_OPS(50)        * Operands for BXA_EXQ_I         00380000
+         GBLA  &BXA_EXQ_LAST           * Last generated entry           00390000
+         LCLC  &EXQ_OPS                * Operands                       00400000
+         LCLC  &_TO                    * First operand (to for MVC)     00410000
+         LCLC  &_REG                   * Register with length           00420000
+         LCLA  &I,I1,I2                * Index into &TO string          00430000
+         LCLB  &_DECR                  * On if DECR=NODEC               00440000
+.*                                                                      00450000
+.* Check the TO parameter                                               00460000
+         AIF   (K'&TO NE 0).NOERR1                                      00470000
+.ERR1A   MNOTE 8,'No first operand specified'                           00480000
+.NOERR1  ANOP                                                           00490000
+.*                                                                      00500000
+.* Check the FROM parameter                                             00510000
+         AIF   ('&OPCD' EQ 'SVC').NOERR2                                00520000
+         AIF   (K'&FROM NE 0).NOERR2                                    00530000
+.ERR2A   MNOTE 8,'No second operand specified'                          00540000
+.NOERR2  ANOP                                                           00550000
+.*                                                                      00560000
+.* Check the OPCD parameter                                             00570000
+         AIF   (K'&OPCD EQ 0).ERR3A                                     00580000
+         AIF   ('&OPCD' EQ 'CLC').NOERR3                                00590000
+         AIF   ('&OPCD' EQ 'MVC').NOERR3                                00600000
+         AIF   ('&OPCD' EQ 'SVC').NOERR3                                00610000
+         AIF   ('&OPCD' EQ 'TR').NOERR3                                 00620000
+         AIF   ('&OPCD' EQ 'TRT').NOERR3                                00630000
+         AIF   ('&OPCD' EQ 'XC').NOERR3                                 00640000
+         AGO   .ERR3B                                                   00650000
+.ERR3A   MNOTE 8,'Third parameter (operation code) omitted'             00660000
+         AGO   .NOERR3                                                  00670000
+.ERR3B   MNOTE 8,'Invalid operation code specified on third parameter'  00680000
+.NOERR3  ANOP                                                           00690000
+.*                                                                      00700000
+.* Check the DECR parameter                                             00710000
+         AIF   (K'&DECR EQ 0).NOERR4                                    00720000
+         AIF   ('&DECR' EQ 'NODEC').NOERR4A                             00730000
+.ERR4A   MNOTE 8,'Fourth operand must be specified as NODEC or omitted' 00740000
+         AGO   .NOERR4                                                  00750000
+.NOERR4A ANOP                                                           00760000
+&_DECR   SETB  1                       * Signal NODEC was specified     00770000
+         AIF   ('&OPCD' NE 'SVC').NOERR4B                               00780000
+.ERR4B   MNOTE 4,'Superfluous operand NODEC for EXSVC'                  00790000
+.NOERR4B ANOP                                                           00800000
+.NOERR4  ANOP                                                           00810000
+         AIF   ('&OPCD' NE 'SVC').NONODEC                               00820000
+&_DECR   SETB  1                       * Simulate NODEC operand for SVC 00830000
+.NONODEC ANOP                                                           00840000
+.*                                                                      00850000
+.* Extract &_REG from length field in &TO operand                       00860000
+.* First we search for an opening parenthesis                           00870000
+&I       SETA  0                                                        00880000
+.LOOP1   ANOP                                                           00890000
+&I       SETA  &I+1                    * Point next character           00900000
+         AIF   (&I GT K'&TO).END1      * At end: quit loop              00910000
+         AIF   ('&TO'(&I,1) EQ '(').FOUND1                              00920000
+         AGO   .LOOP1                                                   00930000
+.FOUND1  ANOP                                                           00940000
+&I1      SETA  &I+1                    * Start-index of length field    00950000
+.*                                                                      00960000
+.END1    ANOP                                                           00970000
+         AIF   (&I1 EQ 0).ERR5A                                         00980000
+         AIF   (&I1 GT K'&TO).ERR5B                                     00990000
+         AGO   .NOERR5                                                  01000000
+.ERR5A   MNOTE 8,'Opening parenthesis ''('' not found in first operand' 01010000
+         AGO   .NOERR5                                                  01020000
+.ERR5B   MNOTE 8,'Opening parenthesis ''('' found at end of first opera*01030000
+               nd'                                                      01040000
+.NOERR5  ANOP                                                           01050000
+.*                                                                      01060000
+.* Now we search for an ending parenthesis or a comma                   01070000
+.LOOP2   ANOP                                                           01080000
+&I       SETA  &I+1                    * Point next character           01090000
+         AIF   (&I GT K'&TO).END2      * At end: quit loop              01100000
+         AIF   ('&TO'(&I,1) EQ ')').FOUND2                              01110000
+         AIF   ('&TO'(&I,1) EQ ',').FOUND2                              01120000
+         AGO   .LOOP2                                                   01130000
+.FOUND2  ANOP                                                           01140000
+&I2      SETA  &I-1                    * Start-index of length field    01150000
+.END2    ANOP                                                           01160000
+.*                                                                      01170000
+         AIF   (&I2 EQ 0).ERR6A                                         01180000
+         AIF   (&I2 EQ &I1).ERR6B                                       01190000
+         AGO   .NOERR6                                                  01200000
+.ERR6A   MNOTE 8,'Closing parenthesis '')'' or comma not found in first*01210000
+                operand'                                                01220000
+         AGO   .NOERR6                                                  01230000
+.ERR6B   MNOTE 8,'Empty length field found in instruction'              01240000
+.NOERR6  ANOP                                                           01250000
+.*                                                                      01260000
+.* Extract register and real TO field                                   01270000
+&I       SETA  1+&I2-&I1               * Length of register designation 01280000
+&_REG    SETC  '&TO'(&I1,&I)           * Extract register designation   01290000
+&I1      SETA  &I1-1                   * Point to ( character           01300000
+&I2      SETA  &I2+1                   * Point to ) or , character      01310000
+&I       SETA  1+K'&TO-&I2             * Length of remainder of string  01320000
+&_TO     SETC  '&TO'(1,&I1).'0'.'&TO'(&I2,&I)                           01330000
+.*                                                                      01340000
+.* Now we will build the operands string in EXQ_OPS. If the instruction 01350000
+.* plus operands already occur in BXA_EXQ_I/BXA_EXQ_OPS, then we will   01360000
+.* use that instruction. Otherwise, we add an entry in each of these    01370000
+.* tables. The entries will be included as instructions in the literal  01380000
+.* pool through expansion of the LTORG macro.                           01390000
+.* The instruction to be generated looks as either of the following:    01400000
+.*       &OPCD &_TO,&FROM              * EXecutable instruction         01410000
+.*       &OPCD &_TO                    * EXecutable instruction         01420000
+&EXQ_OPS SETC  '&_TO'                  * First part of operand string   01430000
+         AIF   (K'&FROM EQ 0).OPSOK                                     01440000
+&EXQ_OPS SETC  '&_TO'.',&FROM'         * Complete operand string        01450000
+.OPSOK   ANOP                                                           01460000
+.*                                                                      01470000
+.* Check whether entry exists in current section of tables              01480000
+&I       SETA  &BXA_EXQ_LAST           * index in BXA_EXQ_I BXA_EXQ_OPS 01490000
+.LOOP3   ANOP  ,                       *                                01500000
+&I       SETA  &I+1                    * Point to next entry            01510000
+         AIF   (&I GT N'&BXA_EXQ_I).LOOP3NF * Not found: add entry      01520000
+         AIF   ('&OPCD' NE '&BXA_EXQ_I(&I)').LOOP3 * Not found: next    01530000
+         AIF   ('&EXQ_OPS' NE '&BXA_EXQ_OPS(&I)').LOOP3 * Not found     01540000
+         AGO   .LOOP3OK                * Got it: abort loop             01550000
+.LOOP3NF ANOP  ,                       * I now points to free entry     01560000
+&BXA_EXQ_I(&I)   SETC '&OPCD'          * Create new entry               01570000
+&BXA_EXQ_OPS(&I) SETC '&EXQ_OPS'       *   in both arrays               01580000
+.LOOP3OK ANOP  ,                       * I now points to correct entry  01590000
+.*                                                                      01600000
+.* Generate code                                                        01610000
+&LABEL   LABEL ,                                                        01620000
+         AIF   (&_DECR).NODEC1                                          01630000
+         DEC   &_REG                   * Decrement length by 1          01640000
+.NODEC1  ANOP                                                           01650000
+.*                                                                      01660000
+         EX    &_REG,_EXQ&I            * EXecute variable-length instr. 01670000
+.*                                                                      01680000
+         AIF   (&_DECR).NODEC2                                          01690000
+         INC   &_REG                   * Restore register with length   01700000
+.NODEC2  ANOP                                                           01710000
+.*                                                                      01720000
+.MEND    MEND                                                           01730002

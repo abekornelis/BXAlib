@@ -1,0 +1,501 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the System Diagnostic Work Area                      00180000
+.*                                                                      00190000
+&LABEL   MAPSDWA &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPSDWA                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPSDWA        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'SDWA').EMBED                                  00360000
+         AIF   ('&CB' EQ 'SDWANRC1').EMBED                              00370000
+         AIF   ('&CB' EQ 'SDWANRC2').EMBED                              00380000
+         AIF   ('&CB' EQ 'SDWANRC3').EMBED                              00390000
+         AIF   ('&CB' EQ 'SDWAPTRS').EMBED                              00400000
+         AIF   ('&CB' EQ 'SDWARC1').EMBED                               00410000
+         AIF   ('&CB' EQ 'SDWARC2').EMBED                               00420000
+         AIF   ('&CB' EQ 'SDWARC3').EMBED                               00430000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.* Generate embedded definition                                         00470000
+.EMBED   ANOP                                                           00480000
+&LABEL   NESTCB &CB,X,&PRFX                                             00490000
+         MEXIT                                                          00500000
+.*                                                                      00510000
+.DSECT   ANOP                                                           00520000
+         AIF   (&BXA_MAC_MAPSDWA).MEND                                  00530002
+&BXA_MAC_MAPSDWA SETB 1                                                 00540000
+.* Set up translation from control block to macro for DCL               00550000
+         GBLC  &BXA_CB_SDWA                                             00560000
+         GBLC  &BXA_CB_SDWANRC1                                         00570000
+         GBLC  &BXA_CB_SDWANRC2                                         00580000
+         GBLC  &BXA_CB_SDWANRC3                                         00590000
+         GBLC  &BXA_CB_SDWAPTRS                                         00600000
+         GBLC  &BXA_CB_SDWARC1                                          00610000
+         GBLC  &BXA_CB_SDWARC2                                          00620000
+         GBLC  &BXA_CB_SDWARC3                                          00630000
+&BXA_CB_SDWA SETC 'SDWA'                                                00640000
+&BXA_CB_SDWANRC1 SETC 'SDWA'                                            00650000
+&BXA_CB_SDWANRC2 SETC 'SDWA'                                            00660000
+&BXA_CB_SDWANRC3 SETC 'SDWA'                                            00670000
+&BXA_CB_SDWAPTRS SETC 'SDWA'                                            00680000
+&BXA_CB_SDWARC1 SETC 'SDWA'                                             00690000
+&BXA_CB_SDWARC2 SETC 'SDWA'                                             00700000
+&BXA_CB_SDWARC3 SETC 'SDWA'                                             00710000
+.*                                                                      00720000
+.* SDWACMPF - FLAG BITS IN COMPLETION CODE.                             00730000
+SDWAREQ  EQUOVR ,,b,SDWACMPF                                            00740000
+SDWASTEP EQUOVR ,,b,SDWACMPF                                            00750000
+SDWASTCC EQUOVR ,,b,SDWACMPF                                            00760000
+SDWARCF  EQUOVR ,,b,SDWACMPF                                            00770000
+.*                                                                      00780000
+.* SDWACMKA - CHANNEL INTERRUPT MASKS.                                  00790000
+SDWAIOA  EQUOVR ,,b,SDWACMKA                                            00800000
+SDWAEXTA EQUOVR ,,b,SDWACMKA                                            00810000
+.*                                                                      00820000
+.* SDWAMWPA - PSW KEY AND 'M-W-P'.                                      00830000
+SDWAKEYA EQUOVR ,,b,SDWAMWPA                                            00840000
+SDWAMCKA EQUOVR ,,b,SDWAMWPA                                            00850000
+SDWAWATA EQUOVR ,,b,SDWAMWPA                                            00860000
+SDWASPVA EQUOVR ,,b,SDWAMWPA                                            00870000
+.*                                                                      00880000
+.* SDWAPMKA - INSTRUCTION LENGTH CODE, CONDITION CODE                   00890000
+SDWAILA  EQUOVR ,,b,SDWAPMKA                                            00900000
+SDWACCA  EQUOVR ,,b,SDWAPMKA                                            00910000
+SDWAFPA  EQUOVR ,,b,SDWAPMKA                                            00920000
+SDWADOA  EQUOVR ,,b,SDWAPMKA                                            00930000
+SDWAEUA  EQUOVR ,,b,SDWAPMKA                                            00940000
+SDWASGA  EQUOVR ,,b,SDWAPMKA                                            00950000
+.*                                                                      00960000
+.* SDWACMKP - CHANNEL INTERRUPT MASKS.                                  00970000
+SDWAIOP  EQUOVR ,,b,SDWACMKP                                            00980000
+SDWAEXTP EQUOVR ,,b,SDWACMKP                                            00990000
+.*                                                                      01000000
+.* SDWAMWPP - PSW KEY AND 'M-W-P'.                                      01010000
+SDWAKEYP EQUOVR ,,b,SDWAMWPP                                            01020000
+SDWAMCKP EQUOVR ,,b,SDWAMWPP                                            01030000
+SDWAWATP EQUOVR ,,b,SDWAMWPP                                            01040000
+SDWASPVP EQUOVR ,,b,SDWAMWPP                                            01050000
+.*                                                                      01060000
+.* SDWAPMKP - INSTRUCTION LENGTH CODE, CONDITION CODE                   01070000
+SDWAILP  EQUOVR ,,b,SDWAPMKP                                            01080000
+SDWACCP  EQUOVR ,,b,SDWAPMKP                                            01090000
+SDWAFPP  EQUOVR ,,b,SDWAPMKP                                            01100000
+SDWADOP  EQUOVR ,,b,SDWAPMKP                                            01110000
+SDWAEUP  EQUOVR ,,b,SDWAPMKP                                            01120000
+SDWASGP  EQUOVR ,,b,SDWAPMKP                                            01130000
+.*                                                                      01140000
+.* SDWAEMK1 - INTERRUPT INFORMATION MASKS                               01150000
+SDWAPER1 EQUOVR ,,b,SDWAEMK1                                            01160000
+SDWATRM1 EQUOVR ,,b,SDWAEMK1                                            01170000
+SDWAIO1  EQUOVR ,,b,SDWAEMK1                                            01180000
+SDWAEXT1 EQUOVR ,,b,SDWAEMK1                                            01190000
+.*                                                                      01200000
+.* SDWAMWP1 - PSW KEY AND 'M-W-P'                                       01210000
+SDWAKEY1 EQUOVR ,,b,SDWAMWP1                                            01220000
+SDWAECT1 EQUOVR ,,b,SDWAMWP1                                            01230000
+SDWAMCK1 EQUOVR ,,b,SDWAMWP1                                            01240000
+SDWAWAT1 EQUOVR ,,b,SDWAMWP1                                            01250000
+SDWAPGM1 EQUOVR ,,b,SDWAMWP1                                            01260000
+.*                                                                      01270000
+.* SDWAINT1 - CONDITION CODE AND PROGRAM MASK                           01280000
+SDWAASCM EQUOVR ,,b,SDWAINT1                                            01290000
+SDWAS1   EQUOVR ,,b,SDWAINT1                                            01300000
+SDWACC1  EQUOVR ,,b,SDWAINT1                                            01310000
+SDWAFPO1 EQUOVR ,,b,SDWAINT1                                            01320000
+SDWADEC1 EQUOVR ,,b,SDWAINT1                                            01330000
+SDWAEXP1 EQUOVR ,,b,SDWAINT1                                            01340000
+SDWASGN1 EQUOVR ,,b,SDWAINT1                                            01350000
+.*                                                                      01360000
+.* SDWAAMF1 - ADDRESSING MODE FLAG                                      01370000
+SDWAMOD1 EQUOVR ,,b,SDWAAMF1                                            01380000
+.*                                                                      01390000
+.* SDWAILC1 - INSTRUCTION LENGTH CODE FOR PSW DEFINED                   01400000
+SDWAIL1  EQUOVR ,,b,SDWAILC1                                            01410000
+.*                                                                      01420000
+.* SDWAICD1 - 8 BIT INTERRUPT CODE                                      01430000
+SDWAIPR1 EQUOVR ,,b,SDWAICD1                                            01440000
+SDWAIMC1 EQUOVR ,,b,SDWAICD1                                            01450000
+SDWAIPC1 EQUOVR ,,b,SDWAICD1                                            01460000
+.*                                                                      01470000
+.* SDWAEMK2 - INTERRUPT INFORMATION MASKS                               01480000
+SDWAPER2 EQUOVR ,,b,SDWAEMK2                                            01490000
+SDWATRM2 EQUOVR ,,b,SDWAEMK2                                            01500000
+SDWAIO2  EQUOVR ,,b,SDWAEMK2                                            01510000
+SDWAEXT2 EQUOVR ,,b,SDWAEMK2                                            01520000
+.*                                                                      01530000
+.* SDWAMWP2 - PSW KEY AND 'M-W-P'                                       01540000
+SDWAKEY2 EQUOVR ,,b,SDWAMWP2                                            01550000
+SDWAECT2 EQUOVR ,,b,SDWAMWP2                                            01560000
+SDWAMCK2 EQUOVR ,,b,SDWAMWP2                                            01570000
+SDWAWAT2 EQUOVR ,,b,SDWAMWP2                                            01580000
+SDWAPGM2 EQUOVR ,,b,SDWAMWP2                                            01590000
+.*                                                                      01600000
+.* SDWAINT2 - CONDITION CODE AND PROGRAM MASK                           01610000
+SDWAS2   EQUOVR ,,b,SDWAINT2                                            01620000
+SDWACC2  EQUOVR ,,b,SDWAINT2                                            01630000
+SDWAFPO2 EQUOVR ,,b,SDWAINT2                                            01640000
+SDWADEC2 EQUOVR ,,b,SDWAINT2                                            01650000
+SDWAEXP2 EQUOVR ,,b,SDWAINT2                                            01660000
+SDWASGN2 EQUOVR ,,b,SDWAINT2                                            01670000
+.*                                                                      01680000
+.* SDWAAMF2 - ADDRESSING MODE FLAG                                      01690000
+SDWAMOD2 EQUOVR ,,b,SDWAAMF2                                            01700000
+.*                                                                      01710000
+.* SDWAILC2 - INSTRUCTION LENGTH CODE FOR PSW DEFINED                   01720000
+SDWAIL2  EQUOVR ,,b,SDWAILC2                                            01730000
+.*                                                                      01740000
+.* SDWAICD2 - 8 BIT INTERRUPT CODE                                      01750000
+SDWAIPR2 EQUOVR ,,b,SDWAICD2                                            01760000
+SDWAIMC2 EQUOVR ,,b,SDWAICD2                                            01770000
+SDWAIPC2 EQUOVR ,,b,SDWAICD2                                            01780000
+.*                                                                      01790000
+.* SDWAMCHS - MCH FLAG BYTE                                             01800000
+SDWASRVL EQUOVR ,,b,SDWAMCHS                                            01810000
+SDWARCDF EQUOVR ,,b,SDWAMCHS                                            01820000
+SDWATSVL EQUOVR ,,b,SDWAMCHS                                            01830000
+SDWAINVP EQUOVR ,,b,SDWAMCHS                                            01840000
+SDWARSRC EQUOVR ,,b,SDWAMCHS                                            01850000
+SDWARSRF EQUOVR ,,b,SDWAMCHS                                            01860000
+SDWAVRIV EQUOVR ,,b,SDWAMCHS                                            01870000
+SDWAARGU EQUOVR ,,b,SDWAMCHS                                            01880000
+.*                                                                      01890000
+.* SDWAMCHD - INPUT INFORMATION TO RECOVERY ROUTINE                     01900000
+SDWASKYF EQUOVR ,,b,SDWAMCHD                                            01910000
+SDWAREGU EQUOVR ,,b,SDWAMCHD                                            01920000
+SDWAPSWU EQUOVR ,,b,SDWAMCHD                                            01930000
+SDWASCK  EQUOVR ,,b,SDWAMCHD                                            01940000
+SDWAACR  EQUOVR ,,b,SDWAMCHD                                            01950000
+SDWAINSF EQUOVR ,,b,SDWAMCHD                                            01960000
+SDWAFPRX EQUOVR ,,b,SDWAMCHD                                            01970000
+SDWATERR EQUOVR ,,b,SDWAMCHD                                            01980000
+.*                                                                      01990000
+.* SDWARSR1 - ADDITIONAL STORAGE FRAME ERROR INDICATORS                 02000000
+SDWAPREF EQUOVR ,,b,SDWARSR1                                            02010000
+SDWAVRCN EQUOVR ,,b,SDWARSR1                                            02020000
+SDWANSWP EQUOVR ,,b,SDWARSR1                                            02030000
+SDWANSWA EQUOVR ,,b,SDWARSR1                                            02040000
+SDWAMSER EQUOVR ,,b,SDWARSR1                                            02050000
+SDWACHNG EQUOVR ,,b,SDWARSR1                                            02060000
+.*                                                                      02070000
+.* SDWARSR2 - ADDITIONAL STORAGE ERROR INDICATORS.                      02080000
+SDWAOFLN EQUOVR ,,b,SDWARSR2                                            02090000
+SDWAINTC EQUOVR ,,b,SDWARSR2                                            02100000
+SDWASPER EQUOVR ,,b,SDWARSR2                                            02110000
+SDWANUCL EQUOVR ,,b,SDWARSR2                                            02120000
+SDWAFSQA EQUOVR ,,b,SDWARSR2                                            02130000
+SDWAFLSQ EQUOVR ,,b,SDWARSR2                                            02140000
+SDWAPGFX EQUOVR ,,b,SDWARSR2                                            02150000
+SDWAVEQR EQUOVR ,,b,SDWARSR2                                            02160000
+.*                                                                      02170000
+.* SDWAMCHO - OTHER MACHINE CHECK FLAGS                                 02180000
+SDWASKPR EQUOVR ,,b,SDWAMCHO                                            02190000
+.*                                                                      02200000
+.* SDWAERRA - ERROR TYPE CAUSING ENTRY TO RECOVERY EXIT                 02210000
+SDWAMCHK EQUOVR ,,b,SDWAERRA                                            02220000
+SDWAPCHK EQUOVR ,,b,SDWAERRA                                            02230000
+SDWARKEY EQUOVR ,,b,SDWAERRA                                            02240000
+SDWASVCD EQUOVR ,,b,SDWAERRA                                            02250000
+SDWAABTM EQUOVR ,,b,SDWAERRA                                            02260000
+SDWASVCE EQUOVR ,,b,SDWAERRA                                            02270000
+SDWATEXC EQUOVR ,,b,SDWAERRA                                            02280000
+SDWAPGIO EQUOVR ,,b,SDWAERRA                                            02290000
+SDWASTRM EQUOVR ,,b,SDWAERRA                                            02300000
+.*                                                                      02310000
+.* SDWAERRB - ADDITIONAL ERROR ENTRY INFORMATION                        02320000
+SDWAPDIP EQUOVR ,,b,SDWAERRB                                            02330000
+SDWATYP1 EQUOVR ,,b,SDWAERRB                                            02340000
+SDWAENRB EQUOVR ,,b,SDWAERRB                                            02350000
+SDWALDIS EQUOVR ,,b,SDWAERRB                                            02360000
+SDWASRBM EQUOVR ,,b,SDWAERRB                                            02370000
+.*                                                                      02380000
+.* SDWAERRC - ADDITIONAL ERROR ENTRY INFORMATION                        02390000
+SDWASTAF EQUOVR ,,b,SDWAERRC                                            02400000
+SDWASTAI EQUOVR ,,b,SDWAERRC                                            02410000
+SDWAIRB  EQUOVR ,,b,SDWAERRC                                            02420000
+SDWAPERC EQUOVR ,,b,SDWAERRC                                            02430000
+SDWAEAS  EQUOVR ,,b,SDWAERRC                                            02440000
+SDWASKIP EQUOVR ,,b,SDWAERRC                                            02450000
+SDWALCL  EQUOVR ,,b,SDWAERRC                                            02460000
+SDWAGLBL EQUOVR ,,b,SDWAERRC                                            02470000
+.*                                                                      02480000
+.* SDWAERRD - ADDITIONAL ERROR ENTRY INFORMATION                        02490000
+SDWACLUP EQUOVR ,,b,SDWAERRD                                            02500000
+SDWANRBE EQUOVR ,,b,SDWAERRD                                            02510000
+SDWASTAE EQUOVR ,,b,SDWAERRD                                            02520000
+SDWACTS  EQUOVR ,,b,SDWAERRD                                            02530000
+SDWAMABD EQUOVR ,,b,SDWAERRD                                            02540000
+SDWARPIV EQUOVR ,,b,SDWAERRD                                            02550000
+SDWAMCIV EQUOVR ,,b,SDWAERRD                                            02560000
+SDWAERFL EQUOVR ,,b,SDWAERRD                                            02570000
+.*                                                                      02580000
+.* SDWAIOFS - THIS IS THE CURRENT I/O STATUS                            02590000
+SDWAIOQR EQUOVR ,,b,SDWAIOFS                                            02600000
+SDWAIOHT EQUOVR ,,b,SDWAIOFS                                            02610000
+SDWANOIO EQUOVR ,,b,SDWAIOFS                                            02620000
+SDWANIOP EQUOVR ,,b,SDWAIOFS                                            02630000
+.*                                                                      02640000
+.* SDWARTYF - ADDRESSING MODE INDICATOR BYTE                            02650000
+SDWAAMOD EQUOVR ,,b,SDWARTYF                                            02660000
+.*                                                                      02670000
+.* SDWARCDE - RETURN CODE FROM RECOVERY ROUTINE                         02680000
+SDWACWT  EQUOVR ,,v,SDWARCDE                                            02690000
+SDWARETY EQUOVR ,,v,SDWARCDE                                            02700000
+SDWAPSTI EQUOVR ,,v,SDWARCDE                                            02710000
+.*                                                                      02720000
+.* SDWAACF2 - FLAGS TO INDICATE ADDITIONAL PROCESSING                   02730000
+SDWARCRD EQUOVR ,,b,SDWAACF2                                            02740000
+SDWARFXM EQUOVR ,,b,SDWAACF2                                            02750000
+SDWASPIN EQUOVR ,,b,SDWAACF2                                            02760000
+SDWARERR EQUOVR ,,b,SDWAACF2                                            02770000
+SDWAUPRG EQUOVR ,,b,SDWAACF2                                            02780000
+SDWAFREE EQUOVR ,,b,SDWAACF2                                            02790000
+SDWASERP EQUOVR ,,b,SDWAACF2                                            02800000
+SDWACML  EQUOVR ,,b,SDWAACF2                                            02810000
+.*                                                                      02820000
+.* SDWAACF3 - FLAGS INDICATING SOME GLOBAL LOCKS TO BE FREED.           02830000
+SDWAFRSX EQUOVR ,,b,SDWAACF3                                            02840000
+SDWAFRSA EQUOVR ,,b,SDWAACF3                                            02850000
+SDWAFVSP EQUOVR ,,b,SDWAACF3                                            02860000
+SDWADISP EQUOVR ,,b,SDWAACF3                                            02870000
+SDWAASMP EQUOVR ,,b,SDWAACF3                                            02880000
+SDWASALL EQUOVR ,,b,SDWAACF3                                            02890000
+SDWAIPRG EQUOVR ,,b,SDWAACF3                                            02900000
+SDWAFRSD EQUOVR ,,b,SDWAACF3                                            02910000
+.*                                                                      02920000
+.* SDWAACF4 - ADDITIONAL LOCKS TO BE FREED  FOR FRRS                    02930000
+SDWAIUCB EQUOVR ,,b,SDWAACF4                                            02940000
+SDWATADB EQUOVR ,,b,SDWAACF4                                            02950000
+SDWAOPTM EQUOVR ,,b,SDWAACF4                                            02960000
+SDWACMS  EQUOVR ,,b,SDWAACF4                                            02970000
+SDWAFLLK EQUOVR ,,b,SDWAACF4                                            02980000
+.*                                                                      02990000
+.* SDWADPFS - DUMP FLAGS                                                03000000
+SDWADPT  EQUOVR ,,b,SDWADPFS                                            03010000
+SDWADLST EQUOVR ,,b,SDWADPFS                                            03020000
+SDWAENSN EQUOVR ,,b,SDWADPFS                                            03030000
+SDWASLST EQUOVR ,,b,SDWADPFS                                            03040000
+.*                                                                      03050000
+.* SDWADPF2 - DUMP FLAGS 2                                              03060000
+SDWADVS3 EQUOVR ,,b,SDWADPF2                                            03070000
+SDWAXLST EQUOVR ,,b,SDWADPF2                                            03080000
+SDWALVL2 EQUOVR ,,b,SDWADPF2                                            03090000
+SDWASUBL EQUOVR ,,b,SDWADPF2                                            03100000
+.*                                                                      03110000
+.* SDWASDA0 - SDATA OPTIONS FLAG ONE                                    03120000
+SDWANUC  EQUOVR ,,b,SDWASDA0                                            03130000
+SDWASQA  EQUOVR ,,b,SDWASDA0                                            03140000
+SDWALSQA EQUOVR ,,b,SDWASDA0                                            03150000
+SDWASWA  EQUOVR ,,b,SDWASDA0                                            03160000
+SDWAGTF  EQUOVR ,,b,SDWASDA0                                            03170000
+SDWACBS  EQUOVR ,,b,SDWASDA0                                            03180000
+SDWAQQS  EQUOVR ,,b,SDWASDA0                                            03190000
+SDWADM   EQUOVR ,,b,SDWASDA0                                            03200000
+.*                                                                      03210000
+.* SDWASDA1 - SDATA OPTIONS                                             03220000
+SDWAIO   EQUOVR ,,b,SDWASDA1                                            03230000
+SDWAERR  EQUOVR ,,b,SDWASDA1                                            03240000
+SDWASUM  EQUOVR ,,b,SDWASDA1                                            03250000
+SDWAALLN EQUOVR ,,b,SDWASDA1                                            03260000
+.*                                                                      03270000
+.* SDWAPDAT - PDATA OPTIONS                                             03280000
+SDWADSAS EQUOVR ,,b,SDWAPDAT                                            03290000
+SDWADSAH EQUOVR ,,b,SDWAPDAT                                            03300000
+SDWADREG EQUOVR ,,b,SDWAPDAT                                            03310000
+SDWATLPA EQUOVR ,,b,SDWAPDAT                                            03320000
+SDWATJPA EQUOVR ,,b,SDWAPDAT                                            03330000
+SDWADPSW EQUOVR ,,b,SDWAPDAT                                            03340000
+SDWAUSPL EQUOVR ,,b,SDWAPDAT                                            03350000
+.*                                                                      03360000
+.* SDWAVID - VERSION INDICATOR                                          03370000
+SDWAVS3  EQUOVR ,,v,SDWAVID                                             03380000
+SDWAVS4  EQUOVR ,,v,SDWAVID                                             03390000
+SDWAVS5  EQUOVR ,,v,SDWAVID                                             03400000
+SDWAVS6  EQUOVR ,,v,SDWAVID                                             03410000
+SDWAVS7  EQUOVR ,,v,SDWAVID                                             03420000
+SDWAVS8  EQUOVR ,,v,SDWAVID                                             03430000
+SDWAVSN  EQUOVR ,,v,SDWAVID                                             03440000
+.*                                                                      03450000
+.* SDWADPVA - BITS THAT DEFINE DATA IN VARIABLE AREA                    03460000
+SDWAHEX  EQUOVR ,,b,SDWADPVA                                            03470000
+SDWAEBC  EQUOVR ,,b,SDWADPVA                                            03480000
+SDWAVRAM EQUOVR ,,b,SDWADPVA                                            03490000
+.*                                                                      03500000
+.* SDWACRC - THIS FIELD CONTAINS THE ABEND REASON CODE                  03510000
+SDWACRC  DSOVR 0XL4                                                     03520000
+.*                                                                      03530000
+.* SDWACCRC - FLAGS FOR COMPCODE AND REASON CODE                        03540000
+SDWACCF  EQUOVR ,,b,SDWACCRC                                            03550000
+SDWAREAF EQUOVR ,,b,SDWACCRC                                            03560000
+.*                                                                      03570000
+.* SDWARETF - SDWA RETRY FLAGS                                          03580000
+SDWART15 EQUOVR ,,b,SDWARETF                                            03590000
+SDWAREMR EQUOVR ,,b,SDWARETF                                            03600000
+SDWAFRLK EQUOVR ,,b,SDWARETF                                            03610000
+.*                                                                      03620000
+.* SDWATYPE - TYPE OF RECOVERY ROUTINE THAT RTM GAVE CONTROL            03630000
+SDWANREC EQUOVR ,,v,SDWATYPE                                            03640000
+SDWATFRR EQUOVR ,,v,SDWATYPE                                            03650000
+SDWATEST EQUOVR ,,v,SDWATYPE                                            03660000
+SDWATARR EQUOVR ,,v,SDWATYPE                                            03670000
+.*                                                                      03680000
+.* SDWAOABF - FLAGS IN COMPLETION CODE REGISTER.                        03690000
+SDWAOREQ EQUOVR ,,b,SDWAOABF                                            03700000
+SDWAOSTP EQUOVR ,,b,SDWAOABF                                            03710000
+SDWAOSTC EQUOVR ,,b,SDWAOABF                                            03720000
+SDWAORCF EQUOVR ,,b,SDWAOABF                                            03730000
+.*                                                                      03740000
+.* SDWAXFLG - EXTENDED FLAG AREA                                        03750000
+SDWAINTF EQUOVR ,,b,SDWAXFLG                                            03760000
+SDWATEAV EQUOVR ,,b,SDWAXFLG                                            03770000
+SDWATEIV EQUOVR ,,b,SDWAXFLG                                            03780000
+SDWAESTX EQUOVR ,,b,SDWAXFLG                                            03790000
+.*                                                                      03800000
+.* SDWASFLG - SUBSPACE FLAG AREA                                        03810000
+SDWASVLD EQUOVR ,,b,SDWASFLG                                            03820000
+SDWASSA  EQUOVR ,,b,SDWASFLG                                            03830000
+SDWASSRS EQUOVR ,,b,SDWASFLG                                            03840000
+.*                                                                      03850000
+.* SDWAFLK1 - FLAGS INDICATING WHAT LOCKS ARE TO BE FREED               03860000
+SDWAFCPU EQUOVR ,,b,SDWAFLK1                                            03870000
+SDWAFRSM EQUOVR ,,b,SDWAFLK1                                            03880000
+SDWAFTRC EQUOVR ,,b,SDWAFLK1                                            03890000
+SDWAIOCB EQUOVR ,,b,SDWAFLK1                                            03900000
+.*                                                                      03910000
+.* SDWAFLK2 - FLAGS INDICATING WHAT LOCKS ARE TO BE FREED               03920000
+SDWAFRSC EQUOVR ,,b,SDWAFLK2                                            03930000
+SDWAFRSG EQUOVR ,,b,SDWAFLK2                                            03940000
+SDWAFVSF EQUOVR ,,b,SDWAFLK2                                            03950000
+SDWAFASG EQUOVR ,,b,SDWAFLK2                                            03960000
+SDWAFRSS EQUOVR ,,b,SDWAFLK2                                            03970000
+.*                                                                      03980000
+.* SDWAFLE1 - FLAGS FOR LOCKS TO BE FREED IN FIRST BYTE OF EXTENSION    03990000
+SDWABLSD EQUOVR ,,b,SDWAFLE1                                            04000000
+SDWAXDS  EQUOVR ,,b,SDWAFLE1                                            04010000
+SDWAXRES EQUOVR ,,b,SDWAFLE1                                            04020000
+SDWAXQ   EQUOVR ,,b,SDWAFLE1                                            04030000
+SDWAESET EQUOVR ,,b,SDWAFLE1                                            04040000
+SDWAIXSC EQUOVR ,,b,SDWAFLE1                                            04050000
+SDWAIXSR EQUOVR ,,b,SDWAFLE1                                            04060000
+SDWAIXDS EQUOVR ,,b,SDWAFLE1                                            04070000
+.*                                                                      04080000
+.* SDWAFLE2 - FLAGS FOR LOCKS TO BE FREED IN SECOND BYTE OF EXTENSION   04090000
+SDWAIXSH EQUOVR ,,b,SDWAFLE2                                            04100000
+SDWAULUT EQUOVR ,,b,SDWAFLE2                                            04110000
+SDWAIXRE EQUOVR ,,b,SDWAFLE2                                            04120000
+SDWAWLMR EQUOVR ,,b,SDWAFLE2                                            04130000
+SDWAWLMQ EQUOVR ,,b,SDWAFLE2                                            04140000
+SDWACNTX EQUOVR ,,b,SDWAFLE2                                            04150000
+SDWARGSV EQUOVR ,,b,SDWAFLE2                                            04160000
+.*                                                                      04170000
+         MNOTE *,'Including IHASDWA mapping macro'                      04180000
+         IHASDWA DSECT=YES,            * Include DSECT statement       *04190000
+               VRAMAP=NO               * Omit VRAMAP                    04200000
+         DSOVR *END                    *                                04210000
+         EQUOVR *END                   *                                04220000
+*                                                                       04230000
+SDWA     DSECT ,                       * Restart SDWA                   04240000
+         ORG   ,                       *                                04250000
+SDWA_LEN EQU   *-SDWA                  * Length of SDWA                 04260000
+*                                                                       04270000
+SDWARC1  DSECT ,                       * Restart SDWARC1                04280000
+         ORG   ,                       *                                04290000
+SDWARC1_LEN EQU *-SDWARC1              * Length of SDWARC1              04300000
+SDWARC2  DSECT ,                       * Restart SDWARC2                04310000
+         ORG   ,                       *                                04320000
+SDWARC2_LEN EQU *-SDWARC2              * Length of SDWARC2              04330000
+SDWARC3  DSECT ,                       * Restart SDWARC3                04340000
+         ORG   ,                       *                                04350000
+SDWARC3_LEN EQU *-SDWARC3              * Length of SDWARC3              04360000
+*                                                                       04370000
+SDWAPTRS DSECT ,                       * Restart SDWAPTRS               04380000
+         ORG   ,                       *                                04390000
+SDWAPTRS_LEN EQU *-SDWAPTRS            * Length of SDWAPTRS             04400000
+*                                                                       04410000
+SDWANRC1 DSECT ,                       * Restart SDWANRC1               04420000
+         ORG   ,                       *                                04430000
+SDWANRC1_LEN EQU *-SDWANRC1            * Length of SDWANRC1             04440000
+SDWANRC2 DSECT ,                       * Restart SDWANRC2               04450000
+         ORG   ,                       *                                04460000
+SDWANRC2_LEN EQU *-SDWANRC2            * Length of SDWANRC2             04470000
+SDWANRC3 DSECT ,                       * Restart SDWANRC3               04480000
+         ORG   ,                       *                                04490000
+SDWANRC3_LEN EQU *-SDWANRC3            * Length of SDWANRC3             04500000
+.*                                                                      04510000
+.* Return to our original CSECT name                                    04520000
+&SYSECT  &SYSSTYP                                                       04530000
+.*                                                                      04540000
+.* Include the VRA as well                                              04550000
+         GENMAPS VRA                                                    04560000
+.*                                                                      04570000
+.MEND    MEND                                                           04590002

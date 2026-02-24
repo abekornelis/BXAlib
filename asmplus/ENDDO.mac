@@ -1,0 +1,170 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: ENDDO                                  00180000
+.* Combines with DO WHILE/UNTIL to repeatedly execute a block of code   00190000
+.*                                                                      00200000
+&LABEL   ENDDO ,                       * No arguments allowed           00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC ENDDO                  * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLA  &BXA_STK                * Index to last valid            00240000
+         GBLC  &BXA_STK_OP(5)          * Opcodes                        00250000
+         GBLC  &BXA_STK_DO(5)          * DO labels                      00260000
+         GBLC  &BXA_STK_LBL(5)         * Forward Labels                 00270000
+         GBLC  &BXA_STK_CND(5)         * Conditions                     00280000
+         GBLC  &BXA_STK_CLB(5)         * Condition labels               00290000
+         GBLC  &BXA_STK_USE(5)         * USEd count registers           00300000
+         LCLC  &OP                     * Last opcode on stack           00310000
+         LCLC  &LBL                    * Last label on stack            00320000
+         LCLC  &CND                    * Last Condition on stack        00330000
+         LCLC  &CLB                    * Last Condition label on stack  00340000
+         LCLC  &USE                    * Last USEd register on stack    00350000
+         LCLC  &DO                     * Loopback-label                 00360000
+         LCLA  &I                      * Stack pointer                  00370000
+.*                                                                      00380000
+.* Check label parameter                                                00390000
+         AIF   (K'&LABEL EQ 0).NOERR1                                   00400000
+.ERR1    MNOTE 4,'Label ignored'                                        00410000
+.NOERR1  ANOP                                                           00420000
+.*                                                                      00430000
+.* Check nr of parameters                                               00440000
+         AIF   (N'&SYSLIST EQ 0).NOERR2                                 00450000
+         AIF   (K'&SYSLIST(1) GT 1).ERR2                                00460000
+         AIF   (N'&SYSLIST EQ 1).NOERR2                                 00470000
+         AIF   (K'&SYSLIST(2) GT 1).ERR2                                00480000
+         AIF   (N'&SYSLIST EQ 2).NOERR2                                 00490000
+.ERR2    MNOTE 4,'No arguments expected: ignored'                       00500000
+.NOERR2  ANOP                                                           00510000
+.*                                                                      00520000
+.* Check that current stack-entry designates a valid DO-type operation  00530000
+&I       SETA  &BXA_STK                * Copy stack pointer             00540000
+         AIF   (&I LT 1).ERR3A         * Stack underflow                00550000
+&OP      SETC  '&BXA_STK_OP(&I)'       * Extract opcode from stack      00560000
+&LBL     SETC  '&BXA_STK_LBL(&I)'      * and end-of-block label         00570000
+&DO      SETC  '&BXA_STK_DO(&I)'       * Loopback label                 00580000
+&CND     SETC  '&BXA_STK_CND(&I)'      * Condition                      00590000
+&CLB     SETC  '&BXA_STK_CLB(&I)'      * Condition label                00600000
+&USE     SETC  '&BXA_STK_USE(&I)'      * USEd label                     00610000
+         AIF   ('&OP' EQ 'DO').DO                                       00620000
+         AIF   ('&OP' EQ 'DOWHILE').DOWHILE                             00630000
+         AIF   ('&OP' EQ 'DOUNTIL').DOUNTIL                             00640000
+         AIF   ('&OP' EQ 'DOCOUNT').DOCOUNT                             00650000
+         AGO   .ERR3B                                                   00660000
+.ERR3A   MNOTE 8,'No preceding DO statement: ignored'                   00670000
+         MEXIT                                                          00680000
+.ERR3B   MNOTE 8,'Cannot use ENDDO to terminate a &OP.-block: ignored'  00690000
+         MEXIT                                                          00700000
+.NOERR3  ANOP                                                           00710000
+.*                                                                      00720000
+.* Generate code for ENDDO after DO WHILE                               00730000
+.* Loopback-label to WHILE condition is in BXA_STK_DO                   00740000
+.* End-of-loop-label (used when WHILE cond. is false) in BXA_STK_LBL    00750000
+.*                                                                      00760000
+.DOWHILE ANOP  ,                                                        00770000
+         B     &DO                     * Back to end-of-loop test       00780000
+&LBL     LABEL ,                       * End of DO WHILE loop           00790000
+         AGO   .UNSTACK                                                 00800000
+.*                                                                      00810000
+.* Generate code for ENDDO after DO COUNT                               00820000
+.* Loopback-label to DO UNTIL is in BXA_STK_DO                          00830000
+.* Loop counter register is in BXA_STK_CND                              00840000
+.* END-of-loop label is in BXA_STK_LBL                                  00850000
+.*                                                                      00860000
+.DOCOUNT ANOP  ,                       *                                00870000
+&CLB     BCT   &CND,&DO                * Loop until count reaches zero  00880000
+         AIF   (K'&LBL EQ 0).NOLBL     *                                00890000
+&LBL     LABEL ,                       * End of do-loop                 00900000
+.NOLBL   ANOP  ,                       *                                00910000
+         AIF   (K'&USE EQ 0).UNSTACK   *                                00920000
+         DROP  &USE                    * Count reg no longer needed     00930000
+         AGO   .UNSTACK                *                                00940000
+.*                                                                      00950000
+.* Generate code for ENDDO after DO UNTIL                               00960000
+.* Loopback-label to DO UNTIL is in BXA_STK_DO                          00970000
+.* End-of-loop-condition is in BXA_STK_CND                              00980000
+.* END-of-loop label is in BXA_STK_LBL                                  00990000
+.*                                                                      01000000
+.DOUNTIL ANOP  ,                                                        01010000
+&CLB     GOTO  &DO,UNLESS,&CND         * Loop until condition met       01020000
+         AIF   (K'&LBL EQ 0).UNSTACK   *                                01030000
+&LBL     LABEL ,                       * End of do-loop                 01040000
+         AGO   .UNSTACK                *                                01050000
+.*                                                                      01060000
+.* Generate code for ENDDO after DO                                     01070000
+.* Loopback-label to DO UNTIL is in BXA_STK_DO                          01080000
+.* End-of-loop-condition is non-existent                                01090000
+.* END-of-loop label is in BXA_STK_LBL                                  01100000
+.*                                                                      01110000
+.DO      ANOP  ,                                                        01120000
+         B     &DO                     * Repeat loop                    01130000
+.*                                                                      01140000
+.* If &LBL is empty, no LEAVE macro exits from this loop: Error!        01150000
+         AIF   (K'&LBL NE 0).NOERR4                                     01160000
+.ERR4A   MNOTE 8,'No LEAVE macro found to terminate this loop'          01170000
+.NOERR4  ANOP  ,                                                        01180000
+.*                                                                      01190000
+&LBL     LABEL ,                       * End of do-loop                 01200000
+.*                                                                      01210000
+.* Remove DO-entry from stack                                           01220000
+.UNSTACK ANOP  ,                                                        01230000
+&BXA_STK SETA  &BXA_STK-1                                               01240000
+.*                                                                      01250000
+.MEND    MEND                                                           01260002

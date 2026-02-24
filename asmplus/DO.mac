@@ -1,0 +1,340 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: DO                                     00180000
+.* Combines with LEAVE and ENDDO to repeatedly execute code-blocks      00190000
+.*                                                                      00200000
+&LABEL   DO    ,                       * SYSLIST contains condition     00210000
+.*                                                                      00220000
+.* Syntax:                                                              00230000
+.* 1) DO WHILE,condition                                                00240000
+.* 2) DO UNTIL,condition                                                00250000
+.* 3) DO count                         * Literal, field, or (reg)       00260000
+.* 4) DO                               * For use with LEAVE macro       00270000
+.* condition: as in IF macro                                            00280000
+.*                                                                      00290000
+.********************************************************************** 00291001
+.*                                                                      00292001
+.*       IMPORTANT NOTICE                                               00293001
+.*       ========= ======                                               00294001
+.*                                                                      00295001
+.* Code below checks whether 'USER' accepted the terms and conditions   00296001
+.* of the license for the BXA macro library. This code is to be treated 00297001
+.* as part of the Copyright Notice and therefore may not be changed     00298001
+.* or disabled in any way.                                              00299001
+.*                                                                      00299101
+.********************************************************************** 00299201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00299301
+         CHKLIC DO                     * Check license acceptance       00299401
+         AIF   (&BXA_RC NE 0).MEND                                      00299502
+.********************************************************************** 00299601
+.*                                                                      00299701
+.* End of special code that is part of the Copyright Notice             00299801
+.*                                                                      00299901
+.********************************************************************** 00300001
+.*                                                                      00300101
+.* Declare variables                                                    00301000
+         GBLB  &BXA_USED_REGS(16)      * Use status of registers        00310000
+         GBLA  &BXA_STK                * Index to last valid            00320000
+         GBLC  &BXA_STK_OP(5)          * Opcodes                        00330000
+         GBLC  &BXA_STK_DO(5)          * DO loop info                   00340000
+         GBLA  &BXA_STK_LVL(5)         * Levels                         00350000
+         GBLC  &BXA_STK_LBL(5)         * Labels                         00360000
+         GBLC  &BXA_STK_CND(5)         * Conditions                     00370000
+         GBLC  &BXA_STK_CLB(5)         * Condition labels               00380000
+         GBLC  &BXA_STK_USE(5)         * USEd registers                 00390000
+         GBLA  &BXA_NUMVAL             * Retvalue from CHKLIT           00410000
+         LCLC  &_LABEL                 * Label to start loop            00420000
+         LCLC  &ARGS                   * SYSLIST as a string            00430000
+         LCLC  &TYPE                   * Type of syslist(1) parameter   00440000
+         LCLC  &REG                    * Register number                00450000
+         LCLC  &FLD                    * Field or literal for count     00460000
+         LCLC  &USEDRG                 * Used register name             00470000
+         LCLC  &LIT                    * Usable literal designation     00480000
+         LCLA  &LVALUE                 * Value of literal               00490000
+         LCLA  &I                      * Stack pointer                  00500000
+.*                                                                      00510000
+.* Check LABEL parameter                                                00520000
+&_LABEL  SETC  '&LABEL'                * Copy label                     00530000
+         AIF   (K'&LABEL GT 0).LABOK   * Label was specified?           00540000
+&_LABEL  SETC  '_DO_&SYSNDX'           * No: generate one               00550000
+.LABOK   ANOP                                                           00560000
+.*                                                                      00570000
+.* Check First parameter                                                00580000
+         AIF   (N'&SYSLIST EQ 0).DOUNTIL * No args: simple DO           00590000
+         AIF   (N'&SYSLIST EQ 1 AND K'&SYSLIST(1) EQ 0).DOUNTIL         00600000
+         AIF   (N'&SYSLIST EQ 2 AND K'&SYSLIST(1) EQ 0 AND K'&SYSLIST(2*00610000
+               ) EQ 0).DOUNTIL                                          00620000
+         AIF   ('&SYSLIST(1)' EQ 'WHILE').NOERR1                        00630000
+         AIF   ('&SYSLIST(1)' EQ 'UNTIL').NOERR1                        00640000
+         AGO   .DOCOUNT                                                 00650000
+.NOERR1  ANOP                                                           00660000
+.*                                                                      00670000
+.* Check number of parameters                                           00680000
+         AIF   (N'&SYSLIST LT 2).ERR2                                   00690000
+         AIF   (K'&SYSLIST(2) EQ 0).ERR2                                00700000
+         AGO   .NOERR2                                                  00710000
+.ERR2    MNOTE 8,'No condition specified'                               00720000
+         MEXIT                                                          00730000
+.NOERR2  ANOP                                                           00740000
+.*                                                                      00750000
+.* Build ARGS from &SYSLIST                                             00760000
+&I       SETA  1                       * Skip WHILE/UNTIL               00770000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     00780000
+&I       SETA  &I+1                    * Point next entry               00790000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           00800000
+&ARGS    SETC  '&ARGS'.','.'&SYSLIST(&I)' * Add entry to ARGS           00810000
+         AGO   .LOOP1                  * And go process next entry      00820000
+.LOOP1OK ANOP                                                           00830000
+&ARGS    SETC  '('.'&ARGS'(2,*).')'    * Parenthesize and remove lead , 00840000
+.*                                                                      00850000
+.* Select code generation logic                                         00860000
+         AIF   ('&SYSLIST(1)' EQ 'WHILE').DOWHILE                       00870000
+         AIF   ('&SYSLIST(1)' EQ 'UNTIL').DOUNTIL                       00880000
+         MNOTE 12,'Internal error'                                      00890000
+         MEXIT                                                          00900000
+.*                                                                      00910000
+.* Generate embedded IF statement for DO WHILE                          00920000
+.DOWHILE ANOP  ,                                                        00930000
+&I       SETA  &BXA_STK                * Copy current stack pointer     00940000
+&_LABEL  IF    &ARGS                   *                                00950000
+         AIF   (&I EQ &BXA_STK).MEND   * No new stack entry!            00960002
+.*                                                                      00970000
+.* Modify stack to reflect DO in stead of IF                            00980000
+&I       SETA  &BXA_STK                * Point to current stack entry   00990000
+&BXA_STK_OP(&I) SETC 'DOWHILE'         * Change IF into DOWHILE/DOUNTIL 01000000
+&BXA_STK_DO(&I) SETC '&_LABEL'         * Put loopback label into table  01010000
+&BXA_STK_CND(&I) SETC ''               * Wipe condition in table        01020000
+&BXA_STK_CLB(&I) SETC ''               *  and condition label           01030000
+&BXA_STK_USE(&I) SETC ''               *  and USEd count register       01040000
+         MEXIT ,                                                        01050000
+.*                                                                      01060000
+.* Generate redo label for DO or DO UNTIL                               01070000
+.DOUNTIL ANOP  ,                                                        01080000
+&_LABEL  LABEL ,                       *                                01090000
+.*                                                                      01100000
+.* Add DO or DOUNTIL to the stack                                       01110000
+&I       SETA  &BXA_STK                * Point to current stack entry   01120000
+&LVL     SETA  1                       * New level is 1                 01130000
+         AIF   (&I EQ 0).LVLOK         *   if stack is empty            01140000
+&LVL     SETA  &BXA_STK_LVL(&I)+1      * Otherwise: increment current   01150000
+.LVLOK   ANOP  ,                       *            level               01160000
+.*                                                                      01170000
+&I       SETA  &I+1                    * Point next stack entry         01180000
+&BXA_STK_OP(&I)  SETC 'DO&SYSLIST(1)'  * Put DO/DOUNTIL on the stack    01190000
+&BXA_STK_LBL(&I) SETC ''               * End-of-loop created by LEAVE   01200000
+&BXA_STK_LVL(&I) SETA &LVL             * Put level into table           01210000
+&BXA_STK_DO(&I)  SETC '&_LABEL'        * Put DO label into table        01220000
+&BXA_STK_CND(&I) SETC '&ARGS'          * Put condition into table       01230000
+&BXA_STK_CLB(&I) SETC ''               * And wipe condition label       01240000
+&BXA_STK_USE(&I) SETC ''               *     and USEd loop counter      01250000
+&BXA_STK         SETA &I               * And update stack pointer       01260000
+         MEXIT  ,                      *                                01270000
+.*                                                                      01280000
+.* Do with count option                                                 01290000
+.DOCOUNT ANOP  ,                       *                                01300000
+&LABEL   LABEL ,                       *                                01310000
+&_LABEL  SETC  '_DO_&SYSNDX'           * Generate internal label        01320000
+&USEDRG  SETC  ''                      * No loop counter USEd           01330000
+.*                                                                      01340000
+.* Check number of parameters                                           01350000
+         AIF   (N'&SYSLIST EQ 1).NOERR3                                 01360000
+.ERR3    MNOTE 4,'More than 1 argument specified: remainder ignored'    01370000
+.NOERR3  ANOP                                                           01380000
+.*                                                                      01390000
+.* Check type of argument: literal, field, or register                  01400000
+&FLD     SETC  '&SYSLIST(1)'           * Extract field or literal       01410000
+&REG     SETC  '&SYSLIST(1)'           * Assume it is a register name   01420000
+         AIF   ('&FLD'(1,1) EQ '(').DOCTRG1 *                           01430000
+         AIF   ('&FLD'(1,1) NE '=').SKIPEQ  *                           01440000
+         AIF   (K'&FLD LT 2).SKIPEQ    * Too short to remove = sign     01450000
+&FLD     SETC  '&FLD'(2,*)             * Remove leading = sign          01460000
+.SKIPEQ  ANOP  ,                       *                                01470000
+         CHKLIT &FLD,ALT=YES           * A valid number?                01480000
+         AIF   (&BXA_RC EQ 0).DOCT0    * It is a valid literal          01490000
+         AIF   (&BXA_RC EQ 4).DOCT4    * It is a valid literal          01500000
+         CHKREG &FLD,g                 * A valid register?              01510000
+         AIF   (&BXA_RC LT 8).DOCTRG2  * Ok: use count in register      01520000
+         AGO   .DOCTALC                * Go allocate a register         01530000
+.DOCT0   ANOP  ,                       * A valid literal number         01540000
+&LIT     SETC  '&FLD'                  * Copy specified literal         01550000
+&LVALUE  SETA  &BXA_NUMVAL             * Save value of literal          01560000
+         AIF   (&LVALUE LE 0).ERR4D    * Not supported                  01570000
+         AGO   .DOCTALC                * Go allocate count register     01580000
+.DOCT4   ANOP  ,                       * A valid literal number         01590000
+&LIT     SETC  '&BXA_NUMVAL'           * Create correct literal         01600000
+&LVALUE  SETA  &BXA_NUMVAL             * Save value of literal          01610000
+         AIF   (&LVALUE LE 0).ERR4D    * Not supported                  01620000
+.DOCTALC ANOP  ,                       * Allocate a count register      01630000
+         EQUREG ,                      * Assign a count register        01640000
+         AIF   (&BXA_RC GE 8).ERR4A    * Issue error message            01650000
+&REG     SETC  'R'.'&BXA_NUMVAL'       * Create register name           01660000
+         USE   &REG                    * Set register in use            01670000
+&USEDRG  SETC  '&REG'                  * And save name USEd             01680000
+.*                                                                      01690000
+.* Determine how to load the register                                   01700000
+         AIF   (K'&LIT GT 0).DOCTLIT   * Literal value                  01710000
+&TYPE    SETC  T'&FLD                  * Extract parameter type         01720000
+         AIF   ('&TYPE' EQ '0').DOCTEQ * EQUated literal                01730000
+&I       SETA  L'&FLD                  * Length of field                01740000
+         AIF   (&I GT 4).ERR4E         * Field too long                 01750000
+         AIF   ('&TYPE' EQ 'B').DOCTB  * Binary                         01760000
+         AIF   ('&TYPE' EQ 'F').DOCTF  * Fullword                       01770000
+         AIF   ('&TYPE' EQ 'G').DOCTG  * Fixed point                    01780000
+         AIF   ('&TYPE' EQ 'H').DOCTH  * Halfword                       01790000
+         AIF   ('&TYPE' EQ 'X').DOCTX  * Hexadecimal                    01800000
+&ARGS    SETC  (DOUBLE '&SYSLIST(1)')  *                                01810000
+         MNOTE 8,'Field &ARGS is of unsupported type: &TYPE'            01820000
+         AIF   (K'&USEDRG EQ 0).MEND                                    01830002
+         DROP  &USEDRG                                                  01840000
+         MEXIT ,                       *                                01850000
+.*                                                                      01860000
+.DOCTEQ  ANOP  ,                       * EQUated literal symbol         01870000
+&LIT     SETC  '&FLD'                  * Designate literal by name      01880000
+&LVALUE  SETA  L'&FLD                  * Length holds value             01890000
+.*                                                                      01900000
+.DOCTLIT ANOP  ,                       * Load a literal                 01910000
+         AIF   (&LVALUE LT 4096).DOCTLLA * Literal LA                   01920000
+         AIF   (&LVALUE LT 32768).DOCTLLH * Literal LH                  01930000
+         L     &REG,=F'&LIT'           * Set up count register          01940000
+         AGO   .DOCTLAB                * Go create internal label       01950000
+.DOCTLLA ANOP  ,                       *                                01960000
+         LA    &REG,&LIT               * Set up count register          01970000
+         AGO   .DOCTLAB                * Go create internal label       01980000
+.DOCTLLH ANOP  ,                       *                                01990000
+         LH    &REG,=H'&LIT'           * Set up count register          02000000
+         AGO   .DOCTLAB                * Go create internal label       02010000
+.*                                                                      02020000
+.DOCTB   ANOP  ,                       *                                02030000
+         AIF   (&I EQ 1).DOCTLC        * Load character                 02040000
+         AIF   (&I EQ 2).DOCTLHU       * Load halfword unaligned        02050000
+         AIF   (&I EQ 3).DOCTLC3       * Load three bytes               02060000
+         AGO   .DOCTLU                 * Load unaligned                 02070000
+.*                                                                      02080000
+.DOCTF   ANOP  ,                       *                                02090000
+         L     &REG,&FLD               * Set up count register          02100000
+         AGO   .DOCTLAB                * Go create internal label       02110000
+.*                                                                      02120000
+.DOCTG   ANOP  ,                       *                                02130000
+         AIF   (&I EQ 1).DOCTLC        * Load character                 02140000
+         AIF   (&I EQ 2).DOCTLHU       * Load halfword unaligned        02150000
+         AIF   (&I EQ 3).DOCTLC3       * Load three bytes               02160000
+         AGO   .DOCTLU                 * Load unaligned                 02170000
+.*                                                                      02180000
+.DOCTH   ANOP  ,                       *                                02190000
+         LH    &REG,&FLD               * Set up count register          02200000
+         AGO   .DOCTLAB                * Go create internal label       02210000
+.*                                                                      02220000
+.DOCTX   ANOP  ,                       *                                02230000
+         AIF   (&I EQ 1).DOCTLC        * Load character                 02240000
+         AIF   (&I EQ 2).DOCTLHU       * Load halfword unaligned        02250000
+         AIF   (&I EQ 3).DOCTLC3       * Load three bytes               02260000
+         AGO   .DOCTLU                 * Load unaligned                 02270000
+.*                                                                      02280000
+.DOCTLC  ANOP  ,                       *                                02290000
+         LC    &REG,&FLD               * Set up count register          02300000
+         AGO   .DOCTLAB                * Go create internal label       02310000
+.DOCTLHU ANOP  ,                       *                                02320000
+         LTHU  &REG,&FLD               * Set up count register          02330000
+         AGO   .DOCTLAB                * Go create internal label       02340000
+.DOCTLC3 ANOP  ,                       *                                02350000
+         LTA24 &REG,&FLD,YYYN,         * Set up count register         *02360000
+               RELOAD=NO               *                                02370000
+         AGO   .DOCTLAB                * Go create internal label       02380000
+.DOCTLU  ANOP  ,                       *                                02390000
+         LT    &REG,&FLD               * Set up count register          02400000
+         AGO   .DOCTLAB                * Go create internal label       02410000
+.*                                                                      02420000
+.* A register was specified                                             02430000
+.DOCTRG1 ANOP  ,                       *                                02440000
+&REG     SETC  '&SYSLIST(1,1)'         * Extract register name          02450000
+         CHKREG &REG,g                 * A valid register?              02460000
+         AIF   (&BXA_RC GE 8).ERR4C    * Invalid register               02470000
+.DOCTRG2 ANOP  ,                       *                                02480000
+&I       SETA  &BXA_NUMVAL+1           * Create register index          02490000
+         AIF   (&I EQ 1).ERR4B         * Cannot use R0                  02500000
+         AIF   (&BXA_USED_REGS(&I)).DOCTLAB * Skip USE statement        02510000
+         USE   &REG                    * Set register in use            02520000
+&USEDRG  SETC  '&REG'                  * And save name USEd             02530000
+.*                                                                      02540000
+.* Generate redo label for DO count                                     02550000
+.DOCTLAB ANOP  ,                       *                                02560000
+&_LABEL  LABEL ,                       *                                02570000
+.*                                                                      02580000
+.* Add DOCOUNT to the stack                                             02590000
+&I       SETA  &BXA_STK                * Point to current stack entry   02600000
+&LVL     SETA  1                       * New level is 1                 02610000
+         AIF   (&I EQ 0).LVLOKC        *   if stack is empty            02620000
+&LVL     SETA  &BXA_STK_LVL(&I)+1      * Otherwise: increment current   02630000
+.LVLOKC  ANOP  ,                       *            level               02640000
+.*                                                                      02650000
+&I       SETA  &I+1                    * Point next stack entry         02660000
+&BXA_STK_OP(&I)  SETC 'DOCOUNT'        * Put DOCOUNT on the stack       02670000
+&BXA_STK_LBL(&I) SETC ''               * End-of-loop created by LEAVE   02680000
+&BXA_STK_LVL(&I) SETA &LVL             * Put level into table           02690000
+&BXA_STK_DO(&I)  SETC '&_LABEL'        * Put DO label into table        02700000
+&BXA_STK_CND(&I) SETC '&REG'           * Put count register in table    02710000
+&BXA_STK_CLB(&I) SETC ''               * And wipe condition label       02720000
+&BXA_STK_USE(&I) SETC '&USEDRG'        * Insert USEd register name      02730000
+&BXA_STK         SETA &I               * And update stack pointer       02740000
+         MEXIT  ,                      *                                02750000
+.*                                                                      02760000
+.ERR4A   ANOP  ,                                                        02770000
+         MNOTE 8,'Cannot assign a count register'                       02780000
+         MEXIT ,                                                        02790000
+.ERR4B   ANOP  ,                                                        02800000
+         MNOTE 8,'Cannot use R0 for a count register'                   02810000
+         MEXIT ,                                                        02820000
+.ERR4C   ANOP  ,                                                        02830000
+&ARGS    SETC  (DOUBLE '&SYSLIST(1)')                                   02840000
+         MNOTE 8,'&ARGS is not a valid general purpose register'        02850000
+         MEXIT ,                                                        02860000
+.ERR4D   ANOP  ,                                                        02870000
+         MNOTE 8,'A loop count of less than 1 is not supported'         02880000
+         MEXIT ,                                                        02890000
+.ERR4E   ANOP  ,                                                        02900000
+         MNOTE 8,'Size of loop count field exceeds 4 bytes'             02910000
+         AIF   (K'&USEDRG EQ 0).MEND                                    02920002
+         DROP  &USEDRG                                                  02930000
+         MEXIT                                                          02940000
+.*                                                                      02950000
+.MEND    MEND                                                           02970002

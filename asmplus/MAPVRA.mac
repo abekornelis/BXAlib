@@ -1,0 +1,235 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Variable Recording Area (part of SDWA)           00180000
+.*                                                                      00190000
+&LABEL   MAPVRA &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPVRA                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPVRA         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'VRA').EMBED                                   00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAPVRA).MEND                                   00460002
+&BXA_MAC_MAPVRA SETB 1                                                  00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_VRA                                              00490000
+&BXA_CB_VRA SETC 'VRA'                                                  00500000
+.*                                                                      00510000
+.* VRAKEY - KEY TO IDENTIFY THE DATA THAT FOLLOWS.                      00520000
+VRACOM   EQUOVR ,,v,VRAKEY                                              00530000
+VRASC    EQUOVR ,,v,VRAKEY                                              00540000
+VRALVL   EQUOVR ,,v,VRAKEY                                              00550000
+VRADT    EQUOVR ,,v,VRAKEY                                              00560000
+VRAPTF   EQUOVR ,,v,VRAKEY                                              00570000
+VRARC    EQUOVR ,,v,VRAKEY                                              00580000
+VRAQVOD  EQUOVR ,,v,VRAKEY                                              00590000
+VRAQERR  EQUOVR ,,v,VRAKEY                                              00600000
+VRALVLS  EQUOVR ,,v,VRAKEY                                              00610000
+VRARRP   EQUOVR ,,v,VRAKEY                                              00620000
+VRACBM   EQUOVR ,,v,VRAKEY                                              00630000
+VRACB    EQUOVR ,,v,VRAKEY                                              00640000
+VRACBF   EQUOVR ,,v,VRAKEY                                              00650000
+VRACBA   EQUOVR ,,v,VRAKEY                                              00660000
+VRACBO   EQUOVR ,,v,VRAKEY                                              00670000
+VRACBL   EQUOVR ,,v,VRAKEY                                              00680000
+VRACBI   EQUOVR ,,v,VRAKEY                                              00690000
+VRACBIA  EQUOVR ,,v,VRAKEY                                              00700000
+VRACBI2  EQUOVR ,,v,VRAKEY                                              00710000
+VRAPLI   EQUOVR ,,v,VRAKEY                                              00720000
+VRAPL    EQUOVR ,,v,VRAKEY                                              00730000
+VRAFPI   EQUOVR ,,v,VRAKEY                                              00740000
+VRAFP    EQUOVR ,,v,VRAKEY                                              00750000
+VRAPA    EQUOVR ,,v,VRAKEY                                              00760000
+VRAP2    EQUOVR ,,v,VRAKEY                                              00770000
+VRALK    EQUOVR ,,v,VRAKEY                                              00780000
+VRAWAI   EQUOVR ,,v,VRAKEY                                              00790000
+VRAWA    EQUOVR ,,v,VRAKEY                                              00800000
+VRAWAP   EQUOVR ,,v,VRAKEY                                              00810000
+VRALBL   EQUOVR ,,v,VRAKEY                                              00820000
+VRARRL   EQUOVR ,,v,VRAKEY                                              00830000
+VRAMID   EQUOVR ,,v,VRAKEY                                              00840000
+VRAMSG   EQUOVR ,,v,VRAKEY                                              00850000
+VRAERR   EQUOVR ,,v,VRAKEY                                              00860000
+VRAEHX   EQUOVR ,,v,VRAKEY                                              00870000
+VRAHID   EQUOVR ,,v,VRAKEY                                              00880000
+VRAHEX   EQUOVR ,,v,VRAKEY                                              00890000
+VRAEBC   EQUOVR ,,v,VRAKEY                                              00900000
+VRAAID   EQUOVR ,,v,VRAKEY                                              00910000
+VRATCB   EQUOVR ,,v,VRAKEY                                              00920000
+VRACA    EQUOVR ,,v,VRAKEY                                              00930000
+VRACAN   EQUOVR ,,v,VRAKEY                                              00940000
+VRAOA    EQUOVR ,,v,VRAKEY                                              00950000
+VRAPSW   EQUOVR ,,v,VRAKEY                                              00960000
+VRAINS   EQUOVR ,,v,VRAKEY                                              00970000
+VRAREGS  EQUOVR ,,v,VRAKEY                                              00980000
+VRAREGA  EQUOVR ,,v,VRAKEY                                              00990000
+VRAOR15  EQUOVR ,,v,VRAKEY                                              01000000
+VRADSN   EQUOVR ,,v,VRAKEY                                              01010000
+VRADEV   EQUOVR ,,v,VRAKEY                                              01020000
+VRASN    EQUOVR ,,v,VRAKEY                                              01030000
+VRAST    EQUOVR ,,v,VRAKEY                                              01040000
+VRAU     EQUOVR ,,v,VRAKEY                                              01050000
+VRACCW   EQUOVR ,,v,VRAKEY                                              01060000
+VRACSW   EQUOVR ,,v,VRAKEY                                              01070000
+VRADVT   EQUOVR ,,v,VRAKEY                                              01080000
+VRAVOL   EQUOVR ,,v,VRAKEY                                              01090000
+VRAREQ   EQUOVR ,,v,VRAKEY                                              01100000
+VRAOPT   EQUOVR ,,v,VRAKEY                                              01110000
+VRAMINSC EQUOVR ,,v,VRAKEY                                              01120000
+VRADAE   EQUOVR ,,v,VRAKEY                                              01130000
+VRAMINSL EQUOVR ,,v,VRAKEY                                              01140000
+VRAFREG  EQUOVR ,,v,VRAKEY                                              01150000
+VRACSCB  EQUOVR ,,v,VRAKEY                                              01160000
+VRACSCBA EQUOVR ,,v,VRAKEY                                              01170000
+VRAJOB   EQUOVR ,,v,VRAKEY                                              01180000
+VRASTP   EQUOVR ,,v,VRAKEY                                              01190000
+VRACMD   EQUOVR ,,v,VRAKEY                                              01200000
+VRAJCL   EQUOVR ,,v,VRAKEY                                              01210000
+VRANODAE EQUOVR ,,v,VRAKEY                                              01220000
+VRAEPN   EQUOVR ,,v,VRAKEY                                              01230000
+VRAETF   EQUOVR ,,v,VRAKEY                                              01240000
+VRACTF   EQUOVR ,,v,VRAKEY                                              01250000
+VRALTF   EQUOVR ,,v,VRAKEY                                              01260000
+VRAMO    EQUOVR ,,v,VRAKEY                                              01270000
+VRAILO   EQUOVR ,,v,VRAKEY                                              01280000
+VRAIMO   EQUOVR ,,v,VRAKEY                                              01290000
+VRAFID   EQUOVR ,,v,VRAKEY                                              01300000
+VRAPID   EQUOVR ,,v,VRAKEY                                              01310000
+VRAIAP   EQUOVR ,,v,VRAKEY                                              01320000
+VRAIAL   EQUOVR ,,v,VRAKEY                                              01330000
+VRAICL   EQUOVR ,,v,VRAKEY                                              01340000
+VRAIDP   EQUOVR ,,v,VRAKEY                                              01350000
+VRALKWA  EQUOVR ,,v,VRAKEY                                              01360000
+VRARRK   EQUOVR ,,v,VRAKEY                                              01370000
+VRARRK1  EQUOVR ,,v,VRAKEY                                              01380000
+VRARRK2  EQUOVR ,,v,VRAKEY                                              01390000
+VRARRK3  EQUOVR ,,v,VRAKEY                                              01400000
+VRARRK4  EQUOVR ,,v,VRAKEY                                              01410000
+VRARRK5  EQUOVR ,,v,VRAKEY                                              01420000
+VRARRK6  EQUOVR ,,v,VRAKEY                                              01430000
+VRARRK7  EQUOVR ,,v,VRAKEY                                              01440000
+VRARRK8  EQUOVR ,,v,VRAKEY                                              01450000
+VRARRK9  EQUOVR ,,v,VRAKEY                                              01460000
+VRARRK10 EQUOVR ,,v,VRAKEY                                              01470000
+VRARRK11 EQUOVR ,,v,VRAKEY                                              01480000
+VRARRK12 EQUOVR ,,v,VRAKEY                                              01490000
+VRARRK13 EQUOVR ,,v,VRAKEY                                              01500000
+VRARRK14 EQUOVR ,,v,VRAKEY                                              01510000
+VRARRK15 EQUOVR ,,v,VRAKEY                                              01520000
+VRARRK16 EQUOVR ,,v,VRAKEY                                              01530000
+VRARRK17 EQUOVR ,,v,VRAKEY                                              01540000
+VRARRK18 EQUOVR ,,v,VRAKEY                                              01550000
+VRARRK19 EQUOVR ,,v,VRAKEY                                              01560000
+VRARRK20 EQUOVR ,,v,VRAKEY                                              01570000
+VRARRK21 EQUOVR ,,v,VRAKEY                                              01580000
+VRARRK22 EQUOVR ,,v,VRAKEY                                              01590000
+VRARRK23 EQUOVR ,,v,VRAKEY                                              01600000
+VRARRK24 EQUOVR ,,v,VRAKEY                                              01610000
+VRARRK25 EQUOVR ,,v,VRAKEY                                              01620000
+VRARRK26 EQUOVR ,,v,VRAKEY                                              01630000
+VRARRK27 EQUOVR ,,v,VRAKEY                                              01640000
+VRARRK28 EQUOVR ,,v,VRAKEY                                              01650000
+VRARRK29 EQUOVR ,,v,VRAKEY                                              01660000
+VRARRK30 EQUOVR ,,v,VRAKEY                                              01670000
+VRARRK31 EQUOVR ,,v,VRAKEY                                              01680000
+VRARRK32 EQUOVR ,,v,VRAKEY                                              01690000
+VRARRK33 EQUOVR ,,v,VRAKEY                                              01700000
+VRARRK34 EQUOVR ,,v,VRAKEY                                              01710000
+VRARRK35 EQUOVR ,,v,VRAKEY                                              01720000
+VRARRK36 EQUOVR ,,v,VRAKEY                                              01730000
+VRARRK37 EQUOVR ,,v,VRAKEY                                              01740000
+VRARRK38 EQUOVR ,,v,VRAKEY                                              01750000
+VRARRK39 EQUOVR ,,v,VRAKEY                                              01760000
+VRASKP   EQUOVR ,,v,VRAKEY                                              01770000
+VRAEND   EQUOVR ,,v,VRAKEY                                              01780000
+.*                                                                      01790000
+         MNOTE *,'Including IHAVRA mapping macro'                       01800000
+         IHAVRA DSECT=YES              * Include DSECT statement        01810000
+         EQUOVR *END                                                    01820000
+*                                                                       01830000
+VRAMAP   DSECT ,                       * Restart VRA                    01840000
+VRA      EQU   VRAMAP                  * Alias of VRAMAP                01850000
+         ORG   ,                       *                                01860000
+VRA_LEN  EQU   *-VRA                   * Length of VRA                  01870000
+.*                                                                      01880000
+.* Return to our original CSECT name                                    01890000
+&SYSECT  &SYSSTYP                                                       01900000
+.*                                                                      01910000
+.MEND    MEND                                                           01930002

@@ -1,0 +1,106 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Physical Configuration Communication Area        00180000
+.*                     Vector Table                                     00190000
+.*                                                                      00200000
+&LABEL   MAPPCCAV &DSECT=YES,          * YES or NO                     *00210000
+               &CB=,                   * Control block to generate     *00220000
+               &PRFX=                  * Prefix to use                  00230000
+.********************************************************************** 00231001
+.*                                                                      00232001
+.*       IMPORTANT NOTICE                                               00233001
+.*       ========= ======                                               00234001
+.*                                                                      00235001
+.* Code below checks whether 'USER' accepted the terms and conditions   00236001
+.* of the license for the BXA macro library. This code is to be treated 00237001
+.* as part of the Copyright Notice and therefore may not be changed     00238001
+.* or disabled in any way.                                              00239001
+.*                                                                      00239101
+.********************************************************************** 00239201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00239301
+         CHKLIC MAPPCCAV               * Check license acceptance       00239401
+         AIF   (&BXA_RC NE 0).MEND                                      00239502
+.********************************************************************** 00239601
+.*                                                                      00239701
+.* End of special code that is part of the Copyright Notice             00239801
+.*                                                                      00239901
+.********************************************************************** 00240001
+.*                                                                      00241000
+.* Declare variables                                                    00250000
+         GBLB  &BXA_MAC_MAPPCCAV       * Map has been generated?        00260000
+.*                                                                      00280000
+.* Check parameters                                                     00290000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00300000
+               CB=&CB,                 *                               *00310000
+               PRFX=&PRFX              *                                00320000
+         AIF   (&BXA_RC GT 4).MEND                                      00330002
+.*                                                                      00340000
+.* Check the CB parameter                                               00350000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00360000
+         AIF   ('&CB' EQ 'PCCAV').EMBED                                 00370000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00380000
+         MEXIT                                                          00390000
+.*                                                                      00400000
+.* Generate embedded definition                                         00410000
+.EMBED   ANOP                                                           00420000
+&LABEL   NESTCB &CB,X,&PRFX                                             00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.DSECT   ANOP                                                           00460000
+         AIF   (&BXA_MAC_MAPPCCAV).MEND                                 00470002
+&BXA_MAC_MAPPCCAV SETB 1                                                00480000
+.* Set up translation from control block to macro for DCL               00490000
+         GBLC  &BXA_CB_PCCAVT                                           00500000
+&BXA_CB_PCCAVT SETC 'PCCAV'                                             00510000
+.*                                                                      00520000
+         MNOTE *,'Including IHAPCCAT mapping macro'                     00530000
+         IHAPCCAT ,                                                     00540000
+*                                                                       00550000
+PCCAVT   DSECT ,                       * Resume PCCAVT DSECT            00560000
+         ORG                                                            00570000
+PCCAVT_LEN EQU *-PCCAVT                * Length of PCCAVT               00580000
+.*                                                                      00590000
+.* Return to our original CSECT name                                    00600000
+&SYSECT  &SYSSTYP                                                       00610000
+.*                                                                      00620000
+.MEND    MEND                                                           00640002

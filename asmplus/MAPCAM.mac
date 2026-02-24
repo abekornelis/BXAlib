@@ -1,0 +1,145 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for parameter list created by CAMLST                   00180000
+.*                                                                      00190000
+&LABEL   MAPCAM &DSECT=YES,            * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPCAM                 * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPCAM         * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'CAMLOC').EMBED                                00360000
+         AIF   ('&CB' EQ 'CAMLOCVOL').EMBED                             00370000
+         AIF   ('&CB' EQ 'CAMLST').EMBED                                00380000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00390000
+         MEXIT                                                          00400000
+.*                                                                      00410000
+.* Generate embedded definition                                         00420000
+.EMBED   ANOP                                                           00430000
+&LABEL   NESTCB &CB,X,&PRFX                                             00440000
+         MEXIT                                                          00450000
+.*                                                                      00460000
+.DSECT   ANOP                                                           00470000
+         AIF   (&BXA_MAC_MAPCAM).MEND                                   00480002
+&BXA_MAC_MAPCAM SETB 1                                                  00490000
+.* Set up translation from control block to macro for DCL               00500000
+         GBLC  &BXA_CB_CAMLOC                                           00510000
+         GBLC  &BXA_CB_CAMLOCVOL                                        00520000
+         GBLC  &BXA_CB_CAMLST                                           00530000
+&BXA_CB_CAMLOC SETC 'CAM'                                               00540000
+&BXA_CB_CAMLOCVOL SETC 'CAM'                                            00550000
+&BXA_CB_CAMLST SETC 'CAM'                                               00560000
+.*                                                                      00570000
+         MNOTE *,'Generating DSECT for CAMLST parameter list'           00580000
+*                                                                       00590000
+* Map plist generated by CAMLST macro                                   00600000
+CAMLST   DSECT ,                       *                                00610000
+         DS    0F                      * Always aligned                 00620000
+CAMOPT   DCL   *CODE,XL1,              * Option byte                   *00630000
+               (CAMNAME,X'44'),        * CAMLST NAME option value      *00640000
+               (CAMSRCH,X'C1')         * CAMLST SEARCH option value     00650000
+*                                                                       00660000
+         DS    3XL1                    * Unused bytes                   00670000
+CAMDSNP  DS    AL4                     * Pointer to DSN                 00680000
+CAMVOLP  DS    AL4                     * Pointer to volume serial       00690000
+CAMWRKP  DS    AL4                     * Pointer to work area           00700000
+*                                                                       00710000
+         ORG   ,                       *                                00720000
+CAMLST_LEN EQU *-CAMLST                *                                00730000
+*                                                                       00740000
+* Map results returned by LOCATE - CAMLST NAME                          00750000
+CAMLOC   DSECT ,                       *                                00760000
+CAMLOCNR DS    H                       * nr of valid entries            00770000
+CAMLOCDT DS    20XL12                  * max twenty volser-entries      00780000
+         DS    XL10                    * Reserved                       00790000
+CAMLOCDP DS    XL3                     * DSCB pointer: relative track   00800000
+*                                      *  address of first DSCB.        00810000
+*                                      *  If CAMLOCNR>20: rel.track adr 00820000
+*                                      *  of next VCB. Zero on last VCB 00830000
+CAMLOC00 DS    XL1                     * Always zero                    00840000
+         DS    XL9                     * Reserved                       00850000
+*                                                                       00860000
+         ORG   ,                       *                                00870000
+CAMLOC_LEN EQU *-CAMLOC                *                                00880000
+*                                                                       00890000
+* Map 1 resulting entry returned by LOCATE - CAMLST NAME                00900000
+CAMLOCVOL DSECT ,                      *                                00910000
+CAMLOCDC DS    XL4                     * Device code                    00920000
+CAMLOCVS DS    CL6                     * Volume serial number           00930000
+CAMLOCSQ DS    H                       * Volume sequence number         00940000
+*                                                                       00950000
+         ORG   ,                       *                                00960000
+CAMLOCVOL_LEN EQU *-CAMLOCVOL          *                                00970000
+.*                                                                      00980000
+.* Return to our original CSECT name                                    00990000
+&SYSECT  &SYSSTYP                                                       01000000
+.*                                                                      01010000
+.MEND    MEND                                                           01030002

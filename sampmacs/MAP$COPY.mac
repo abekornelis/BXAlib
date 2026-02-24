@@ -1,0 +1,135 @@
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* BIXXAMS - Bixoft Cross Access Method Services                        00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999-2001                                 00140000
+**********************************************************************  00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Mapping macro for copy utility's workarea                            00180000
+.*                                                                      00190000
+&LABEL   MAP$COPY &DSECT=YES,          * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.*                                                                      00230000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAP$COPY       * Map has been generated?        00250000
+         GBLA  &BXA_RC                 * Returncode                     00260000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).SKIP                                      00320000
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'COPY').EMBED                                  00360000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00370000
+         MEXIT                                                          00380000
+.*                                                                      00390000
+.* Generate embedded definition                                         00400000
+.EMBED   ANOP                                                           00410000
+&LABEL   NESTCB &CB,X,&PRFX                                             00420000
+         MEXIT                                                          00430000
+.*                                                                      00440000
+.DSECT   ANOP                                                           00450000
+         AIF   (&BXA_MAC_MAP$COPY).SKIP                                 00460000
+&BXA_MAC_MAP$COPY SETB 1                                                00470000
+.* Set up translation from control block to macro for DCL               00480000
+         GBLC  &BXA_CB_COPY                                             00490000
+&BXA_CB_COPY SETC '$COPY'                                               00500000
+.*                                                                      00510000
+         MNOTE *,'Generating DSECTs for Copy workarea'                  00520000
+*                                                                       00530000
+* DSECT for copy workarea                                               00540000
+*                                                                       00550000
+COPY     DSECT ,                       *                                00560000
+COPYSAVE DCL   BXASAVE                 *                                00570000
+*                                                                       00580000
+* Pointers                                                              00590000
+COPYBUFI DS    A                       * Location of input buffer       00600000
+COPYBUFO DS    A                       * Location of output buffer      00610000
+COPYREC  DS    A                       * Pointer to current record      00620000
+COPYBUFE DS    A                       * Pointer past last record       00630000
+*                                                                       00640000
+* Member name                                                           00650000
+COPYMBNM DS    CL8                     * Member name                    00660000
+*                                                                       00670000
+* Status bits                                                           00680000
+COPYSTAT DCL   *BITS,                  * Status bits                   *00690000
+               COPYRTRY,               * 0: Retry executed             *00700000
+               COPYEOF,                * 1: EOF reached on input data  *00710000
+               COPYMEM,                * 2: MEMBER copy requested      *00720000
+               COPYDS,                 * 3: Dataset copy requested     *00730000
+               COPYPS                  * 4: Physical Sequential copy    00740000
+*********************************************************************** 00750000
+COPYWORK DS    0D                      * Align                          00760000
+*                                                                       00770000
+* Plist for ESTAE in COPYWORK                                           00780000
+         ORG   COPYWORK                                                 00790000
+COPYESTAE ESTAE 0,                     * Space for ESTAE plist         *00800000
+               MF=L                    *                                00810000
+COPYESTAE_LEN EQU *-COPYESTAE                                           00820000
+*                                                                       00830000
+* DCB for BPAM input dataset in COPYWORK                                00840000
+         ORG   COPYWORK                *                                00850000
+COPYDCBP DCB   DDNAME=INPUT,           * Input dataset                 *00860000
+               DSORG=PO,               * Read directory sequentially   *00870000
+               DCBE=0,                 * DCBE will be used             *00880000
+               MACRF=R                 * Dataset will be read only      00890000
+COPYDCBP_LEN EQU *-COPYDCBP            *                                00900000
+*                                                                       00910000
+* DCB for BSAM input dataset in COPYWORK                                00920000
+         ORG   COPYWORK                *                                00930000
+COPYDCBS DCB   DDNAME=INPUT,           * Input dataset                 *00940000
+               DSORG=PS,               * Physical sequential           *00950000
+               DCBE=0,                 * DCBE will be used             *00960000
+               MACRF=R                 * Dataset will be read only      00970000
+COPYDCBS_LEN EQU *-COPYDCBS            *                                00980000
+*                                                                       00990000
+* DCBE for BPAM/BSAM access follows DCB                                 01000000
+         ORG   ,                       * Position after longest DCB     01010000
+COPYDCBE DCBE  EODAD=0                 * EODAD routine                  01020000
+COPYDCBE_LEN EQU *-COPYDCBE            *                                01030000
+*                                                                       01040000
+* DCB for QSAM output dataset follows input DCB + DCBE                  01050000
+COPYDCBO DCB   DDNAME=OUTPUT,          * Output dataset                *01060000
+               DSORG=PS,               *                               *01070000
+               MACRF=PM                * with PUT in move-mode          01080000
+COPYDCBO_LEN EQU *-COPYDCBO            *                                01090000
+*                                                                       01100000
+* Add OPEN plist in COPYWORK                                            01110000
+         ORG   ,                       * Set to current end of COPYWORK 01120000
+COPYOPEN OPEN  (0,INPUT),MF=L          * Reserve room for OPEN plist    01130000
+COPYOPEN_LEN EQU *-COPYOPEN            *                                01140000
+*                                                                       01150000
+* CLOSE plist reuses OPEN area                                          01160000
+         ORG   COPYOPEN                *                                01170000
+COPYCLOS CLOSE (0),MF=L                * Reserve room for CLOSE plist   01180000
+COPYCLOS_LEN EQU *-COPYCLOS           *                                 01190000
+*                                                                       01200000
+* DECB for reading with BPAM/BSAM reuses OPEN area                      01210000
+         ORG   COPYOPEN                *                                01220000
+         READ  COPYDECB,SF,MF=L        * Create DECB for reading        01230000
+COPYDECB_LEN EQU *-COPYDECB            *                                01240000
+*                                                                       01250000
+* Reset location counter to end of COPYWORK                             01260000
+         ORG   ,                       *                                01270000
+         DS    0D                      * Align for internal Save areas  01280000
+COPY_LEN EQU   *-COPY                  *                                01290000
+.*                                                                      01300000
+.* Return to our original CSECT name                                    01310000
+&SYSECT  &SYSSTYP                                                       01320000
+.*                                                                      01330000
+.SKIP    ANOP                                                           01340000
+         MEND                                                           01350000

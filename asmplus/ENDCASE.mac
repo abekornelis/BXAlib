@@ -1,0 +1,149 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: ENDCASE                                00180000
+.* Combines with CASE and ELSE to conditionally execute blocks of code  00190000
+.*                                                                      00200000
+&LABEL   ENDCASE ,                     * No arguments allowed           00210000
+.********************************************************************** 00211001
+.*                                                                      00212001
+.*       IMPORTANT NOTICE                                               00213001
+.*       ========= ======                                               00214001
+.*                                                                      00215001
+.* Code below checks whether 'USER' accepted the terms and conditions   00216001
+.* of the license for the BXA macro library. This code is to be treated 00217001
+.* as part of the Copyright Notice and therefore may not be changed     00218001
+.* or disabled in any way.                                              00219001
+.*                                                                      00219101
+.********************************************************************** 00219201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00219301
+         CHKLIC ENDCASE                * Check license acceptance       00219401
+         AIF   (&BXA_RC NE 0).MEND                                      00219502
+.********************************************************************** 00219601
+.*                                                                      00219701
+.* End of special code that is part of the Copyright Notice             00219801
+.*                                                                      00219901
+.********************************************************************** 00220001
+.*                                                                      00221000
+.* Declare variables                                                    00230000
+         GBLA  &BXA_STK                * Index to last valid            00240000
+         GBLC  &BXA_STK_OP(5)          * Opcodes                        00250000
+         GBLC  &BXA_STK_LBL(5)         * Labels                         00260000
+         GBLA  &BXA_STK_LVL(5)         * Levels                         00270000
+         LCLC  &OP                     * Last opcode on stack           00280000
+         LCLA  &LVL                    * Last level on stack            00290000
+         LCLC  &LBL                    * Last label on stack            00300000
+         LCLA  &I                      * Stack pointer                  00310000
+.*                                                                      00320000
+.* Check label parameter                                                00330000
+         AIF   (K'&LABEL EQ 0).NOERR1                                   00340000
+.ERR1    MNOTE 4,'Label ignored'                                        00350000
+.NOERR1  ANOP                                                           00360000
+.*                                                                      00370000
+.* Check nr of parameters                                               00380000
+         AIF   (N'&SYSLIST EQ 0).NOERR2                                 00390000
+         AIF   (K'&SYSLIST(1) GT 0).ERR2A                               00400000
+         AIF   (N'&SYSLIST EQ 1).NOERR2                                 00410000
+         AIF   (K'&SYSLIST(2) GT 0).ERR2A                               00420000
+         AIF   (N'&SYSLIST EQ 2).NOERR2                                 00430000
+.ERR2A   MNOTE 4,'No arguments expected: ignored'                       00440000
+.NOERR2  ANOP                                                           00450000
+.*                                                                      00460000
+.* Check that current stack-entry designates a case or else-block       00470000
+&I       SETA  &BXA_STK                * Copy stack pointer             00480000
+         AIF   (&I LT 1).ERR3A         * Stack underflow                00490000
+&OP      SETC  '&BXA_STK_OP(&I)'       * Extract opcode from stack      00500000
+         AIF   ('&OP' EQ 'CASE').NOERR3                                 00510000
+         AIF   ('&OP' NE 'ELSE').ERR3B                                  00520000
+&I       SETA  &I-1                    * Point preceding entry          00530000
+&OP      SETC  '&BXA_STK_OP(&I)'       * Extract preceding opcode       00540000
+         AIF   ('&OP' NE 'CASE').ERR3C                                  00550000
+         AGO   .NOERR3                                                  00560000
+.ERR3A   MNOTE 8,'No preceding CASE statement: ignored'                 00570000
+         MEXIT                                                          00580000
+.ERR3B   MNOTE 8,'Cannot use ENDCASE to terminate a &OP.-block: ignored*00590000
+               '                                                        00600000
+         MEXIT                                                          00610000
+.ERR3C   MNOTE 8,'Cannot use ENDCASE to terminate an ELSE block for &OP*00620000
+               '                                                        00630000
+         MEXIT                                                          00640000
+.NOERR3  ANOP                                                           00650000
+.*                                                                      00660000
+.* Remove all stack entries with the current nesting level              00670000
+.* If an ELSE-statement precedes this ENDCASE, then the ELSE has        00680000
+.* already generated the target label of the last preceding CASE        00690000
+.* statement.                                                           00700000
+.*                                                                      00710000
+.* Comment line to delimit the ELSE-block                               00720000
+*                                                                       00730000
+.*                                                                      00740000
+.* Set up to loop thru CASE-entries                                     00750000
+.* If last entry was ELSE, handle the ELSE before entering the loop     00760000
+&I       SETA  &BXA_STK                * Point current stack entry      00770000
+&LVL     SETA  &BXA_STK_LVL(&I)        * Extract current nesting level  00780000
+&OP      SETC  '&BXA_STK_OP(&I)'       * Extract last opcode            00790000
+         AIF   ('&OP' NE 'ELSE').LOOP1 * Loop to drop CASEs             00800000
+.* Terminate ELSE-block                                                 00810000
+&LBL     SETC  '&BXA_STK_LBL(&I)'      * Extract end-of-else label      00820000
+&LBL     LABEL ,                       * End of ELSE-block              00830000
+&I       SETA  &I-2                    * Remove ELSE and last CASE      00840000
+         AIF   (&I EQ 0).LOOP1OK       * If nothing left: skip loop     00850000
+.*                                                                      00860000
+.* Now loop to terminate all remaining CASE-blocks of this level        00870000
+.LOOP1   ANOP  ,                                                        00880000
+         AIF   (&BXA_STK_LVL(&I) NE &LVL).LOOP1OK * LVL-change: endloop 00890000
+&OP      SETC  '&BXA_STK_OP(&I)'       * Extract last opcode            00900000
+         AIF   ('&OP' NE 'CASE').INTERR * Internal error                00910000
+&LBL     SETC  '&BXA_STK_LBL(&I)'      * Extract end-of-else label      00920000
+&LBL     LABEL ,                       * End of CASE-block              00930000
+&I       SETA  &I-1                    * Remove ELSE-entry from stack   00940000
+         AIF   (&I GT 0).LOOP1         * If still valid: remove next    00950000
+.LOOP1OK ANOP  ,                                                        00960000
+.*                                                                      00970000
+.* Update the real stack pointer                                        00980000
+&BXA_STK SETA  &I                                                       00990000
+         AGO   .MEND
+.*
+.INTERR  ANOP  ,
+         MNOTE 12,'Internal error in ENDCASE macro'
+.*                                                                      01000000
+.MEND    MEND                                                           01010002

@@ -1,0 +1,151 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* Structured programming macro: GOTO                                   00180000
+.* Conditionally branches to a target                                   00190000
+.*                                                                      00200000
+&LABEL   GOTO  ,                       * SYSLIST contains condition     00210000
+.*                                                                      00220000
+.* Syntax:                                                              00230000
+.* 0) GOTO label                                                        00240000
+.* 1) GOTO label,condition                                              00250000
+.* 2) GOTO label,UNLESS,condition                                       00260000
+.* 3) GOTO label,(condition)                                            00270000
+.* 4) GOTO label,(UNLESS,condition)                                     00280000
+.* condition: as in IF macro                                            00290000
+.*                                                                      00300000
+.********************************************************************** 00301001
+.*                                                                      00302001
+.*       IMPORTANT NOTICE                                               00303001
+.*       ========= ======                                               00304001
+.*                                                                      00305001
+.* Code below checks whether 'USER' accepted the terms and conditions   00306001
+.* of the license for the BXA macro library. This code is to be treated 00307001
+.* as part of the Copyright Notice and therefore may not be changed     00308001
+.* or disabled in any way.                                              00309001
+.*                                                                      00309101
+.********************************************************************** 00309201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00309301
+         CHKLIC GOTO                   * Check license acceptance       00309401
+         AIF   (&BXA_RC NE 0).MEND                                      00309502
+.********************************************************************** 00309601
+.*                                                                      00309701
+.* End of special code that is part of the Copyright Notice             00309801
+.*                                                                      00309901
+.********************************************************************** 00310001
+.*                                                                      00310101
+.* Declare variables                                                    00311000
+         GBLA  &BXA_STK                * Index to last valid            00320000
+         LCLC  &ARGS                   * SYSLIST as a string            00330000
+         LCLA  &I                      * Stack pointer                  00340000
+         LCLC  &COND                   * Condition arg for GOTO         00350000
+.*                                                                      00360000
+.* Check number of parameters                                           00370000
+         AIF   (N'&SYSLIST EQ 0).ERR1                                   00380000
+         AIF   (K'&SYSLIST(1) EQ 0).ERR1                                00390000
+         AGO   .NOERR1                                                  00400000
+.ERR1    MNOTE 8,'No destination for GOTO specified'                    00410000
+         MEXIT                                                          00420000
+.NOERR1  ANOP                                                           00430000
+.*                                                                      00440000
+.* Check number of parameters                                           00450000
+         AIF   (N'&SYSLIST LT 2).BRANCH * No condition: branch          00460000
+         AIF   (K'&SYSLIST(2) EQ 0).ERR2                                00470000
+         AGO   .NOERR2                                                  00480000
+.ERR2    MNOTE 4,'No condition specified'                               00490000
+         MEXIT                                                          00500000
+.NOERR2  ANOP                                                           00510000
+.*                                                                      00520000
+.* Check number of parameters for SYSLIST(2) = UNLESS                   00530000
+&COND    SETC  'TRUE'                                                   00540000
+&I       SETA  1                       * Skip destination label         00550000
+         AIF   ('&SYSLIST(2)' NE 'UNLESS').NOERR3                       00560000
+&COND    SETC  'FALSE'                                                  00570000
+&I       SETA  2                       * Skip label & UNLESS            00580000
+         AIF   (N'&SYSLIST LT 3).ERR3                                   00590000
+         AIF   (K'&SYSLIST(3) EQ 0).ERR3                                00600000
+         AGO   .NOERR3                                                  00610000
+.ERR3    MNOTE 8,'No condition specified'                               00620000
+         MEXIT                                                          00630000
+.NOERR3  ANOP                                                           00640000
+.*                                                                      00650000
+.* Build ARGS from &SYSLIST. &I already set for loop                    00660000
+         AIF   ('&SYSLIST(&I+1)'(1,1) EQ '(' AND N'&SYSLIST EQ &I+1).PA*00670000
+               ROK                                                      00680000
+.LOOP1   ANOP  ,                       * For all entries in SYSLIST     00690000
+&I       SETA  &I+1                    * Point next entry               00700000
+         AIF   (&I GT N'&SYSLIST).LOOP1OK * At end: quit loop           00710000
+&ARGS    SETC  '&ARGS'.','.'&SYSLIST(&I)' * Add entry to ARGS           00720000
+         AGO   .LOOP1                  * And go process next entry      00730000
+.LOOP1OK ANOP                                                           00740000
+&ARGS    SETC  '('.'&ARGS'(2,*).')'    * Parenthesize and remove lead , 00750000
+         AGO   .GOTO                                                    00760000
+.*                                                                      00770000
+.* Condition already parenthesized                                      00780000
+.PAROK   ANOP  ,                                                        00790000
+&ARGS    SETC  '&SYSLIST(&I+1)'        * Copy condition                 00800000
+.*                                                                      00810000
+.* Generate embedded IF statement with specified label                  00820000
+.GOTO    ANOP  ,                                                        00830000
+&I       SETA  &BXA_STK                * Copy current stack pointer     00840000
+&LABEL   IF    &ARGS,                  * Condition for GOTO            *00850000
+               TARGET=&SYSLIST(1),     * Target for branch             *00860000
+               COND=&COND              * FALSE if UNLESS specified      00870000
+         AIF   (&I EQ &BXA_STK).MEND   * No new stack entry!            00880002
+.*                                                                      00890000
+.* Remove new stack entry                                               00900000
+&BXA_STK SETA  &BXA_STK-1              * Remove new IF-entry from stack 00910000
+         MEXIT                                                          00920000
+.*                                                                      00930000
+.* For an unconditional GOTO we generate a Branch to the label          00940000
+.BRANCH  ANOP  ,                       *                                00950000
+&ARGS    SETC  '&SYSLIST(1)'           * Extract branch target          00960000
+         AIF   ('&ARGS'(1,1) EQ '(').BRANREG                            00970000
+         B     &ARGS                   *                                00980000
+         MEXIT ,                       *                                00990000
+.*                                                                      01000000
+.* Branch to a target which is a register                               01010000
+.BRANREG ANOP  ,                       *                                01020000
+&ARGS    SETC  '&SYSLIST(1,1)'         * Extract branch target          01030000
+         BR    &ARGS                   *                                01040000
+.*                                                                      01050000
+.MEND    MEND                                                           01070002

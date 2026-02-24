@@ -1,0 +1,353 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the I/O Supervisor Block                             00180000
+.*                                                                      00190000
+&LABEL   MAPIOSB &DSECT=YES,           * YES or NO                     *00200000
+               &CB=,                   * Control block to generate     *00210000
+               &PRFX=                  * Prefix to use                  00220000
+.********************************************************************** 00221001
+.*                                                                      00222001
+.*       IMPORTANT NOTICE                                               00223001
+.*       ========= ======                                               00224001
+.*                                                                      00225001
+.* Code below checks whether 'USER' accepted the terms and conditions   00226001
+.* of the license for the BXA macro library. This code is to be treated 00227001
+.* as part of the Copyright Notice and therefore may not be changed     00228001
+.* or disabled in any way.                                              00229001
+.*                                                                      00229101
+.********************************************************************** 00229201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00229301
+         CHKLIC MAPIOSB                * Check license acceptance       00229401
+         AIF   (&BXA_RC NE 0).MEND                                      00229502
+.********************************************************************** 00229601
+.*                                                                      00229701
+.* End of special code that is part of the Copyright Notice             00229801
+.*                                                                      00229901
+.********************************************************************** 00230001
+.*                                                                      00231000
+.* Declare variables                                                    00240000
+         GBLB  &BXA_MAC_MAPIOSB        * Map has been generated?        00250000
+.*                                                                      00270000
+.* Check parameters                                                     00280000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00290000
+               CB=&CB,                 *                               *00300000
+               PRFX=&PRFX              *                                00310000
+         AIF   (&BXA_RC GT 4).MEND                                      00320002
+.*                                                                      00330000
+.* Check the CB parameter                                               00340000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00350000
+         AIF   ('&CB' EQ 'IOSB').EMBED                                  00360000
+         AIF   ('&CB' EQ 'IOSX').EMBED                                  00370000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00380000
+         MEXIT                                                          00390000
+.*                                                                      00400000
+.* Generate embedded definition                                         00410000
+.EMBED   ANOP                                                           00420000
+&LABEL   NESTCB &CB,X,&PRFX                                             00430000
+         MEXIT                                                          00440000
+.*                                                                      00450000
+.DSECT   ANOP                                                           00460000
+         AIF   (&BXA_MAC_MAPIOSB).MEND                                  00470002
+&BXA_MAC_MAPIOSB SETB 1                                                 00480000
+.* Set up translation from control block to macro for DCL               00490000
+         GBLC  &BXA_CB_IOSB                                             00500000
+         GBLC  &BXA_CB_IOSX                                             00510000
+&BXA_CB_IOSB SETC 'IOSB'                                                00520000
+&BXA_CB_IOSX SETC 'IOSB'                                                00530000
+.*                                                                      00540000
+.* IOSFLA - Flag byte A                                                 00550000
+IOSDCHN  EQUOVR ,,b,IOSFLA                                              00560000
+IOSCCHN  EQUOVR ,,b,IOSFLA                                              00570000
+IOSACHN  EQUOVR ,,b,IOSFLA                                              00580000
+IOSERR   EQUOVR ,,b,IOSFLA                                              00590000
+IOSSMDA  EQUOVR ,,b,IOSFLA                                              00600000
+IOSSMDB  EQUOVR ,,b,IOSFLA                                              00610000
+IOSEX    EQUOVR ,,b,IOSFLA                                              00620000
+IOSDOM   EQUOVR ,,b,IOSFLA                                              00630000
+IOSIOSB  EQUOVR ,,b,IOSFLA                                              00640000
+.*                                                                      00650000
+.* IOSFLB - Flag byte B                                                 00660000
+IOSDIESE EQUOVR ,,b,IOSFLB                                              00670000
+IOSSDR   EQUOVR ,,b,IOSFLB                                              00680000
+IOSNOTRS EQUOVR ,,b,IOSFLB                                              00690000
+IOSRESRC EQUOVR ,,b,IOSFLB                                              00700000
+IOSIONRD EQUOVR ,,b,IOSFLB                                              00710000
+IOSMSG   EQUOVR ,,b,IOSFLB                                              00720000
+IOSBDCST EQUOVR ,,b,IOSFLB                                              00730000
+IOSLOG   EQUOVR ,,b,IOSFLB                                              00740000
+.*                                                                      00750000
+.* IOSFLC - Flag byte C                                                 00760000
+IOSGDPLP EQUOVR ,,b,IOSFLC                                              00770000
+IOSVERIF EQUOVR ,,b,IOSFLC                                              00780000
+IOSCC3WE EQUOVR ,,b,IOSFLC                                              00790000
+IOSEXP   EQUOVR ,,b,IOSFLC                                              00800000
+IOSNORTY EQUOVR ,,b,IOSFLC                                              00810000
+IOSCTCNR EQUOVR ,,b,IOSFLC                                              00820000
+IOSGDP   EQUOVR ,,b,IOSFLC                                              00830000
+.*                                                                      00840000
+.* IOSPROC - IOS special processing procedures                          00850000
+IOSAPCI  EQUOVR ,,v,IOSPROC                                             00860000
+IOSATTN  EQUOVR ,,v,IOSPROC                                             00870000
+IOSAPURG EQUOVR ,,v,IOSPROC                                             00880000
+IOSAWTO  EQUOVR ,,v,IOSPROC                                             00890000
+IOSADDR  EQUOVR ,,v,IOSPROC                                             00900000
+IOSADIER EQUOVR ,,v,IOSPROC                                             00910000
+IOSAUR   EQUOVR ,,v,IOSPROC                                             00920000
+IOSAST1  EQUOVR ,,v,IOSPROC                                             00930000
+IOSASNRQ EQUOVR ,,v,IOSPROC                                             00940000
+IOSACLR  EQUOVR ,,v,IOSPROC                                             00950000
+IOSAHALT EQUOVR ,,v,IOSPROC                                             00960000
+IOSAMOD  EQUOVR ,,v,IOSPROC                                             00970000
+IOSASTOR EQUOVR ,,v,IOSPROC                                             00980000
+.*                                                                      00990000
+.* IOSDVRID - Driver identification value                               01000000
+IOSIOSID EQUOVR ,,v,IOSDVRID                                            01010000
+IOSMISID EQUOVR ,,v,IOSDVRID                                            01020000
+IOSXCPID EQUOVR ,,v,IOSDVRID                                            01030000
+IOSVSAID EQUOVR ,,v,IOSDVRID                                            01040000
+IOSATMID EQUOVR ,,v,IOSDVRID                                            01050000
+IOSTCMID EQUOVR ,,v,IOSDVRID                                            01060000
+IOSOLTID EQUOVR ,,v,IOSDVRID                                            01070000
+IOSFCHID EQUOVR ,,v,IOSDVRID                                            01080000
+IOSJESID EQUOVR ,,v,IOSDVRID                                            01090000
+IOSSS1ID EQUOVR ,,v,IOSDVRID                                            01100000
+IOSPRGID EQUOVR ,,v,IOSDVRID                                            01110000
+IOSVPSID EQUOVR ,,v,IOSDVRID                                            01120000
+IOSASMID EQUOVR ,,v,IOSDVRID                                            01130000
+IOSMDSID EQUOVR ,,v,IOSDVRID                                            01140000
+IOSAUSID EQUOVR ,,v,IOSDVRID                                            01150000
+IOSDYPID EQUOVR ,,v,IOSDVRID                                            01160000
+IOSDAVV  EQUOVR ,,v,IOSDVRID                                            01170000
+IOSDCSID EQUOVR ,,v,IOSDVRID                                            01180000
+IOSAOMID EQUOVR ,,v,IOSDVRID                                            01190000
+IOSSMSID EQUOVR ,,v,IOSDVRID                                            01200000
+IOSXCFID EQUOVR ,,v,IOSDVRID                                            01210000
+IOSCDRID EQUOVR ,,v,IOSDVRID                                            01220000
+IOSSLFID EQUOVR ,,v,IOSDVRID                                            01230000
+IOSV33ID EQUOVR ,,v,IOSDVRID                                            01240000
+IOSCLRID EQUOVR ,,v,IOSDVRID                                            01250000
+IOSSCRID EQUOVR ,,v,IOSDVRID                                            01260000
+IOSV16ID EQUOVR ,,v,IOSDVRID                                            01270000
+IOSAPRID EQUOVR ,,v,IOSDVRID                                            01280000
+IOSMIHID EQUOVR ,,v,IOSDVRID                                            01290000
+IOSPRVID EQUOVR ,,v,IOSDVRID                                            01300000
+IOSRSVID EQUOVR ,,v,IOSDVRID                                            01310000
+.*                                                                      01320000
+.* IOSFLD - Flag byte D                                                 01330000
+IOSNOINT EQUOVR ,,b,IOSFLD                                              01340000
+IOSMNORQ EQUOVR ,,b,IOSFLD                                              01350000
+IOSEPCIF EQUOVR ,,b,IOSFLD                                              01360000
+IOSCCWDS EQUOVR ,,b,IOSFLD                                              01370000
+IOSEPCIS EQUOVR ,,b,IOSFLD                                              01380000
+IOSLIOPF EQUOVR ,,b,IOSFLD                                              01390000
+IOSNOLL  EQUOVR ,,b,IOSFLD                                              01400000
+IOSBEXTF EQUOVR ,,b,IOSFLD                                              01410000
+.*                                                                      01420000
+.* IOSPKEY - Protect key of IOSPGAD                                     01430000
+IOSLCL   EQUOVR ,,b,IOSPKEY                                             01440000
+IOSIDR   EQUOVR ,,b,IOSPKEY                                             01450000
+IOSPGDPX EQUOVR ,,b,IOSPKEY                                             01460000
+IOSCHCMP EQUOVR ,,b,IOSPKEY                                             01470000
+.*                                                                      01480000
+.* IOSCOD - I/O completion code field                                   01490000
+IOSERRC  EQUOVR ,,v,IOSCOD                                              01500000
+IOSEXTC  EQUOVR ,,v,IOSCOD                                              01510000
+IOSDPXC  EQUOVR ,,v,IOSCOD                                              01520000
+IOSINTC  EQUOVR ,,v,IOSCOD                                              01530000
+IOSABNC  EQUOVR ,,v,IOSCOD                                              01540000
+IOSCD46  EQUOVR ,,v,IOSCOD                                              01550000
+IOSEXTRM EQUOVR ,,v,IOSCOD                                              01560000
+IOSPRGC  EQUOVR ,,v,IOSCOD                                              01570000
+IOSCNCLD EQUOVR ,,v,IOSCOD                                              01580000
+IOSPVTIO EQUOVR ,,v,IOSCOD                                              01590000
+IOSTAPEC EQUOVR ,,v,IOSCOD                                              01600000
+IOSIVEXP EQUOVR ,,v,IOSCOD                                              01610000
+IOSGDPCC EQUOVR ,,v,IOSCOD                                              01620000
+IOSGDPRD EQUOVR ,,v,IOSCOD                                              01630000
+IOSCD50  EQUOVR ,,v,IOSCOD                                              01640000
+IOSMIHCA EQUOVR ,,v,IOSCOD                                              01650000
+IOSMIHSP EQUOVR ,,v,IOSCOD                                              01660000
+IOSIOTCR EQUOVR ,,v,IOSCOD                                              01670000
+IOSCAPAS EQUOVR ,,v,IOSCOD                                              01680000
+IOSGDPWE EQUOVR ,,v,IOSCOD                                              01690000
+IOSFTCHC EQUOVR ,,v,IOSCOD                                              01700000
+IOSMIHC  EQUOVR ,,v,IOSCOD                                              01710000
+IOSXERPL EQUOVR ,,v,IOSCOD                                              01720000
+IOSFINTC EQUOVR ,,v,IOSCOD                                              01730000
+IOSNRMC  EQUOVR ,,v,IOSCOD                                              01740000
+.*                                                                      01750000
+.* IOSOPT - Options byte                                                01760000
+IOSBYP   EQUOVR ,,b,IOSOPT                                              01770000
+IOSDEP   EQUOVR ,,b,IOSOPT                                              01780000
+IOSQISCE EQUOVR ,,b,IOSOPT                                              01790000
+IOSPSLL  EQUOVR ,,b,IOSOPT                                              01800000
+IOSNERP  EQUOVR ,,b,IOSOPT                                              01810000
+IOSTSLL  EQUOVR ,,b,IOSOPT                                              01820000
+IOSAPR   EQUOVR ,,b,IOSOPT                                              01830000
+IOSRELSE EQUOVR ,,b,IOSOPT                                              01840000
+.*                                                                      01850000
+.* IOSOPT2 - Second option byte                                         01860000
+IOSF     EQUOVR ,,b,IOSOPT2                                             01870000
+IOSP     EQUOVR ,,b,IOSOPT2                                             01880000
+IOSI     EQUOVR ,,b,IOSOPT2                                             01890000
+IOSA     EQUOVR ,,b,IOSOPT2                                             01900000
+IOSSI    EQUOVR ,,b,IOSOPT2                                             01910000
+IOSZ     EQUOVR ,,b,IOSOPT2                                             01920000
+IOSE     EQUOVR ,,b,IOSOPT2                                             01930000
+IOSN     EQUOVR ,,b,IOSOPT2                                             01940000
+.*                                                                      01950000
+.* IOSCC - Start Subchannel deferred CC                                 01960000
+IOSCC3   EQUOVR ,,v,IOSCC                                               01970000
+IOSCC1   EQUOVR ,,v,IOSCC                                               01980000
+IOSCC0   EQUOVR ,,v,IOSCC                                               01990000
+.*                                                                      02000000
+.* IOSDSTAT - Device status                                             02010000
+IOSDSATN EQUOVR ,,b,IOSDSTAT                                            02020000
+IOSDSSM  EQUOVR ,,b,IOSDSTAT                                            02030000
+IOSDSCUE EQUOVR ,,b,IOSDSTAT                                            02040000
+IOSDSBSY EQUOVR ,,b,IOSDSTAT                                            02050000
+IOSDSCE  EQUOVR ,,b,IOSDSTAT                                            02060000
+IOSDSDE  EQUOVR ,,b,IOSDSTAT                                            02070000
+IOSDSUC  EQUOVR ,,b,IOSDSTAT                                            02080000
+IOSDSUEX EQUOVR ,,b,IOSDSTAT                                            02090000
+.*                                                                      02100000
+.* IOSSSTAT - Subchannel status                                         02110000
+IOSSSPCI EQUOVR ,,b,IOSSSTAT                                            02120000
+IOSSSIL  EQUOVR ,,b,IOSSSTAT                                            02130000
+IOSSSPGC EQUOVR ,,b,IOSSSTAT                                            02140000
+IOSSSPTC EQUOVR ,,b,IOSSSTAT                                            02150000
+IOSSSCDC EQUOVR ,,b,IOSSSTAT                                            02160000
+IOSSSCCC EQUOVR ,,b,IOSSSTAT                                            02170000
+IOSSSICC EQUOVR ,,b,IOSSSTAT                                            02180000
+IOSSSCC  EQUOVR ,,b,IOSSSTAT                                            02190000
+.*                                                                      02200000
+.* IOSSCHC0 - Subchannel Control - Byte 0                               02210000
+IOSFC    EQUOVR ,,b,IOSSCHC0                                            02220000
+IOSFSSCH EQUOVR ,,b,IOSSCHC0                                            02230000
+IOSFHSCH EQUOVR ,,b,IOSSCHC0                                            02240000
+IOSFCSCH EQUOVR ,,b,IOSSCHC0                                            02250000
+IOSAC    EQUOVR ,,b,IOSSCHC0                                            02260000
+IOSARSCH EQUOVR ,,b,IOSSCHC0                                            02270000
+IOSASSCH EQUOVR ,,b,IOSSCHC0                                            02280000
+IOSAHSCH EQUOVR ,,b,IOSSCHC0                                            02290000
+IOSACSCH EQUOVR ,,b,IOSSCHC0                                            02300000
+.*                                                                      02310000
+.* IOSSCHC1 - Subchannel Control - byte 1                               02320000
+IOSAC2   EQUOVR ,,b,IOSSCHC1                                            02330000
+IOSASUBA EQUOVR ,,b,IOSSCHC1                                            02340000
+IOSADEVA EQUOVR ,,b,IOSSCHC1                                            02350000
+IOSSSPND EQUOVR ,,b,IOSSCHC1                                            02360000
+IOSSC    EQUOVR ,,b,IOSSCHC1                                            02370000
+IOSSALRT EQUOVR ,,b,IOSSCHC1                                            02380000
+IOSSINTR EQUOVR ,,b,IOSSCHC1                                            02390000
+IOSSPRIM EQUOVR ,,b,IOSSCHC1                                            02400000
+IOSSSEC  EQUOVR ,,b,IOSSCHC1                                            02410000
+IOSSPNDG EQUOVR ,,b,IOSSCHC1                                            02420000
+.*                                                                      02430000
+.* IOSSNS - Sense data - 1st 2 bytes                                    02440000
+IOSSNSBD EQUOVR ,,v,IOSSNS                                              02450000
+.*                                                                      02460000
+.* IOSCKEY - On STARTIO- Channel program                                02470000
+IOSIRBKY EQUOVR ,,b,IOSCKEY                                             02480000
+IOSS     EQUOVR ,,b,IOSCKEY                                             02490000
+IOSIRBL  EQUOVR ,,b,IOSCKEY                                             02500000
+IOSIRBCC EQUOVR ,,b,IOSCKEY                                             02510000
+IOSIRBC3 EQUOVR ,,b,IOSCKEY                                             02520000
+IOSIRBC1 EQUOVR ,,b,IOSCKEY                                             02530000
+IOSIRBC0 EQUOVR ,,v,IOSCKEY                                             02540000
+.*                                                                      02550000
+.* IOSAFLGS - Attention Flags                                           02560000
+IOSAINTR EQUOVR ,,b,IOSAFLGS                                            02570000
+IOSAINTE EQUOVR ,,b,IOSAFLGS                                            02580000
+.*                                                                      02590000
+.* IOSFLB field bit definitions -- Modify Subchannel requests only      02600000
+IOSMLPMO EQUOVR ,,b,IOSFLB                                              02610000
+IOSMPOMO EQUOVR ,,b,IOSFLB                                              02620000
+IOSMMMO  EQUOVR ,,b,IOSFLB                                              02630000
+IOSASIS  EQUOVR ,,b,IOSFLB                                              02640000
+.*                                                                      02650000
+.* IOSOPT                                                               02660000
+IOSSYN   EQUOVR ,,b,IOSOPT                                              02670000
+IOSNOPTH EQUOVR ,,b,IOSOPT                                              02680000
+.*                                                                      02690000
+.* IOSOPT2                                                              02700000
+IOSMISC  EQUOVR ,,b,IOSOPT2                                             02710000
+IOSME    EQUOVR ,,b,IOSOPT2                                             02720000
+IOSMLM   EQUOVR ,,b,IOSOPT2                                             02730000
+IOSMMM   EQUOVR ,,b,IOSOPT2                                             02740000
+IOSMLPM  EQUOVR ,,b,IOSOPT2                                             02750000
+IOSMMBI  EQUOVR ,,b,IOSOPT2                                             02760000
+IOSMPOM  EQUOVR ,,b,IOSOPT2                                             02770000
+IOSMD    EQUOVR ,,b,IOSOPT2                                             02780000
+.*                                                                      02790000
+.* IOSXFLG1 - Flag byte 1                                               02800000
+IOSXNORQ EQUOVR ,,b,IOSXFLG1                                            02810000
+IOSXGDPR EQUOVR ,,b,IOSXFLG1                                            02820000
+IOSXDDRT EQUOVR ,,b,IOSXFLG1                                            02830000
+IOSXMIHI EQUOVR ,,b,IOSXFLG1                                            02840000
+IOSXIOSI EQUOVR ,,b,IOSXFLG1                                            02850000
+IOSXDPSV EQUOVR ,,b,IOSXFLG1                                            02860000
+IOSXIOSN EQUOVR ,,b,IOSXFLG1                                            02870000
+IOSXATPS EQUOVR ,,b,IOSXFLG1                                            02880000
+.*                                                                      02890000
+.* IOSXFLG2 - Flag byte 2                                               02900000
+IOSXIOT  EQUOVR ,,b,IOSXFLG2                                            02910000
+IOSXNMIH EQUOVR ,,b,IOSXFLG2                                            02920000
+.*                                                                      02930000
+.* IOSXRCOD - Reason code detailing the IOSCOD value                    02940000
+IOSXRC9  EQUOVR ,,v,IOSXRCOD                                            02950000
+IOSXRC10 EQUOVR ,,v,IOSXRCOD                                            02960000
+.*                                                                      02970000
+         MNOTE *,'Including IECDIOSB mapping macro'                     02980000
+         IECDIOSB IOSIOSBE=YES         * Include IOSB extension         02990000
+         EQUOVR *END                                                    03000000
+*                                                                       03010000
+IOSB     DSECT ,                       * Resume IOSB DSECT              03020000
+         ORG   ,                       *                                03030000
+IOSB_LEN EQU   L'IOSBSTD               * Length of IOSB                 03040000
+IOSX_LEN EQU   *-IOSB-IOSB_LEN         * Length of IOSb eXtension       03050000
+.*                                                                      03060000
+.* Return to our original CSECT name                                    03070000
+&SYSECT  &SYSSTYP                                                       03080000
+.*                                                                      03090000
+.MEND    MEND                                                           03110002

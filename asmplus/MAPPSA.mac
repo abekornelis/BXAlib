@@ -1,0 +1,314 @@
+.*                                                                      00000100
+.* This macro is free software; you can redistribute it and/or modify   00000200
+.* it under the terms of the GNU General Public License as published by 00000300
+.* the Free Software Foundation; either version 2 of the License        00000400
+.* or (at your option) any later version.                               00000500
+.* The license text is available at the following internet addresses:   00000600
+.* - http://www.bixoft.com/english/gpl.htm                              00000700
+.* - http://fsf.org                                                     00000800
+.* - http://opensource.org                                              00000900
+.*                                                                      00001000
+.* This macro is distributed in the hope that it will be useful,        00001100
+.* but WITHOUT ANY WARRANTY; without even the implied warranty of       00001200
+.* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                 00001300
+.* See the GNU General Public License for more details.                 00001400
+.*                                                                      00001500
+.* You should have received a copy of the GNU General Public License    00001600
+.* along with this program; if not, write to either of the following:   00001700
+.* the Free Software Foundation, Inc.      B.V. Bixoft                  00001800
+.* 59 Temple Place, Suite 330              Rogge 9                      00001900
+.* Boston, MA 02111-1307                   7261 JA Ruurlo               00002000
+.* United States of America                The Netherlands              00002100
+.*                                                                      00002200
+.*                                         e-mail: bixoft@bixoft.nl     00002300
+.*                                         phone : +31-6-22755401       00002400
+.*                                                                      00002500
+.********************************************************************** 00010000
+.*                                                                      00020000
+.* Bixoft eXtended Assembly language                                    00030000
+.* Licensed material - Property of B.V. Bixoft                          00040000
+.*                                                                      00050000
+.* This macro can be licensed or used on an as-is basis.                00060000
+.* No warranty, neither implicit nor explicit, is given.                00070000
+.* It remains your own responsibility to ensure the correct             00080000
+.* working of any program using this macro.                             00090000
+.*                                                                      00100000
+.* Suggestions for improvement are always welcome at                    00110000
+.* http://www.bixoft.com  or mail to  bixoft@bixoft.nl                  00120000
+.*                                                                      00130000
+.* (C) Copyright B.V. Bixoft, 1999                                      00140000
+.********************************************************************** 00150000
+         MACRO                                                          00160000
+.*                                                                      00170000
+.* This macro maps the Prefixed Storage Area (Virtual 1st page)         00180000
+.* Since the PSA is always addressable thru R0, a USING is              00190000
+.* included in the expansion, setting the PSA addressable troughout     00200000
+.* the program.                                                         00210000
+.*                                                                      00220000
+&LABEL   MAPPSA &DSECT=YES,            * YES or NO                     *00230000
+               &CB=,                   * Control block to generate     *00240000
+               &PRFX=                  * Prefix to use                  00250000
+.********************************************************************** 00251001
+.*                                                                      00252001
+.*       IMPORTANT NOTICE                                               00253001
+.*       ========= ======                                               00254001
+.*                                                                      00255001
+.* Code below checks whether 'USER' accepted the terms and conditions   00256001
+.* of the license for the BXA macro library. This code is to be treated 00257001
+.* as part of the Copyright Notice and therefore may not be changed     00258001
+.* or disabled in any way.                                              00259001
+.*                                                                      00259101
+.********************************************************************** 00259201
+         GBLA  &BXA_RC                 * Returncode from CHKLIC         00259301
+         CHKLIC MAPPSA                 * Check license acceptance       00259401
+         AIF   (&BXA_RC NE 0).MEND                                      00259502
+.********************************************************************** 00259601
+.*                                                                      00259701
+.* End of special code that is part of the Copyright Notice             00259801
+.*                                                                      00259901
+.********************************************************************** 00260001
+.*                                                                      00261000
+.* Declare variables                                                    00270000
+         GBLB  &BXA_MAC_MAPPSA         * Map has been generated?        00280000
+.*                                                                      00300000
+.* Check parameters                                                     00310000
+&LABEL   CHKMAP DSECT=&DSECT,          *                               *00320000
+               CB=&CB,                 *                               *00330000
+               PRFX=&PRFX              *                                00340000
+         AIF   (&BXA_RC GT 4).MEND                                      00350002
+.*                                                                      00360000
+.* Check the CB parameter                                               00370000
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00380000
+         AIF   ('&CB' EQ 'PSA').EMBED                                   00390000
+.ERR5    MNOTE 8,'&CB control block not supported'                      00400000
+         MEXIT                                                          00410000
+.*                                                                      00420000
+.* Generate embedded definition                                         00430000
+.EMBED   ANOP                                                           00440000
+&LABEL   NESTCB &CB,X,&PRFX                                             00450000
+         MEXIT                                                          00460000
+.*                                                                      00470000
+.DSECT   ANOP                                                           00480000
+         AIF   (&BXA_MAC_MAPPSA).MEND                                   00490002
+&BXA_MAC_MAPPSA SETB 1                                                  00500000
+.* Set up translation from control block to macro for DCL               00510000
+         GBLC  &BXA_CB_PSA                                              00520000
+&BXA_CB_PSA SETC 'PSA'                                                  00530000
+.*                                                                      00540000
+.* FLCSVILC - SVC INSTRUCTION LENGTH COUNTER - NUMBER OF BYTES          00550000
+FLCSILCB EQUOVR ,,b,FLCSVILC                                            00560000
+.*                                                                      00570000
+.* FLCPIILC - PROGRAM INTERRUPT LENGTH COUNTER                          00580000
+FLCPILCB EQUOVR ,,b,FLCPIILC                                            00590000
+.*                                                                      00600000
+.* PSAPICOD - 8-BIT INTERRUPT CODE.                                     00610000
+PSAPIPER EQUOVR ,,b,PSAPICOD                                            00620000
+PSAPIMC  EQUOVR ,,b,PSAPICOD                                            00630000
+PSAPIPC  EQUOVR ,,b,PSAPICOD                                            00640000
+.*                                                                      00650000
+.* FLCTEA - TRANSLATION EXCEPTION ADDRESS.                              00660000
+FLCTEAXM EQUOVR ,,b,FLCTEA                                              00670000
+.*                                                                      00680000
+.* FLCTEAB3 - LAST BYTE OF TEA.                                         00690000
+FLCSOPI  EQUOVR ,,b,FLCTEAB3                                            00700000
+FLCTSTDP EQUOVR ,,v,FLCTEAB3                                            00710000
+FLCTSTDA EQUOVR ,,b,FLCTEAB3                                            00720000
+FLCTSTDS EQUOVR ,,b,FLCTEAB3                                            00730000
+FLCTSTDH EQUOVR ,,b,FLCTEAB3                                            00740000
+.*                                                                      00750000
+.* PSASUP1 - FIRST BYTE OF PSASUPER                                     00760000
+PSAIO    EQUOVR ,,b,PSASUP1                                             00770000
+PSASVC   EQUOVR ,,b,PSASUP1                                             00780000
+PSAEXT   EQUOVR ,,b,PSASUP1                                             00790000
+PSAPI    EQUOVR ,,b,PSASUP1                                             00800000
+PSALOCK  EQUOVR ,,b,PSASUP1                                             00810000
+PSADISP  EQUOVR ,,b,PSASUP1                                             00820000
+PSATCTL  EQUOVR ,,b,PSASUP1                                             00830000
+PSATYPE6 EQUOVR ,,b,PSASUP1                                             00840000
+.*                                                                      00850000
+.* PSASUP2 - SECOND BYTE OF PSASUPER                                    00860000
+PSAIPCRI EQUOVR ,,b,PSASUP2                                             00870000
+PSASVCR  EQUOVR ,,b,PSASUP2                                             00880000
+PSASVCRR EQUOVR ,,b,PSASUP2                                             00890000
+PSAACR   EQUOVR ,,b,PSASUP2                                             00900000
+PSARTM   EQUOVR ,,b,PSASUP2                                             00910000
+PSALCR   EQUOVR ,,b,PSASUP2                                             00920000
+.*                                                                      00930000
+.* PSASUP3 - THIRD BYTE OF PSASUPER                                     00940000
+PSAIOSUP EQUOVR ,,b,PSASUP3                                             00950000
+PSASPR   EQUOVR ,,b,PSASUP3                                             00960000
+PSAESTA  EQUOVR ,,b,PSASUP3                                             00970000
+PSARSM   EQUOVR ,,b,PSASUP3                                             00980000
+PSAULCMS EQUOVR ,,b,PSASUP3                                             00990000
+PSASLIP  EQUOVR ,,b,PSASUP3                                             01000000
+.*                                                                      01010000
+.* PSASUP4 - FOURTH BYTE OF PSASUPER                                    01020000
+PSALDWT  EQUOVR ,,b,PSASUP4                                             01030000
+PSASMF   EQUOVR ,,b,PSASUP4                                             01040000
+PSAESAR  EQUOVR ,,b,PSASUP4                                             01050000
+.*                                                                      01060000
+.* PSAPTYPE - PROCESSOR TYPE INDICATOR                                  01070000
+PSAAXP   EQUOVR ,,b,PSAPTYPE                                            01080000
+.*                                                                      01090000
+.* PSAILS - INTERRUPT HANDLER LINKAGE STACK INDICATORS.                 01100000
+PSAILSIO EQUOVR ,,b,PSAILS                                              01110000
+PSAILSEX EQUOVR ,,b,PSAILS                                              01120000
+PSAILSPC EQUOVR ,,b,PSAILS                                              01130000
+PSAILSDS EQUOVR ,,b,PSAILS                                              01140000
+PSAILSRS EQUOVR ,,b,PSAILS                                              01150000
+PSAILSOR EQUOVR ,,b,PSAILS                                              01160000
+PSAILST6 EQUOVR ,,b,PSAILS                                              01170000
+PSAILSLK EQUOVR ,,b,PSAILS                                              01180000
+.*                                                                      01190000
+.* PSAFLAGS - SYSTEM FLAGS                                              01200000
+PSAAEIT  EQUOVR ,,b,PSAFLAGS                                            01210000
+.*                                                                      01220000
+.* PSAMPSW - SETLOCK MODEL PSW                                          01230000
+PSAPIOM  EQUOVR ,,b,PSAMPSW+1                                           01240000
+PSAPEXM  EQUOVR ,,b,PSAMPSW+1                                           01250000
+.*                                                                      01260000
+.* PSARSML - RSM GLOBAL FUNCTION/RECOVERY                               01270000
+PSARSMEX EQUOVR ,,b,PSARSML                                             01280000
+.*                                                                      01290000
+.* PSATRCEL - TRACE BUFFER MANAGEMENT LOCK                              01300000
+PSATRCEX EQUOVR ,,b,PSATRCEL                                            01310000
+.*                                                                      01320000
+.* PSAIOSL - IOS LOCK                                                   01330000
+PSAIOSEX EQUOVR ,,b,PSAIOSL                                             01340000
+.*                                                                      01350000
+.* PSACLHS1 - FIRST BYTE OF PSACLHS. (MDC384)                           01360000
+PSACPULI EQUOVR ,,b,PSACLHS1                                            01370000
+PSASUM   EQUOVR ,,b,PSACLHS1                                            01380000
+PSARSMLI EQUOVR ,,b,PSACLHS1                                            01390000
+PSATRCEI EQUOVR ,,b,PSACLHS1                                            01400000
+PSAIOSI  EQUOVR ,,b,PSACLHS1                                            01410000
+.*                                                                      01420000
+.* PSACLHS2 - SECOND BYTE OF PSACLHS. (MDC385)                          01430000
+PSARSMCI EQUOVR ,,b,PSACLHS2                                            01440000
+PSARSMGI EQUOVR ,,b,PSACLHS2                                            01450000
+PSAVFIXI EQUOVR ,,b,PSACLHS2                                            01460000
+PSAASMGI EQUOVR ,,b,PSACLHS2                                            01470000
+PSARSMSI EQUOVR ,,b,PSACLHS2                                            01480000
+.*                                                                      01490000
+.* PSACLHS3 - THIRD BYTE OF PSACLHS  (MDC386)                           01500000
+PSARSMXI EQUOVR ,,b,PSACLHS3                                            01510000
+PSARSMAI EQUOVR ,,b,PSACLHS3                                            01520000
+PSAVPAGI EQUOVR ,,b,PSACLHS3                                            01530000
+PSADSPLI EQUOVR ,,b,PSACLHS3                                            01540000
+PSAASMLI EQUOVR ,,b,PSACLHS3                                            01550000
+PSASALLI EQUOVR ,,b,PSACLHS3                                            01560000
+PSAIOSLI EQUOVR ,,b,PSACLHS3                                            01570000
+PSARSMDI EQUOVR ,,b,PSACLHS3                                            01580000
+.*                                                                      01590000
+.* PSACLHS4 - FOURTH BYTE OF PSACLHS  (MDC392)                          01600000
+PSAIOULI EQUOVR ,,b,PSACLHS3                                            01610000
+PSATPALI EQUOVR ,,b,PSACLHS3                                            01620000
+PSASRMLI EQUOVR ,,b,PSACLHS3                                            01630000
+PSACMSLI EQUOVR ,,b,PSACLHS3                                            01640000
+PSALCLLI EQUOVR ,,b,PSACLHS3                                            01650000
+.*                                                                      01660000
+.* PSAINTE - FLAGS FOR CPU TIMER  (MDC466)                              01670000
+PSANUIN  EQUOVR ,,b,PSAINTE                                             01680000
+.*                                                                      01690000
+.* PSAPCFB1 - FUNCTION VALUE  (MDC484)                                  01700000
+PSAPCMC  EQUOVR ,,v,PSAPCFB1                                            01710000
+PSAPCPF  EQUOVR ,,v,PSAPCFB1                                            01720000
+PSAPCPS  EQUOVR ,,v,PSAPCFB1                                            01730000
+PSAPCAD  EQUOVR ,,v,PSAPCFB1                                            01740000
+PSAPCTR  EQUOVR ,,v,PSAPCFB1                                            01750000
+PSAPCPC  EQUOVR ,,v,PSAPCFB1                                            01760000
+PSAPCTRC EQUOVR ,,v,PSAPCFB1                                            01770000
+PSAPCAF  EQUOVR ,,v,PSAPCFB1                                            01780000
+PSAPCLS  EQUOVR ,,v,PSAPCFB1                                            01790000
+PSAPCART EQUOVR ,,v,PSAPCFB1                                            01800000
+PSAPCDPF EQUOVR ,,v,PSAPCFB1                                            01810000
+PSAPCDAR EQUOVR ,,v,PSAPCFB1                                            01820000
+PSAPCPRT EQUOVR ,,v,PSAPCFB1                                            01830000
+PSAPCMAX EQUOVR ,,v,PSAPCFB1                                            01840000
+.*                                                                      01850000
+.* PSAPCFB2 - FUNCTION FLAGS  (MDC491)                                  01860000
+PSAPCTRR EQUOVR ,,b,PSAPCFB2                                            01870000
+PSAPCMT  EQUOVR ,,b,PSAPCFB2                                            01880000
+.*                                                                      01890000
+.* PSAPCFB3 - RECURSION FLAGS  (MDC494)                                 01900000
+PSAPCP1  EQUOVR ,,b,PSAPCFB3                                            01910000
+PSAPCP2  EQUOVR ,,b,PSAPCFB3                                            01920000
+PSAPCDE  EQUOVR ,,b,PSAPCFB3                                            01930000
+PSAPCLV  EQUOVR ,,b,PSAPCFB3                                            01940000
+PSAPCP3  EQUOVR ,,b,PSAPCFB3                                            01950000
+PSAPCP4  EQUOVR ,,b,PSAPCFB3                                            01960000
+PSAPCPFR EQUOVR ,,b,PSAPCFB3                                            01970000
+PSAPCAVR EQUOVR ,,b,PSAPCFB3                                            01980000
+.*                                                                      01990000
+.* PSAPCFB4 - RECURSION FLAGS                                           02000000
+PSAPCDNV EQUOVR ,,b,PSAPCFB4                                            02010000
+PSAPCLSR EQUOVR ,,b,PSAPCFB4                                            02020000
+.*                                                                      02030000
+.* PSAMFLGS - SECOND BYTE OF PSAMODEW (MDC604)                          02040000
+PSANSS   EQUOVR ,,b,PSAMFLGS                                            02050000
+PSAPRSRB EQUOVR ,,b,PSAMFLGS                                            02060000
+.*                                                                      02070000
+.* PSAMODE - SYSTEM MODE INDICATOR                                      02080000
+PSATASKM EQUOVR ,,v,PSAMODE                                             02090000
+PSASRBM  EQUOVR ,,b,PSAMODE                                             02100000
+PSAWAITM EQUOVR ,,b,PSAMODE                                             02110000
+PSADISPM EQUOVR ,,b,PSAMODE                                             02120000
+PSAPSRBM EQUOVR ,,b,PSAMODE                                             02130000
+.*                                                                      02140000
+.* PSALHEB0 - BYTE 0 OF THE CURRENT LOCK HELD                           02150000
+PSABLSDI EQUOVR ,,b,PSALHEB0                                            02160000
+PSAXDSI  EQUOVR ,,b,PSALHEB0                                            02170000
+PSAXRESI EQUOVR ,,b,PSALHEB0                                            02180000
+PSAXQI   EQUOVR ,,b,PSALHEB0                                            02190000
+PSAESETI EQUOVR ,,b,PSALHEB0                                            02200000
+PSAIXSCI EQUOVR ,,b,PSALHEB0                                            02210000
+PSAIXSHI EQUOVR ,,b,PSALHEB0                                            02220000
+PSAIXDSI EQUOVR ,,b,PSALHEB0                                            02230000
+.*                                                                      02240000
+.* PSALHEB1 - BYTE 1 OF THE CURRENT LOCK HELD                           02250000
+PSAIXLLI EQUOVR ,,b,PSALHEB1                                            02260000
+PSAULUTI EQUOVR ,,b,PSALHEB1                                            02270000
+PSAIXLRI EQUOVR ,,b,PSALHEB1                                            02280000
+PSAWLMRI EQUOVR ,,b,PSALHEB1                                            02290000
+PSAWLMQI EQUOVR ,,b,PSALHEB1                                            02300000
+PSACNTXI EQUOVR ,,b,PSALHEB1                                            02310000
+PSAREGSI EQUOVR ,,b,PSALHEB1                                            02320000
+.*                                                                      02330000
+.* PSACR0CB - CR0 CONTROL BYTE USED BY PROTPSA MACRO                    02340000
+PSAENABL EQUOVR ,,b,PSACR0CB                                            02350000
+PSADSABL EQUOVR ,,v,PSACR0CB                                            02360000
+.*                                                                      02370000
+.* PSACR0SV - CR0 SAVE AREA USED BY PROTPSA MACRO                       02380000
+PSACR0EN EQUOVR ,,b,PSACR0SV                                            02390000
+PSACR0FP EQUOVR ,,b,PSACR0SV                                            02400000
+PSACR0VI EQUOVR ,,b,PSACR0SV                                            02410000
+.*                                                                      02420000
+.* PSARCR0 - RESTART FLIH CR0 SAVE AREA                                 02430000
+PSARPEN  EQUOVR ,,b,PSARCR0                                             02440000
+.*                                                                      02450000
+.* PSASCFB - SUPERVISOR CONTROL FLAG BYTE.                              02460000
+PSAIOPR  EQUOVR ,,b,PSASCFB                                             02470000
+PSAIORTY EQUOVR ,,b,PSASCFB                                             02480000
+.*                                                                      02490000
+.* PSATRACE - SYSTEM TRACE FLAGS.                                       02500000
+PSATROFF EQUOVR ,,b,PSATRACE                                            02510000
+.*                                                                      02520000
+.* PSASFLGS - Schedule flags                                            02530000
+PSASCHDA EQUOVR ,,b,PSASFLGS                                            02540000
+PSAMCHA  EQUOVR ,,b,PSASFLGS                                            02550000
+PSARSTA  EQUOVR ,,b,PSASFLGS                                            02560000
+PSAEGRA  EQUOVR ,,b,PSASFLGS                                            02570000
+PSARTMA  EQUOVR ,,b,PSASFLGS                                            02580000
+.*                                                                      02590000
+         MNOTE *,'Including IHAPSA mapping macro'                       02600000
+         IHAPSA DSECT=YES,             * Generate as a DSECT           *02610000
+               LIST=YES                * with unchanged PRINT-settings  02620000
+         EQUOVR *END                                                    02630000
+*                                                                       02640000
+         ORG                                                            02650000
+PSA_LEN  EQU   *-PSA                   * Length of PSA                  02660000
+.*                                                                      02670000
+.* Return to our original CSECT name                                    02680000
+&SYSECT  &SYSSTYP                                                       02690000
+.*                                                                      02700000
+.MEND    MEND                                                           02720002
