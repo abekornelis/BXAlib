@@ -60,6 +60,10 @@ specified, the first will contain the returncode, the
 reasoncode will be put into the second one before the abend
 is issued. Only registers 2-11 can be specified.
 
+# Macro code
+
+The [ABND macro](../bxamac/ABND.mac) is in the BXAmac folder.
+
 =======
 
 (C) Copyright 1999-2026 Abe Kornelis. All rights reserved.
