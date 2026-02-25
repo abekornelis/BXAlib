@@ -11,7 +11,7 @@ Branch and Link on condition
                &TYPE=LOCAL             * BAL/BALR
 ```
 
-### COND
+## COND
 
 specifies on which condition the BAL is to be executed
 
@@ -32,3 +32,11 @@ Specifies the address to branch to. If specified as a
 
 Specifies whether the designated routine is reached thru
 a local (BAL) branch or a remote (BALR) branch
+
+## Macro code
+
+The [BALC macro](../bxamac/BALC.mac) is in the BXAmac folder.
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.
