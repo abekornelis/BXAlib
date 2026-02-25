@@ -15,7 +15,7 @@ following categories:
 | Macro             | Function                                                 |
 |-------------------|----------------------------------------------------------|
 | [BEGSR](BEGSR.md) | BEGin SubRoutine (start of subroutine definition)        |
-| CASE              | Multi-branch if statement                                |
+| [CASE](CASE.md)   | Multi-branch if statement                                |
 | DO                | Start of a loop                                          |
 | ELSE              | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
 | END               | END of program, generates subroutine cross reference     |
@@ -51,32 +51,33 @@ following categories:
 
 ## Data defintions and overrides
 
-| Macro    | Function                                                 |
-|----------|----------------------------------------------------------|
-| DC       | Replaces DC statement                                    |
-| DCL      | DeCLare a field, bit, or register                        |
-| DCOVR    | Define an OVerRide for a later DC statement              |
-| CPY      | CoPY a field, register, etc. intelligently               |
-| DEC      | DECrement field or register                              |
-| DS       | Replaces DS statement                                    |
-| DSOVR    | Define an OVerRide for a later DS statement              |
-| EQU      | Replaces EQU statement                                   |
-| EQUOVR   | Define an OVerRide for a later EQU statement             |
-| EXTRN    | Replaces EXTRN statement                                 |
-| EXTRNOVR | Define an OVerRide for a later EXTRN statement           |
-| GEN      | Generate a replaced machine instruction                  |
-| GENMAPS  | GENerate MAP definitionS                                 |
-| INC      | INCrement a field or register                            |
-| LABEL    | Define a Label                                           |
-| LTORG    | Replaces LTORG statement                                 |
-| NESTCB   | Define a NESTed Control Block                            |
-| RDATA    | Remote DATA definition                                   |
-| RLTORG   | Remote LTORG                                             |
-| RWTO     | Remote WTO                                               |
-| SET      | Set a coded-value field to a specific value              |
-| SETOF    | Turn off a named bit                                     |
-| SETON    | Turn on a named bit                                      |
-| TRTAB    | Define TRT table data                                    |
+| Macro         | Function                                                 |
+|---------------|----------------------------------------------------------|
+| DC            | Replaces DC statement                                    |
+| DCL           | DeCLare a field, bit, or register                        |
+| DCOVR         | Define an OVerRide for a later DC statement              |
+| DS            | Replaces DS statement                                    |
+| DSOVR         | Define an OVerRide for a later DS statement              |
+| EQU           | Replaces EQU statement                                   |
+| EQUOVR        | Define an OVerRide for a later EQU statement             |
+| EXTRN         | Replaces EXTRN statement                                 |
+| EXTRNOVR      | Define an OVerRide for a later EXTRN statement           |
+| GEN           | Generate a replaced machine instruction                  |
+| GENMAPS       | GENerate MAP definitionS                                 |
+| LABEL         | Define a Label                                           |
+| LTORG         | Replaces LTORG statement                                 |
+| NESTCB        | Define a NESTed Control Block                            |
+| RDATA         | Remote DATA definition                                   |
+| RLTORG        | Remote LTORG                                             |
+| RWTO          | Remote WTO                                               |
+| TRTAB         | Define TRT table data                                    |
+|---------------|----------------------------------------------------------|
+| [CPY](CPY.md) | CoPY a field, register, etc. intelligently               |
+| DEC           | DECrement field or register                              |
+| INC           | INCrement a field or register                            |
+| SET           | Set a coded-value field to a specific value              |
+| SETOF         | Turn off a named bit                                     |
+| SETON         | Turn on a named bit                                      |
 
 ## Extended branching
 
@@ -157,13 +158,13 @@ following categories:
 | [ABND](ABND.md)       | Branch to routine that issues abend (ABNDPGM)              |
 | [ABNDPGM](ABNDPGM.md) | Generates an out-of-line routine that abends the program   |
 | [BXAEPSW](BXAEPSW.md) | Extract PSW                                                |
-| CHKLIC                | Check license (assembly-time)                              |
-| CHKLIT                | Check whether argument is a valid numeric literal          |
-| CHKMAP                | Check parameters entered on a MAPxxx macro                 |
-| CHKNUM                | Check whether argument is a valid number                   |
-| CHKREG                | Check whether argument is a valid register                 |
-| CLEAR                 | Clear an area of storage or a register                     |
-| CMDTXT                | Define a command-text for use with MGCRE                   |
+| [CHKLIC](CHKLIC.md)   | Check license (assembly-time)                              |
+| [CHKLIT](CHKLIT.md)   | Check whether argument is a valid numeric literal          |
+| [CHKMAP](CHKMAP.md)   | Check parameters entered on a MAPxxx macro                 |
+| [CHKNUM](CHKNUM.md)   | Check whether argument is a valid number                   |
+| [CHKREG](CHKREG.md)   | Check whether argument is a valid register                 |
+| [CLEAR](CLEAR.md)     | Clear an area of storage or a register                     |
+| [CMDTXT](CMDTXT.md)   | Define a command-text for use with MGCRE                   |
 | DBG                   | Debugging logic                                            |
 | DISSECT               | Dissect a parameter into its constituent parts             |
 | EJECT                 | Replaces EJECT statement                                   |
