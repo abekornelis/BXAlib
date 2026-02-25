@@ -5,6 +5,7 @@ following categories:
 - [Structrured programming](#Structured-programming)
 - [Register management](#Register-management)
 - [Data defintions and overrides](#Data-defintions-and-overrides)
+- [Smart data manipulation](#Smart-data-manipulation)
 - [Extended branching](#Extended-branching)
 - [Other instruction set extensions](#Other-instruction-set-extensions)
 - [Various](#Various)
@@ -49,12 +50,12 @@ following categories:
 | USEDREGS | Show overview of registers in use                        |
 | USING    | Replaces USING statement                                 |
 
-## Data defintions and overrides
+## Data definitions and overrides
 
 | Macro         | Function                                                 |
 |---------------|----------------------------------------------------------|
-| DC            | Replaces DC statement                                    |
-| DCL           | DeCLare a field, bit, or register                        |
+| [DC](DC.md)   | Replaces DC statement                                    |
+| [DCL](DCL.md) | DeCLare a field, bit, or register                        |
 | DCOVR         | Define an OVerRide for a later DC statement              |
 | DS            | Replaces DS statement                                    |
 | DSOVR         | Define an OVerRide for a later DS statement              |
@@ -71,6 +72,10 @@ following categories:
 | RLTORG        | Remote LTORG                                             |
 | RWTO          | Remote WTO                                               |
 | TRTAB         | Define TRT table data                                    |
+
+## Smart data manipulation
+
+| Macro         | Function                                                 |
 |---------------|----------------------------------------------------------|
 | [CPY](CPY.md) | CoPY a field, register, etc. intelligently               |
 | DEC           | DECrement field or register                              |
@@ -165,7 +170,7 @@ following categories:
 | [CHKREG](CHKREG.md)   | Check whether argument is a valid register                 |
 | [CLEAR](CLEAR.md)     | Clear an area of storage or a register                     |
 | [CMDTXT](CMDTXT.md)   | Define a command-text for use with MGCRE                   |
-| DBG                   | Debugging logic                                            |
+| [DBG](DBG.md)         | Debugging logic                                            |
 | DISSECT               | Dissect a parameter into its constituent parts             |
 | EJECT                 | Replaces EJECT statement                                   |
 | EJECTOVR              | Manage overrides for EJECT                                 |
