@@ -1,6 +1,9 @@
 # DCL macro
 
-This macro expands 1 mapping macro to reserve storage
+This macro either
+- expands 1 mapping macro to reserve storage
+- defines bit names for a field that holds flag bits
+- defines a code field and its coded values
 
 ## Syntax
 
@@ -9,7 +12,7 @@ This macro expands 1 mapping macro to reserve storage
                &LBL                    * Label for dependent using
 ```
 
-The following syntaxes have been defined:
+The following syntax variations have been defined:
 1. Embedded control block
    - &LABEL is the label for the embedded control block
      if omitted, dependent USINGs will not be generated
@@ -24,7 +27,7 @@ The following syntaxes have been defined:
    - &CB=`*BITS`
    - &SYSLIST(2) ff are names of bits to be allocated to consecutive
      bit positions. More than 8 may be specified.
-     To define a name for more than bit at a time,
+     To define a name for more than 1 bit at a time,
      EQUOVR and EQU must be used.
 3. Define code field and code values
    - &LABEL is the label of the field containing the bits. Must not be omitted.

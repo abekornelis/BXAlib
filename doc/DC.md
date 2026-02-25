@@ -1,12 +1,16 @@
 # DC macro
 
-This macro replaces the assembler's DC statement
+This macro replaces the assembler's DC statement.
+It is implements the overrides, as specified by preceding invocations
+of the [DCOVR macro](DCOVR.md).
 
 ## Syntax
 
 ``` hlasm
 &LABEL   DC    ,                       * Arguments in &SYSLIST
 ```
+
+The syntax for the DC macro is identical to that of the DC instruction.
 
 ## Macro code
 
