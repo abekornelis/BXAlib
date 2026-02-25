@@ -37,7 +37,7 @@ can be one of the following:
 specifies label of abend routine. If not specified the
 default supplied with TYPE=SETDFT will be used.
 
-## &FAIL
+## FAIL
 
 specifies the register that passes the reasoncode for
 the abend, usually the failing address. If not specified
@@ -59,3 +59,7 @@ be lost before the abend is issued. If two registers are
 specified, the first will contain the returncode, the
 reasoncode will be put into the second one before the abend
 is issued. Only registers 2-11 can be specified.
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

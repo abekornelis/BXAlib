@@ -186,3 +186,7 @@ following categories:
 ## Mappings and overrides
 
 For mappings and overrides, please see [list of mapping macros]($DOC.md#Control-blocks-available-for-DCL).
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

@@ -51,3 +51,7 @@ HLASM, Dignus, Tachyon, z390.
 
 I hope you'll enjoy this library and wish you happy programming.
 Abe Kornelis.
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

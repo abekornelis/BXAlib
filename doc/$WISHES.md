@@ -4,6 +4,7 @@
 - Add type 'l' for Register (Left half)
 - Add type 'g' for Register (Grande)
 - Add support for vector registers
+- Add support for auto-detecting flag bits
 - Support for SHOWALL option should be removed from all macros and inserted into SPACE/EJECT/TITLE etc.
 - CLEAR - Allow other types of operands
 - DEC   - Allow other types of operands
@@ -25,3 +26,7 @@
 - MAPxxxxx - Some mapping macros still have a different structure
 - RDATA    - use locator name in stead of RLTORG macro
 - RLTORG   - discard after changing RDATA to use locator name
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

@@ -435,3 +435,7 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | WTOPL              | MAPWTOPL | Write To Operator Parameter List           |
 | XSB                | MAPXSB   | eXtended Status Block                      |
 | XSRB               | MAPSRB   | eXtended Service Request Block             |
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

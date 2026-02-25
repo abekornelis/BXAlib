@@ -1,7 +1,9 @@
 Bixoft eXtended Assembly language consists of a set of macros that make coding, reading, and maintaining assembler programs easier.
-Some of its features:
+It is available from this repository under the terms of the [GNU v2.0 License](LICENSE).
+
+Some of the features that Bixoft eXtended Assembly language offers:
 - Strong typing for enhanced early error detection
-- Enhanced USE/DROP to mark register usage
+- Enhanced USING/USE/DROP to mark register usage
 - Dynamic register allocation during assembly
 - Inheritance of data attributes
 - Bit hanlding by bit name - location implied
@@ -14,6 +16,8 @@ Some of its features:
 - Pre-linked save areas for subroutine calls
 - Subroutine call tree generated at end of program
 - Large number of mappings with overrides to correct field types for IBM-defined control blocks
+
+And on top of that, there's an applicable [plug-in for Visual Studio](https://github.com/Zaneham/hlasm-strong-type)
 
 *Usage Note:*
 To use any of these macros, use PGM and pass a SYSPARM containing
