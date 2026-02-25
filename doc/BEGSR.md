@@ -35,3 +35,11 @@ R3 with the contents of R13, R4-R6 with the contents of the
 first three fullwords of the external SA, and R7-R12 with
 garbage. The external SA is then available for reuse and
 can be addressed thru R13 in the usual way.
+
+## Macro code
+
+The [BEGSR macro](../bxamac/BEGSR.mac) is in the BXAmac folder.
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.

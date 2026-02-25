@@ -19,3 +19,11 @@ specifies the user abend code to generate on the ABEND macro.
 
 specifies the register that contains the reason code,
 normally the failing address. When omitted defaults to R14.
+
+## Macro code
+
+The [ABNDPGM macro](../bxamac/ABNDPGM.mac) is in the BXAmac folder.
+
+=======
+
+(C) Copyright 1999-2026 Abe Kornelis. All rights reserved.
