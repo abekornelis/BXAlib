@@ -1,7 +1,7 @@
 # EJECT macro
 
-This macro replaces the assembler's EJECT statement
-It is implements the overrides, as specified by preceding invocations
+This macro replaces the assembler's EJECT statement.
+It implements the overrides, as specified by preceding invocations
 of the [EJECTOVR macro](EJECTOVR.md).
 
 ``` hlasm

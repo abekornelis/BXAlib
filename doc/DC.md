@@ -1,7 +1,7 @@
 # DC macro
 
 This macro replaces the assembler's DC statement.
-It is implements the overrides, as specified by preceding invocations
+It implements the overrides, as specified by preceding invocations
 of the [DCOVR macro](DCOVR.md).
 
 ## Syntax

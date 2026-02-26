@@ -1,7 +1,7 @@
 # DS macro
 
-This macro replaces the assembler's DS statement
-It is implements the overrides, as specified by preceding invocations
+This macro replaces the assembler's DS statement.
+It implements the overrides, as specified by preceding invocations
 of the [DSOVR macro](DSOVR.md).
 
 ## Syntax

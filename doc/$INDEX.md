@@ -13,31 +13,32 @@ following categories:
 
 ## Structured programming
 
-| Macro                 | Function                                                 |
-|-----------------------|----------------------------------------------------------|
-| [BEGSR](BEGSR.md)     | BEGin SubRoutine (start of subroutine definition)        |
-| [CASE](CASE.md)       | Multi-branch if statement                                |
-| [DO](DO.md)           | Start of a loop                                          |
-| [ELSE](ELSE.md)       | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
-| [END](END.md)         | END of program, generates subroutine cross reference     |
-| [ENDCASE](ENDCASE.md) | End of a case construct                                  |
-| [ENDDO](ENDDO.md)     | End of a DO loop                                         |
-| [ENDIF](ENDIF.md)     | End of an IF-THEN-ELSE-EDIF construct                    |
-| [ENDSR](ENDSR.md)     | End of a subroutine definition                           |
-| EXSR                  | EXecute SubRoutine (subroutine invocation)               |
-| EXSR0                 | (helper macro for EXSR)                                  |
-| GLUE                  | Call module in a different Amode/Rmode                   |
-| GOTO                  | Branch with IF-like condition coded as parameters        |
-| IF$                   | (helper macro for IF/CASE/DO)                            |
-| IF$ALC                | (helper macro for IF/CASE/DO)                            |
-| IF$LS                 | (helper macro for IF/CASE/DO)                            |
-| IF$LU                 | (helper macro for IF/CASE/DO)                            |
-| IF                    | Start of IF-THEN-ELSE-ENDIF construct                    |
-| LEAVE                 | Exit from IF/CASE/LOOP construct                         |
-| LOOP                  | Repeat DO-ENDDO loop                                     |
-| PGM                   | ProGraM start                                            |
-| PGM0                  | (helper macro with PGM)                                  |
-| RETRN                 | RETuRN from subroutine                                   |
+| Macro                               | Function                                                 |
+|-------------------------------------|----------------------------------------------------------|
+| [BEGSR](BEGSR.md)                   | BEGin SubRoutine (start of subroutine definition)        |
+| [CASE](CASE.md)                     | Multi-branch if statement                                |
+| [DO](DO.md)                         | Start of a loop                                          |
+| [ELSE](ELSE.md)                     | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
+| [END](END.md)                       | END of program, generates subroutine cross reference     |
+| [ENDCASE](ENDCASE.md)               | End of a case construct                                  |
+| [ENDDO](ENDDO.md)                   | End of a DO loop                                         |
+| [ENDIF](ENDIF.md)                   | End of an IF-THEN-ELSE-EDIF construct                    |
+| [ENDSR](ENDSR.md)                   | End of a subroutine definition                           |
+| [EXSR](EXSR.md)                     | EXecute SubRoutine (subroutine invocation)               |
+| [EXSR0](EXSR0.md)                   | (helper macro for EXSR)                                  |
+| [EXSR_ADD_ENTRY](EXSR_ADD_ENTRY.md) | (helper macro for EXSR)                                  |
+| GLUE                                | Call module in a different Amode/Rmode                   |
+| GOTO                                | Branch with IF-like condition coded as parameters        |
+| IF$                                 | (helper macro for IF/CASE/DO)                            |
+| IF$ALC                              | (helper macro for IF/CASE/DO)                            |
+| IF$LS                               | (helper macro for IF/CASE/DO)                            |
+| IF$LU                               | (helper macro for IF/CASE/DO)                            |
+| IF                                  | Start of IF-THEN-ELSE-ENDIF construct                    |
+| LEAVE                               | Exit from IF/CASE/LOOP construct                         |
+| LOOP                                | Repeat DO-ENDDO loop                                     |
+| PGM                                 | ProGraM start                                            |
+| PGM0                                | (helper macro with PGM)                                  |
+| RETRN                               | RETuRN from subroutine                                   |
 
 ## Register management
 
@@ -53,26 +54,26 @@ following categories:
 
 ## Data definitions and overrides
 
-| Macro               | Function                                                 |
-|---------------------|----------------------------------------------------------|
-| [DC](DC.md)         | Replaces DC statement                                    |
-| [DCL](DCL.md)       | DeCLare a field, bit, or register                        |
-| [DCOVR](DCOVR.md)   | Define an OVerRide for a later DC statement              |
-| [DS](DS.md)         | Replaces DS statement                                    |
-| [DSOVR](DSOVR.md)   | Define an OVerRide for a later DS statement              |
-| [EQU](EQU.md)       | Replaces EQU statement                                   |
-| [EQUOVR](EQUOVR.md) | Define an OVerRide for a later EQU statement             |
-| EXTRN               | Replaces EXTRN statement                                 |
-| EXTRNOVR            | Define an OVerRide for a later EXTRN statement           |
-| GEN                 | Generate a replaced machine instruction                  |
-| GENMAPS             | GENerate MAP definitionS                                 |
-| LABEL               | Define a Label                                           |
-| LTORG               | Replaces LTORG statement                                 |
-| NESTCB              | Define a NESTed Control Block                            |
-| RDATA               | Remote DATA definition                                   |
-| RLTORG              | Remote LTORG                                             |
-| RWTO                | Remote WTO                                               |
-| TRTAB               | Define TRT table data                                    |
+| Macro                   | Function                                                 |
+|-------------------------|----------------------------------------------------------|
+| [DC](DC.md)             | Replaces DC statement                                    |
+| [DCL](DCL.md)           | DeCLare a field, bit, or register                        |
+| [DCOVR](DCOVR.md)       | Define an OVerRide for a later DC statement              |
+| [DS](DS.md)             | Replaces DS statement                                    |
+| [DSOVR](DSOVR.md)       | Define an OVerRide for a later DS statement              |
+| [EQU](EQU.md)           | Replaces EQU statement                                   |
+| [EQUOVR](EQUOVR.md)     | Define an OVerRide for a later EQU statement             |
+| [EXTRN](EXTRN.md)       | Replaces EXTRN statement                                 |
+| [EXTRNOVR](EXTRNOVR.md) | Define an OVerRide for a later EXTRN statement           |
+| GEN                     | Generate a replaced machine instruction                  |
+| GENMAPS                 | GENerate MAP definitionS                                 |
+| LABEL                   | Define a Label                                           |
+| LTORG                   | Replaces LTORG statement                                 |
+| NESTCB                  | Define a NESTed Control Block                            |
+| RDATA                   | Remote DATA definition                                   |
+| RLTORG                  | Remote LTORG                                             |
+| RWTO                    | Remote WTO                                               |
+| TRTAB                   | Define TRT table data                                    |
 
 ## Smart data manipulation
 
@@ -139,11 +140,11 @@ following categories:
 | [EPSW](EPSW.md)   | Extract PSW (for machines not having the instruction)                     |
 | [EXCLC](EXCLC.md) | EXecute CLC                                                               |
 | [EXMVC](EXMVC.md) | EXecute MVC                                                               |
-| EXQ               | EXeQute instruction                                                       |
-| EXSVC             | EXecute SVC                                                               |
-| EXTR              | EXecute TR                                                                |
-| EXTRT             | EXecute TRT                                                               |
-| EXXC              | EXecute XC                                                                |
+| [EXQ](EXQ.md)     | EXeQute instruction                                                       |
+| [EXSVC](EXSVC.md) | EXecute SVC                                                               |
+| [EXTR](EXTR.md)   | EXecute TR                                                                |
+| [EXTRT](EXTRT.md) | EXecute TRT                                                               |
+| [EXXC](EXXC.md)   | EXecute XC                                                                |
 | IPK               | Replaces IPK instruction                                                  |
 | LA                | Replaces LA instruction                                                   |
 | LC                | Load Character (for machines not having the instruction)                  |

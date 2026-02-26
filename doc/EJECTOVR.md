@@ -1,7 +1,7 @@
 # EJECTOVR macro
 
 This macro handles the stack of EJECT modifications for use by the
-EJECT macro, which replaces the assembler's EJECT instruction
+[EJECT macro](EJECT.md), which replaces the assembler's EJECT instruction
 
 ## Syntax
 
