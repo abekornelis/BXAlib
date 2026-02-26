@@ -8,7 +8,7 @@
 ``` hlasmn
 &LABEL   BALNM &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

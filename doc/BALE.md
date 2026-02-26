@@ -7,7 +7,7 @@ Branch and Link on Equal condition
 ``` hlasm
 &LABEL   BALE  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

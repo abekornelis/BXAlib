@@ -7,7 +7,7 @@ Branch and Save on Zero condition
 ``` hlasm
 &LABEL   BASZ  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

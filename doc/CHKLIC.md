@@ -19,7 +19,7 @@ or disabled in any way.
 ## Syntax
 
 ``` hlasm
-         CHKLIC &MACRO                                                  
+         CHKLIC &MACRO
 ```
 
 ## Macro code

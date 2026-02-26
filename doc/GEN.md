@@ -5,8 +5,8 @@ This macro generates a replaced machine instruction
 ## Syntax
 
 ``` hlasm
-&LABEL   GEN   &X                      * &X must be a valid instruction 
-.*                                     * Other operands in SYSLIST      
+&LABEL   GEN   &X                      * &X must be a valid instruction
+.*                                     * Other operands in SYSLIST
 ```
 
 ## Macro code

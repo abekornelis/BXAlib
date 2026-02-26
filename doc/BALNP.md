@@ -7,7 +7,7 @@ Branch and Link on Not-Plus condition
 ``` hlasm
 &LABEL   BALNP &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

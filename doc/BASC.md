@@ -8,7 +8,7 @@ Branch and Save on condition
 &LABEL   BASC  &COND,                  * Condition                     *
                &REG,                   * Register for return address   *
                &DEST,                  * Destination address or (reg)  *
-               &TYPE=LOCAL             * BAS/BASR                       
+               &TYPE=LOCAL             * BAS/BASR
 ```
 
 ## COND

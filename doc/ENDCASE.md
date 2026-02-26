@@ -1,10 +1,10 @@
 # ENDCASE macro
 
-- Structured programming macro: ENDCASE                                
+- Structured programming macro: ENDCASE
 - Combines with [CASE macro](CASE.md) and [ELSE macro](ELSE.md) to conditionally execute blocks of code
 
 ``` hlasm
-&LABEL   ENDCASE ,                     * No arguments allowed           
+&LABEL   ENDCASE ,                     * No arguments allowed
 ```
 
 ## Macro code

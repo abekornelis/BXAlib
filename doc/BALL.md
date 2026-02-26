@@ -7,7 +7,7 @@ Branch and Link on Low condition
 ``` hlasm
 &LABEL   BALL  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

@@ -1,6 +1,6 @@
 # How to get started
 
-This maclib constitutes a programming environment. Its most 
+This maclib constitutes a programming environment. Its most
 important elements are the structured programming macros.
 
 You should start your program with the PGM macro, it builds the
@@ -17,13 +17,13 @@ of all subroutine invocations.
 
 Subroutines are defined using the BEGSR / ENDSR macros
 and invoked using the EXSR macro. <br />
-This is an RPG-like style. If you prefer another style, 
+This is an RPG-like style. If you prefer another style,
 you should change or encapsulate the macros according to your taste.
 
 The DCL macro allows you to declare bit fields explicitly.
 It also supports coded-value fields.<br />
 Use the SETON/SETOF macros to turn bit field on/off using only
-the name of the bit. The byte location of the bit need not be 
+the name of the bit. The byte location of the bit need not be
 mentioned explicitly.<br />
 Use the SET macro to set a code by its value name.
 Again, the location of the value field need not be specified.<br />
