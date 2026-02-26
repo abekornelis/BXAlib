@@ -27,15 +27,15 @@ following categories:
 | [EXSR](EXSR.md)                     | EXecute SubRoutine (subroutine invocation)               |
 | [EXSR0](EXSR0.md)                   | (helper macro for EXSR)                                  |
 | [EXSR_ADD_ENTRY](EXSR_ADD_ENTRY.md) | (helper macro for EXSR)                                  |
-| GLUE                                | Call module in a different Amode/Rmode                   |
-| GOTO                                | Branch with IF-like condition coded as parameters        |
-| IF$                                 | (helper macro for IF/CASE/DO)                            |
-| IF$ALC                              | (helper macro for IF/CASE/DO)                            |
-| IF$LS                               | (helper macro for IF/CASE/DO)                            |
-| IF$LU                               | (helper macro for IF/CASE/DO)                            |
-| IF                                  | Start of IF-THEN-ELSE-ENDIF construct                    |
-| LEAVE                               | Exit from IF/CASE/LOOP construct                         |
-| LOOP                                | Repeat DO-ENDDO loop                                     |
+| [GLUE](GLUE.md)                     | Call module in a different Amode/Rmode                   |
+| [GOTO](GOTO.md)                     | Branch with IF-like condition coded as parameters        |
+| [IF$](IF$ALC.md)                    | (helper macro for IF/CASE/DO)                            |
+| [IF$ALC](IF$ALC.md)                 | (helper macro for IF/CASE/DO)                            |
+| [IF$LS](IF$LS.md)                   | (helper macro for IF/CASE/DO)                            |
+| [IF$LU](IF$LU.md)                   | (helper macro for IF/CASE/DO)                            |
+| [IF](IF.md)                         | Start of IF-THEN-ELSE-ENDIF construct                    |
+| [LEAVE](LEAVE.md)                   | Exit from IF/CASE/LOOP construct                         |
+| [LOOP](LOOP.md)                     | Repeat DO-ENDDO loop                                     |
 | PGM                                 | ProGraM start                                            |
 | PGM0                                | (helper macro with PGM)                                  |
 | RETRN                               | RETuRN from subroutine                                   |
@@ -65,10 +65,10 @@ following categories:
 | [EQUOVR](EQUOVR.md)     | Define an OVerRide for a later EQU statement             |
 | [EXTRN](EXTRN.md)       | Replaces EXTRN statement                                 |
 | [EXTRNOVR](EXTRNOVR.md) | Define an OVerRide for a later EXTRN statement           |
-| GEN                     | Generate a replaced machine instruction                  |
-| GENMAPS                 | GENerate MAP definitionS                                 |
-| LABEL                   | Define a Label                                           |
-| LTORG                   | Replaces LTORG statement                                 |
+| [GEN](GEN.md)           | Generate a replaced machine instruction                  |
+| [GENMAPS](GENMAPS.md)   | GENerate MAP definitionS                                 |
+| [LABEL](LABEL.md)       | Define a Label                                           |
+| [LTORG](LTORG.md)       | Replaces LTORG statement                                 |
 | NESTCB                  | Define a NESTed Control Block                            |
 | RDATA                   | Remote DATA definition                                   |
 | RLTORG                  | Remote LTORG                                             |
@@ -80,8 +80,8 @@ following categories:
 | Macro         | Function                                                 |
 |---------------|----------------------------------------------------------|
 | [CPY](CPY.md) | CoPY a field, register, etc. intelligently               |
-| [DEC](DEC.md) | DECrement field or register                              |
-| INC           | INCrement a field or register                            |
+| [DEC](DEC.md) | DECrement a register                                     |
+| [INC](INC.md) | INCrement a register                                     |
 | SET           | Set a coded-value field to a specific value              |
 | SETOF         | Turn off a named bit                                     |
 | SETON         | Turn on a named bit                                      |
@@ -145,15 +145,15 @@ following categories:
 | [EXTR](EXTR.md)   | EXecute TR                                                                |
 | [EXTRT](EXTRT.md) | EXecute TRT                                                               |
 | [EXXC](EXXC.md)   | EXecute XC                                                                |
-| IPK               | Replaces IPK instruction                                                  |
-| LA                | Replaces LA instruction                                                   |
-| LC                | Load Character (for machines not having the instruction)                  |
-| LR                | Replaces LR instruction                                                   |
-| LT                | Load and Test (for machines not having the instruction)                   |
-| LTA24             | Load and Test 24-bit address                                              |
-| LTC               | Load and Test Character (for machines not having the instruction)         |
-| LTH               | Load and Test Halfword (for machines not having the instruction)          |
-| LTHU              | Load and Test Halfword Unsigned (for machines not having the instruction) |
+| [IPK](IPK.md)     | Replaces IPK instruction                                                  |
+| [LA](LA.md)       | Replaces LA instruction                                                   |
+| [LC](LC.md)       | Load Character (for machines not having the instruction)                  |
+| [LR](LR.md)       | Replaces LR instruction                                                   |
+| [LT](LT.md)       | Load and Test (for machines not having the instruction)                   |
+| [LTA24](LTA24.md) | Load and Test 24-bit address                                              |
+| [LTC](LTC.md)     | Load and Test Character (for machines not having the instruction)         |
+| [LTH](LTH.md)     | Load and Test Halfword (for machines not having the instruction)          |
+| [LTHU](LTHU.md)   | Load and Test Halfword Unsigned (for machines not having the instruction) |
 | MVPL              | MoVe ParmList                                                             |
 | STA24             | STore 24-bit address                                                      |
 | TRT               | Replaces TRT instruction                                                  |
