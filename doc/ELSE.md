@@ -1,8 +1,8 @@
 # ELSE macro
 
-- Structured programming macro: ELSE                                  
+- Structured programming macro: ELSE
 - Combines with [IF macro](IF.md) and [ENDIF macro](ENDIF.md)
-  to conditionally execute blocks of code  
+  to conditionally execute blocks of code
 
 ## Syntax
 

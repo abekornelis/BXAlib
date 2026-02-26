@@ -1,13 +1,13 @@
 # ENDIF macro
 
-- Structured programming macro: ENDIF                                 
+- Structured programming macro: ENDIF
 - Combines with [IF macro](IF.md) and [ELSE macro](ELSE.md)
-  to conditionally execute blocks of code   
+  to conditionally execute blocks of code
 
 ## Syntax
 
 ``` hlasm
-&LABEL   ENDIF ,                       * No arguments allowed          
+&LABEL   ENDIF ,                       * No arguments allowed
 ```
 
 ## Macro code

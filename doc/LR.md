@@ -1,13 +1,13 @@
 # LR macro
 
-This macro replaces the LR instruction                               
+This macro replaces the LR instruction
 
-Copying from a register to itself is suppressed.                     
+Copying from a register to itself is suppressed.
 
 ## syntax
 
 ``` hlasm
-&LABEL   LR    ,                       * Arguments are in SYSLIST       
+&LABEL   LR    ,                       * Arguments are in SYSLIST
 ```
 
 The syntax for the LR macro is identical to that of the LR instruction.

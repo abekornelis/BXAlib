@@ -7,7 +7,7 @@ Branch and Save on Plus condition
 ``` hlasm
 &LABEL   BASP  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

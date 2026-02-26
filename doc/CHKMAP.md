@@ -7,7 +7,7 @@ Checking function for parameters of MAP-macro's
 ``` hlasm
 &LABEL   CHKMAP &DSECT=,               * YES or NO                     *
                &CB=,                   * Control block to generate     *
-               &PRFX=                  * Prefix to use                  
+               &PRFX=                  * Prefix to use
 ```
 
 ## Macro code

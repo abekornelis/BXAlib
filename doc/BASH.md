@@ -7,7 +7,7 @@ Branch and Save on High condition
 ``` hlasm
 &LABEL   BASH  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

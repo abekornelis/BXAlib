@@ -7,7 +7,7 @@ Branch and Save on Equal condition
 ``` hlasm
 &LABEL   BASE  &REG,                   * Register for return address   *
                &LOC,                   * Branch target or (reg)        *
-               &TYPE=LOCAL             *                                
+               &TYPE=LOCAL             *
 ```
 
 ## Macro code

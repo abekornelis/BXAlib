@@ -10,7 +10,7 @@ Execute an SVC-instruction with variable length
 
 ## SVC
 
-specifies the SVC number to be used. In stead of a SVC-number 
+specifies the SVC number to be used. In stead of a SVC-number
 a register containing the SVC-number must be specified.
 
 ## Macro code
