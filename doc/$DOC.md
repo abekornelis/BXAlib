@@ -208,9 +208,11 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 |--------------------|----------|--------------------------------------------|
 |                    | MAPBITS  | BIT equateS                                |
 |                    | MAPEQU   | EQUates of registers, bits, and masks      |
+|                    | MAPIECEQ | Open/Close/EOV equates                     |
 |                    | MAPLMASM | Latch Management equates for ASseMbler     |
+|                    | MAPQMIDS | Equates for SWAREQ                         |
 |                    | MAPREGS  | REGister equateS                           |
-| ABEP               | MAPABEP  | ABend Exit Parameter list                  |
+| ABEP               | MAPABEP  | ABdump Exit Parameter listABdump Exit Parameter list |
 | ACB                | MAPACB   | Access Control Block                       |
 | ACEE               | MAPACEE  | ACcessor Environment Element               |
 | ACT                | MAPJCT   | Accounting Control Table                   |
@@ -229,7 +231,7 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | ASVT               | MAPASVT  | Address Space Vector Table                 |
 | ASXB               | MAPASXB  | Address Space eXtension Block              |
 | BASEA              | MAPBASEA | Master Scheduler Resident Data Area        |
-| BASEX              | MAPBASEA | Master Scheduler Resident Data Area eXtens.|
+| BASEX              | MAPBASEA | Master Scheduler Resident Data Area eXtension |
 | BDW                | MAPDCB   | Block Descriptor Word                      |
 | BXASAVE            | MAPSAVE  | Extended SAVE area                         |
 | CAMLOC             | MAPCAM   | CAMlst LOCate results                      |
@@ -249,8 +251,13 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | CVTXTNT2           | MAPCVT   | CVT os/vs1-os/vs2 common eXTension         |
 | DCB                | MAPDCB   | Data Control Block                         |
 | DCBE               | MAPDCBE  | Data Control Block Extension               |
-| DDRCOM             | MAPDDRCO | \\ IOS Dynamic Device Reconfiguration      |
-|                    |          |  \\   COMmunication area                   |
+| DDRCOM             | MAPDDRCO | IOS Dynamic Device Reconfiguration COMmunication area |
+| DEB                | MAPDEB   | Data Extent Block                          |
+| DEBACSMD           | MAPDEB   | DEB ACcesS Method Dependent section        |
+| DEBDASD            | MAPDEB   | DEB Direct Access Storage Device section   |
+| DEBSUBNM           | MAPDEB   | DEB SUBroutine NaMe section                |
+| DEBXTN             | MAPDEB   | DEB eXTeNsion section for OS/VS2           |
+| DEB2XTN            | MAPDEB   | DEB 2nd eXTeNsion                          |
 | DECB               | MAPDECB  | Data Event Control Block                   |
 | DESB               | MAPDES   | DirEntry Services Buffer header            |
 | DESD               | MAPDES   | DirEntry Services member Data descriptor   |
@@ -260,6 +267,7 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | DESR               | MAPDES   | DirEntry Services Reason codes             |
 | DESRCS             | MAPDES   | DirEntry Services Return CodeS             |
 | DESX               | MAPDES   | DirEntry Services eXit plist               |
+| DFA                | MAPDFA   | Data Facilities Area                       |
 | DOCNTFLD           | MAPDOTU  | Dynamic Output length/parameter FieLD      |
 | DOCNTLST           | MAPDOTU  | Dynamic Output LiST of text unit pointers  |
 | DOCNUNIT           | MAPDOTU  | Dynamic Output text UNIT                   |
@@ -304,10 +312,14 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | JFCBE              | MAPJFCBE | Job File Control Block Extension for 3800  |
 | JFCBX              | MAPJFCBX | Job File Control Block eXtension           |
 | JSCB               | MAPJSCB  | Job Step Control BLock                     |
+| LCRTPL             | MAPLMASM | Latch Management CReaTe Parameter List     |
 | LCT                | MAPLCT   | Linkage Control Table                      |
 | LDA                | MAPLDA   | VSM Local Data Area                        |
 | LLE                | MAPLLE   | Load List Element                          |
+| LOBTPL             | MAPLMASM | Latch Management OBTain Parameter List     |
 | LPDE               | MAPLPDE  | Link Pack Directory Entry                  |
+| LPRGPL             | MAPLMASM | Latch Management PuRGe Parameter List      |
+| LRELPL             | MAPLMASM | Latch Management RELease Parameter List    |
 | NTCRPL             | MAPIEANT | Named Token CReate Parameter List          |
 | NTDLPL             | MAPIEANT | Named Token DeLete Parameter List          |
 | NTRTPL             | MAPIEANT | Named Token ReTrieve Parameter List        |
@@ -391,6 +403,7 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | SVCURT             | MAPSVCE  | SVC Update Recording Table entry           |
 | SVRB               | MAPSVRB  | SuperVisor Request Block                   |
 | SVT                | MAPSVT   | Supervisor Vector Table                    |
+| SWAPRFX            | MAPSWAPX | System Work Area PReFiX                    |
 | SWAREQPL           | MAPEPAL  | SWAREQ Parameter List                      |
 | S99RB              | MAPS99   | Dynalloc Request Block                     |
 | S99RBP             | MAPS99   | Dynalloc Request Block Pointer             |
@@ -398,6 +411,7 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | S99TUFLD           | MAPS99   | Dynalloc request Text Unit FieLD           |
 | S99TUNIT           | MAPS99   | Dynalloc request Text UNIT                 |
 | S99TUPL            | MAPS99   | Dynalloc request Text Unit Pointer List    |
+| TTRN               | MAPPDS   | Track, Record, iNdicator field             |
 | TAXE               | MAPTAXE  | TSO Terminal Attention eXit Element        |
 | TCB                | MAPTCB   | Task Control Block                         |
 | TCBFIX             | MAPTCB   | TCB preFIX                                 |
@@ -408,7 +422,6 @@ Any later changes to the underlying mapping macros are not reflected in the MAPx
 | TIOTHDR            | MAPTIOT  | Task I/O Table header                      |
 | TIOTPOOL           | MAPTIOT  | Task I/O Table Pool entry                  |
 | TQE                | MAPTQE   | Timer Queue Element                        |
-| TTRN               | MAPPDS   | Track, Record, iNdicator field             |
 | TTRX               | MAPPDS   | Track, Record, available field             |
 | UCB                | MAPUCB   | Unit Control Block                         |
 | UCBOCR             | MAPUCB   | UCB extension - Optical Character Reader   |
