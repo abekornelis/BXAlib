@@ -1,6 +1,6 @@
 # EXSR0 macro
 
-Define internal macro for EXSR.
+This macro creates the [EXSR_ADD_ENTRY macro](EXSR_ADD_ENTRY.md)
 
 ## Syntax
 
