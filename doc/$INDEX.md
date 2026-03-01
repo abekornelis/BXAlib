@@ -17,6 +17,7 @@ following categories:
 |-------------------------------------|----------------------------------------------------------|
 | [BEGSR](BEGSR.md)                   | BEGin SubRoutine (start of subroutine definition)        |
 | [CASE](CASE.md)                     | Multi-branch if statement                                |
+| [CHK_STACK](CHK_STACK.md)           | (helper macro with PGM)                                  |
 | [DO](DO.md)                         | Start of a loop                                          |
 | [ELSE](ELSE.md)                     | ELSE for an IF-THEN-ELSE-ENDIF construct                 |
 | [END](END.md)                       | END of program, generates subroutine cross reference     |
@@ -36,9 +37,9 @@ following categories:
 | [IF](IF.md)                         | Start of IF-THEN-ELSE-ENDIF construct                    |
 | [LEAVE](LEAVE.md)                   | Exit from IF/CASE/LOOP construct                         |
 | [LOOP](LOOP.md)                     | Repeat DO-ENDDO loop                                     |
-| PGM                                 | ProGraM start                                            |
-| PGM0                                | (helper macro with PGM)                                  |
-| RETRN                               | RETuRN from subroutine                                   |
+| [PGM](PGM.md)                       | ProGraM start                                            |
+| [PGM0](PGM0.md)                     | (helper macro with PGM)                                  |
+| [RETRN](RETRN.md)                   | RETuRN from subroutine                                   |
 
 ## Register management
 
@@ -48,9 +49,9 @@ following categories:
 | [DROP0](DROP0.md)       | (helper macro with DROP)                                 |
 | [DROP_REG](DROP_REG.md) | (helper macro with DROP)                                 |
 | [EQUREG](EQUREG.md)     | Allocate available register using EQU                    |
-| USE                     | Declare register usage                                   |
-| USEDREGS                | Show overview of registers in use                        |
-| USING                   | Replaces USING statement                                 |
+| [USE](USE.md)           | Declare register usage                                   |
+| [USEDREGS](USEDREGS.md) | Show overview of registers in use                        |
+| [USING](USING.md)       | Replaces USING statement                                 |
 
 ## Data definitions and overrides
 
@@ -69,22 +70,24 @@ following categories:
 | [GENMAPS](GENMAPS.md)   | GENerate MAP definitionS                                 |
 | [LABEL](LABEL.md)       | Define a Label                                           |
 | [LTORG](LTORG.md)       | Replaces LTORG statement                                 |
-| NESTCB                  | Define a NESTed Control Block                            |
-| RDATA                   | Remote DATA definition                                   |
-| RLTORG                  | Remote LTORG                                             |
-| RWTO                    | Remote WTO                                               |
-| TRTAB                   | Define TRT table data                                    |
+| [NESTCB](NESTCB.md)     | Define a NESTed Control Block                            |
+| [RDATA](RDATA.md)       | Remote DATA definition                                   |
+| [RLTORG](RLTORG.md)     | Remote LTORG                                             |
+| [RWTO](RWTO.md)         | Remote WTO                                               |
+| [SNAPHDR](SNAPHDR.md)   | Define header-text for use with STRHDR operand of SNAP   |
+| [SNAPNTRY](SNAPNTRY.md) | Define entries in the STORAGE and STRHDR lists of SNAP   |
+| [TRTAB](TRTAB.md)       | Define TRT table data                                    |
 
 ## Smart data manipulation
 
-| Macro         | Function                                                 |
-|---------------|----------------------------------------------------------|
-| [CPY](CPY.md) | CoPY a field, register, etc. intelligently               |
-| [DEC](DEC.md) | DECrement a register                                     |
-| [INC](INC.md) | INCrement a register                                     |
-| SET           | Set a coded-value field to a specific value              |
-| SETOF         | Turn off a named bit                                     |
-| SETON         | Turn on a named bit                                      |
+| Macro             | Function                                                 |
+|-------------------|----------------------------------------------------------|
+| [CPY](CPY.md)     | CoPY a field, register, etc. intelligently               |
+| [DEC](DEC.md)     | DECrement a register                                     |
+| [INC](INC.md)     | INCrement a register                                     |
+| [SET](SET.md)     | Set a coded-value field to a specific value              |
+| [SETOF](SETOF.md) | Turn off a named bit                                     |
+| [SETON](SETON.md) | Turn on a named bit                                      |
 
 ## Extended branching
 
@@ -154,42 +157,40 @@ following categories:
 | [LTC](LTC.md)     | Load and Test Character (for machines not having the instruction)         |
 | [LTH](LTH.md)     | Load and Test Halfword (for machines not having the instruction)          |
 | [LTHU](LTHU.md)   | Load and Test Halfword Unsigned (for machines not having the instruction) |
-| MVPL              | MoVe ParmList                                                             |
-| STA24             | STore 24-bit address                                                      |
-| TRT               | Replaces TRT instruction                                                  |
+| [MVPL](MVPL.md)   | MoVe ParmList                                                             |
+| [STA24](STA24.md) | STore 24-bit address                                                      |
+| [TRT](TRT.md)     | Replaces TRT instruction                                                  |
 
 ## Various
 
-| Macro                   | Function                                                   |
-|-------------------------|------------------------------------------------------------|
-| [ABND](ABND.md)         | Branch to routine that issues abend (ABNDPGM)              |
-| [ABNDPGM](ABNDPGM.md)   | Generates an out-of-line routine that abends the program   |
-| [BXAEPSW](BXAEPSW.md)   | Extract PSW                                                |
-| [CHKLIC](CHKLIC.md)     | Check license (assembly-time)                              |
-| [CHKLIT](CHKLIT.md)     | Check whether argument is a valid numeric literal          |
-| [CHKMAP](CHKMAP.md)     | Check parameters entered on a MAPxxx macro                 |
-| [CHKNUM](CHKNUM.md)     | Check whether argument is a valid number                   |
-| [CHKREG](CHKREG.md)     | Check whether argument is a valid register                 |
-| [CLEAR](CLEAR.md)       | Clear an area of storage or a register                     |
-| [CMDTXT](CMDTXT.md)     | Define a command-text for use with MGCRE                   |
-| [DBG](DBG.md)           | Debugging logic                                            |
-| [DISSECT](DISSECT.md)   | Dissect a parameter into its constituent parts             |
-| [EJECT](EJECT.md)       | Replaces EJECT statement                                   |
-| [EJECTOVR](EJECTOVR.md) | Manage overrides for EJECT                                 |
-| NTCR                    | Create a name/token pair                                   |
-| NTDL                    | Delete a name/token pair                                   |
-| NTRT                    | Retrieve a name/token pair                                 |
-| OPSYNS                  | Generate OPSYN statements for a list of instructions       |
-| POP                     | Replaces POP statement                                     |
-| PUSH                    | Replaces PUSH statement                                    |
-| SETMODE                 | Call SETMODE function                                      |
-| SETMODE0                | Define internal subroutine for SETMODE                     |
-| SNAPHDR                 | Define header-text for use with STRHDR operand of SNAP     |
-| SNAPNTRY                | Define entries in the STORAGE and STRHDR lists of SNAP     |
-|                         | --> SNAPNTRY is intended for use with BXADBG00 only        |
-| SPACE                   | Replaces SPACE statement                                   |
-| SPLIT                   | Split a parameter string in its constituent parts          |
-| SYSPARM                 | Analyze SYSPARM content                                    |
+| Macro                         | Function                                                   |
+|-------------------------------|------------------------------------------------------------|
+| [ABND](ABND.md)               | Branch to routine that issues abend (ABNDPGM)              |
+| [ABNDPGM](ABNDPGM.md)         | Generates an out-of-line routine that abends the program   |
+| [BXAEPSW](BXAEPSW.md)         | Extract PSW                                                |
+| [CHKLIC](CHKLIC.md)           | Check license (assembly-time)                              |
+| [CHKLIT](CHKLIT.md)           | Check whether argument is a valid numeric literal          |
+| [CHKMAP](CHKMAP.md)           | Check parameters entered on a MAPxxx macro                 |
+| [CHKNUM](CHKNUM.md)           | Check whether argument is a valid number                   |
+| [CHKREG](CHKREG.md)           | Check whether argument is a valid register                 |
+| [CLEAR](CLEAR.md)             | Clear an area of storage or a register                     |
+| [CMDTXT](CMDTXT.md)           | Define a command-text for use with MGCRE                   |
+| [DBG](DBG.md)                 | Debugging logic                                            |
+| [DISSECT](DISSECT.md)         | Dissect a parameter into its constituent parts             |
+| [EJECT](EJECT.md)             | Replaces EJECT statement                                   |
+| [EJECTOVR](EJECTOVR.md)       | Manage overrides for EJECT                                 |
+| [NTCR](NTCR.md)               | Create a name/token pair                                   |
+| [NTDL](NTDL.md)               | Delete a name/token pair                                   |
+| [NTRT](NTRT.md)               | Retrieve a name/token pair                                 |
+| [OPSYNS](OPSYNS.md)           | Generate OPSYN statements for a list of instructions       |
+| [POP](POP.md)                 | Replaces POP statement                                     |
+| [PUSH](PUSH.md)               | Replaces PUSH statement                                    |
+| [SAVE_PSWKEY](SAVE_PSWKEY.md) | (helper macro with SETMODE)                                |
+| [SETMODE](SETMODE.md)         | Call SETMODE function                                      |
+| [SETMODE0](SETMODE0.md)       | (helper macro with SETMODE)                                |
+| [SPACE](SPACE.md)             | Replaces SPACE statement                                   |
+| [SPLIT](SPLIT.md)             | Split a parameter string in its constituent parts          |
+| [SYSPARM](SYSPARM.md)         | Analyze SYSPARM content                                    |
 
 ## Mappings and overrides
 
@@ -320,7 +321,7 @@ following categories:
 | [MAPWTOPL](MAPWTOPL.md) | Map WTOPL - Write To Operator Parameter List
 | [MAPXSB](MAPXSB.md)     | Map XSB - eXtended Status Block
 
-For mappings and overrides, please see [list of mapping macros]($DOC.md#Control-blocks-available-for-DCL).
+For an overview by control block acronym, please see [list of mapping macros]($DOC.md#Control-blocks-available-for-DCL).
 
 =======
 

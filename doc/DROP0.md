@@ -1,6 +1,6 @@
 # DROP0 macro
 
-This macro creates the DROP_REG macro
+This macro creates the [DROP_REG macro](DROP_REG.md)
 
 ## Syntax
 

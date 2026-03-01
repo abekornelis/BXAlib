@@ -204,250 +204,250 @@ Rather, they contain overrides for the IBM-defined fields and bits.
 The overrides are based on the IBM mapping macros as shipped with OS/390 V2.6.
 Any later changes to the underlying mapping macros are not reflected in the MAPxxxxx macros mentioned below.
 
-| Control block name | Mapmacro | Description                                |
-|--------------------|----------|--------------------------------------------|
-|                    | MAPBITS  | BIT equateS                                |
-|                    | MAPEQU   | EQUates of registers, bits, and masks      |
-|                    | MAPIECEQ | Open/Close/EOV equates                     |
-|                    | MAPLMASM | Latch Management equates for ASseMbler     |
-|                    | MAPQMIDS | Equates for SWAREQ                         |
-|                    | MAPREGS  | REGister equateS                           |
-| ABEP               | MAPABEP  | ABdump Exit Parameter listABdump Exit Parameter list |
-| ACB                | MAPACB   | Access Control Block                       |
-| ACEE               | MAPACEE  | ACcessor Environment Element               |
-| ACT                | MAPJCT   | Accounting Control Table                   |
-| ADSR               | MAPADSR  | Symptom Record sections 1 and 2            |
-| ADSRCMPS           | MAPADSR  | Symptom Record section 2.1                 |
-| ADSRDBST           | MAPADSR  | Symptom Record primary symptom string      |
-| ADSRROSD           | MAPADSR  | Symptom Record secondary symptom string    |
-| ADSR5ST            | MAPADSR  | Symptom Record section 5                   |
-| ADYENF             | MAPADYEN | DAE Event NotiFication parameter list      |
-| AE                 | MAPAE    | VSM Allocated Element                      |
-| ASCB               | MAPASCB  | Address Space Control Block                |
-| ASEO               | MAPASEO  | Address Space crEation Output area         |
-| ASMPOOLS           | MAPASMVT | ASM cell POOL controller                   |
-| ASMVT              | MAPASMVT | Auxiliary Storage Manager Vector Table     |
-| ASSB               | MAPASSB  | Address Space Secondary Block              |
-| ASVT               | MAPASVT  | Address Space Vector Table                 |
-| ASXB               | MAPASXB  | Address Space eXtension Block              |
-| BASEA              | MAPBASEA | Master Scheduler Resident Data Area        |
-| BASEX              | MAPBASEA | Master Scheduler Resident Data Area eXtension |
-| BDW                | MAPDCB   | Block Descriptor Word                      |
-| BXASAVE            | MAPSAVE  | Extended SAVE area                         |
-| CAMLOC             | MAPCAM   | CAMlst LOCate results                      |
-| CAMLOCVOL          | MAPCAM   | CAMlst LOCate VOLume entry                 |
-| CAMLST             | MAPCAM   | CAMLST parameter list                      |
-| CDE                | MAPCDE   | Contents Directory Entry                   |
-| CIBHDR             | MAPCIB   | Command Input Buffer HeaDeR                |
-| CIBX               | MAPCIB   | Command Input Buffer eXtension             |
-| COM                | MAPCOM   | COMmunication area                         |
-| CQE                | MAPCQE   | Console Queue Element                      |
-| CSCB               | MAPCSCB  | Command Scheduling Control Block           |
-| CSCX               | MAPCSCB  | Command Scheduling Control block eXtension |
-| CVT                | MAPCVT   | Communications Vector Table                |
-| CVTFIX             | MAPCVT   | Communications Vector Table preFIX         |
-| CVTVSTGX           | MAPCVT   | CVT Virtual SToraGe eXtension              |
-| CVTXTNT1           | MAPCVT   | CVT os-os/vs common eXTension              |
-| CVTXTNT2           | MAPCVT   | CVT os/vs1-os/vs2 common eXTension         |
-| DCB                | MAPDCB   | Data Control Block                         |
-| DCBE               | MAPDCBE  | Data Control Block Extension               |
+| Control block name | Mapmacro | Description                                           |
+|--------------------|----------|-------------------------------------------------------|
+|                    | MAPBITS  | BIT equateS                                           |
+|                    | MAPEQU   | EQUates of registers, bits, and masks                 |
+|                    | MAPIECEQ | Open/Close/EOV equates                                |
+|                    | MAPLMASM | Latch Management equates for ASseMbler                |
+|                    | MAPQMIDS | Equates for SWAREQ                                    |
+|                    | MAPREGS  | REGister equateS                                      |
+| ABEP               | MAPABEP  | ABdump Exit Parameter listABdump Exit Parameter list  |
+| ACB                | MAPACB   | Access Control Block                                  |
+| ACEE               | MAPACEE  | ACcessor Environment Element                          |
+| ACT                | MAPJCT   | Accounting Control Table                              |
+| ADSR               | MAPADSR  | Symptom Record sections 1 and 2                       |
+| ADSRCMPS           | MAPADSR  | Symptom Record section 2.1                            |
+| ADSRDBST           | MAPADSR  | Symptom Record primary symptom string                 |
+| ADSRROSD           | MAPADSR  | Symptom Record secondary symptom string               |
+| ADSR5ST            | MAPADSR  | Symptom Record section 5                              |
+| ADYENF             | MAPADYEN | DAE Event NotiFication parameter list                 |
+| AE                 | MAPAE    | VSM Allocated Element                                 |
+| ASCB               | MAPASCB  | Address Space Control Block                           |
+| ASEO               | MAPASEO  | Address Space crEation Output area                    |
+| ASMPOOLS           | MAPASMVT | ASM cell POOL controller                              |
+| ASMVT              | MAPASMVT | Auxiliary Storage Manager Vector Table                |
+| ASSB               | MAPASSB  | Address Space Secondary Block                         |
+| ASVT               | MAPASVT  | Address Space Vector Table                            |
+| ASXB               | MAPASXB  | Address Space eXtension Block                         |
+| BASEA              | MAPBASEA | Master Scheduler Resident Data Area                   |
+| BASEX              | MAPBASEA | Master Scheduler Resident Data Area eXtension         |
+| BDW                | MAPDCB   | Block Descriptor Word                                 |
+| BXASAVE            | MAPSAVE  | Extended SAVE area                                    |
+| CAMLOC             | MAPCAM   | CAMlst LOCate results                                 |
+| CAMLOCVOL          | MAPCAM   | CAMlst LOCate VOLume entry                            |
+| CAMLST             | MAPCAM   | CAMLST parameter list                                 |
+| CDE                | MAPCDE   | Contents Directory Entry                              |
+| CIBHDR             | MAPCIB   | Command Input Buffer HeaDeR                           |
+| CIBX               | MAPCIB   | Command Input Buffer eXtension                        |
+| COM                | MAPCOM   | COMmunication area                                    |
+| CQE                | MAPCQE   | Console Queue Element                                 |
+| CSCB               | MAPCSCB  | Command Scheduling Control Block                      |
+| CSCX               | MAPCSCB  | Command Scheduling Control block eXtension            |
+| CVT                | MAPCVT   | Communications Vector Table                           |
+| CVTFIX             | MAPCVT   | Communications Vector Table preFIX                    |
+| CVTVSTGX           | MAPCVT   | CVT Virtual SToraGe eXtension                         |
+| CVTXTNT1           | MAPCVT   | CVT os-os/vs common eXTension                         |
+| CVTXTNT2           | MAPCVT   | CVT os/vs1-os/vs2 common eXTension                    |
+| DCB                | MAPDCB   | Data Control Block                                    |
+| DCBE               | MAPDCBE  | Data Control Block Extension                          |
 | DDRCOM             | MAPDDRCO | IOS Dynamic Device Reconfiguration COMmunication area |
-| DEB                | MAPDEB   | Data Extent Block                          |
-| DEBACSMD           | MAPDEB   | DEB ACcesS Method Dependent section        |
-| DEBDASD            | MAPDEB   | DEB Direct Access Storage Device section   |
-| DEBSUBNM           | MAPDEB   | DEB SUBroutine NaMe section                |
-| DEBXTN             | MAPDEB   | DEB eXTeNsion section for OS/VS2           |
-| DEB2XTN            | MAPDEB   | DEB 2nd eXTeNsion                          |
-| DECB               | MAPDECB  | Data Event Control Block                   |
-| DESB               | MAPDES   | DirEntry Services Buffer header            |
-| DESD               | MAPDES   | DirEntry Services member Data descriptor   |
-| DESL               | MAPDES   | DirEntry Services name List                |
-| DESN               | MAPDES   | DirEntry Services Name record              |
-| DESP               | MAPDES   | DirEntry Services Parmlist                 |
-| DESR               | MAPDES   | DirEntry Services Reason codes             |
-| DESRCS             | MAPDES   | DirEntry Services Return CodeS             |
-| DESX               | MAPDES   | DirEntry Services eXit plist               |
-| DFA                | MAPDFA   | Data Facilities Area                       |
-| DOCNTFLD           | MAPDOTU  | Dynamic Output length/parameter FieLD      |
-| DOCNTLST           | MAPDOTU  | Dynamic Output LiST of text unit pointers  |
-| DOCNUNIT           | MAPDOTU  | Dynamic Output text UNIT                   |
-| DSAB               | MAPDSAB  | Data Set Association Block                 |
-| DSABANMI           | MAPDSAB  | DSAB Alternate NaMe Information block      |
-| DSABQDB            | MAPDSABQ | DSAB Queue Descriptor Block                |
-| DSCB1              | MAPDSCB1 | Data Set Control Block - format 1          |
-| DSCB2              | MAPDSCB2 | Data Set Control Block - format 2          |
-| DSCB3              | MAPDSCB3 | Data Set Control Block - format 3          |
-| DSCB4              | MAPDSCB4 | Data Set Control Block - format 4          |
-| DSCB5              | MAPDSCB5 | Data Set Control Block - format 5          |
-| DST                | MAPDES   | Direntry Services Screen Table             |
-| ECB                | MAPECB   | Event Control Block                        |
-| ECBE               | MAPECB   | Event Control Block Extension              |
-| ECVT               | MAPECVT  | Extended Communications Vector Table       |
-| EMDSECT1           | MAPS99   | Dynalloc parameter list to IEFDB476        |
-| EMDSECT2           | MAPS99   | Dynalloc message buffer area               |
-| EMDSECT3           | MAPS99   | Dynalloc message buffer area array         |
-| EPAL               | MAPEPAL  | External Parameter Area for Locate SWA mgr |
-| EPAX               | MAPEPAL  | eXtended EPAL                              |
-| EVNT               | MAPEVNT  | EVeNTs control block                       |
-| EVNTENTRY          | MAPEVNT  | EVeNTs table ENTRY                         |
-| FRRPL              | MAPFRRPL | Function Recovery Routine Parameter area   |
-| FRRS               | MAPFRRS  | Function Recovery Routine Stack            |
-| FRRSENTR           | MAPFRRS  | FRR ENTRy                                  |
-| FRRSXENT           | MAPFRRS  | FRR ENTry eXtension                        |
-| FRRSXSTK           | MAPFRRS  | FRR STacK eXtension                        |
-| GVT                | MAPGVT   | GRS Vector Table                           |
-| GVTX               | MAPGVTX  | GRS Vector Table eXtension                 |
-| IHSA               | MAPIHSA  | Interrupt Handler Save Area                |
-| IOB                | MAPIOB   | Input/Output Block                         |
-| IOQ                | MAPIOQ   | IOS Queue element                          |
-| IOQE               | MAPIOQ   | IOS Queue element Extension                |
-| IOSB               | MAPIOSB  | I/O Supervisor Block                       |
-| IOSX               | MAPIOSX  | I/O Supervisor block eXtension             |
-| JCT                | MAPJCT   | Job Control Table                          |
-| JCTX               | MAPJCTX  | Job Control Table eXtension                |
-| JESCT              | MAPJESCT | JES Communication Table                    |
-| JESMNTBL           | MAPJESCT | JES MouNTaBLe device class table           |
-| JESPEXT            | MAPJESCT | JESCT Pageable EXTension                   |
-| JFCB               | MAPJFCB  | Job File Control Block                     |
-| JFCBE              | MAPJFCBE | Job File Control Block Extension for 3800  |
-| JFCBX              | MAPJFCBX | Job File Control Block eXtension           |
-| JSCB               | MAPJSCB  | Job Step Control BLock                     |
-| LCRTPL             | MAPLMASM | Latch Management CReaTe Parameter List     |
-| LCT                | MAPLCT   | Linkage Control Table                      |
-| LDA                | MAPLDA   | VSM Local Data Area                        |
-| LLE                | MAPLLE   | Load List Element                          |
-| LOBTPL             | MAPLMASM | Latch Management OBTain Parameter List     |
-| LPDE               | MAPLPDE  | Link Pack Directory Entry                  |
-| LPRGPL             | MAPLMASM | Latch Management PuRGe Parameter List      |
-| LRELPL             | MAPLMASM | Latch Management RELease Parameter List    |
-| NTCRPL             | MAPIEANT | Named Token CReate Parameter List          |
-| NTDLPL             | MAPIEANT | Named Token DeLete Parameter List          |
-| NTRTPL             | MAPIEANT | Named Token ReTrieve Parameter List        |
-| OC24               | MAPOCPL  | Open/Close parameter list (24-bit mode)    |
-| OC31               | MAPOCPL  | Open/Close parameter list (31-bit mode)    |
-| ORE                | MAPORE   | Operator Reply Element                     |
-| OUCB               | MAPOUCB  | ResOurces manager User Control Block       |
-| PCCA               | MAPPCCA  | Physical Configuration Communication Area  |
-| PCCAVT             | MAPPCCAV | PCCA Vector Table                          |
-| PDAB               | MAPPDAB  | Parallel Data Access Block                 |
-| PDS                | MAPPDS   | Partitioned DataSet directory entry        |
-| PDS2               | MAPPDS   | Partitioned DataSet (extended) direntry    |
-| PEL                | MAPPEL   | Parameter Element List (ENQ/DEQ/RESERVE)   |
-| PMAR               | MAPPMAP  | Program Management Attribute Record        |
-| PMARA              | MAPPMAP  | PMAR - load module extension               |
-| PMARL              | MAPPMAP  | PMAR - program object extension            |
-| PMARR              | MAPPMAP  | PMAR - internal extension                  |
-| PRB                | MAPPRB   | Program Request Block                      |
-| PRM_LIST_BUFFER    | MAPPRMLB | PaRMlib services LIST BUFFER               |
-| PRM_MESSAGE_BUFFER | MAPPRMLB | PaRMlib services MESSAGE BUFFER            |
-| PRM_READ_BUFFER    | MAPPRMLB | PaRMlib services BUFFER for member READ    |
-| PSA                | MAPPSA   | Prefixed Storage Area                      |
-| PSL                | MAPPSL   | Page Service List entry                    |
-| PVT                | MAPPVT   | RSM Page Vector Table                      |
-| PVTEXT             | MAPPVT   | RSM Page Vector Table EXTension            |
-| PVTVVTAB           | MAPPVT   | RSM Page Vector VDAC TABle                 |
-| QCB                | MAPQCB   | GRS Queue Control Block                    |
-| QEL                | MAPQEL   | GRS Queue ELement                          |
-| QHT                | MAPQHT   | GRS Queue Hash Table header                |
-| QHTENT             | MAPQHT   | GRS Queue Hash Table ENTry                 |
-| RB                 | MAPRB    | Request Block                              |
-| RCTD               | MAPRCTD  | Region Control Task Data area              |
-| RDW                | MAPDCB   | Record Descriptor Word                     |
-| RMCT               | MAPRMCT  | System Resources Manager Control Table     |
-| RMPL               | MAPRMPL  | Resource Manager Parameter List            |
-| RMPLPT             | MAPRMPL  | PoinTer to RMPL                            |
-| RMPLP2             | MAPRMPL  | Pointer to userparm for resmgr routine     |
-| RPL                | MAPRPL   | Request Parameter List                     |
-| RPL6               | MAPRPL   | RPL extension for LU 6.2                   |
-| RQE                | MAPRQE   | EXCP Request Queue Element                 |
-| RTMW               | MAPRT1W  | RTM1 save/Work area                        |
-| RT1TRACK           | MAPRT1W  | RTM1 TRACKing area                         |
-| RT1TRECC           | MAPRT1W  | RTM1 RECursion Control data                |
-| RT1W               | MAPRT1W  | RTM1 Work area                             |
-| SAVEAREA           | MAPSAVE  | Standard SAVE AREA                         |
-| SCCB               | MAPSCCB  | Service Call Control Block                 |
-| SCCBCP             | MAPSCCB  | SCCB CPu information entry                 |
-| SCCBHSA            | MAPSCCB  | SCCB HSA information entry                 |
-| SCCBMPF            | MAPSCCB  | SCCB MPF information entry                 |
-| SCT                | MAPSCT   | Step Control Table                         |
-| SCTX               | MAPSCTX  | Step Control Table eXtension               |
-| SCVT               | MAPSCVT  | Secondary Communications Vector Table      |
-| SCW                | MAPDCB   | Segment Control Word                       |
-| SDW                | MAPDCB   | Segment Descriptor Word                    |
-| SDWA               | MAPSDWA  | System Diagnostic Work Area                |
-| SDWANRC1           | MAPSDWA  | SDWA Non-ReCordable extension 1            |
-| SDWANRC2           | MAPSDWA  | SDWA Non-ReCordable extension 2            |
-| SDWANRC3           | MAPSDWA  | SDWA Non-ReCordable extension 3            |
-| SDWAPTRS           | MAPSDWA  | SDWA PoinTeRS extension block              |
-| SDWARC1            | MAPSDWA  | SDWA ReCordable extension 1                |
-| SDWARC2            | MAPSDWA  | SDWA ReCordable extension 2                |
-| SDWARC3            | MAPSDWA  | SDWA ReCordable extension 3                |
-| SIOT               | MAPSIOT  | Step Input/Output Table                    |
-| SMCA               | MAPSMCA  | SMf Control tAble                          |
-| SMDE               | MAPSMDA  | System Managed Directory Entry basic sect. |
-| SMDE_FD            | MAPSMDA  | SMDE hfs File Descriptor section           |
-| SMDE_NAME          | MAPSMDA  | SMDE NAME section                          |
-| SMDE_NLST          | MAPSMDA  | SMDE NoteLiST section                      |
-| SMDE_PNAME         | MAPSMDA  | SMDE Primary NAME section                  |
-| SMDE_TOKEN         | MAPSMDA  | SMDE TOKEN section                         |
-| SNAPDLIST          | MAPSNAP  | SNAP Dataspace LIST entry                  |
-| SNAPHLIST          | MAPSNAP  | SNAP Header LIST entry                     |
-| SNAPLIST           | MAPSNAP  | SNAP storage LIST entry                    |
-| SRB                | MAPSRB   | Service Request Block                      |
-| SSDR               | MAPSSDR  | SSOB ext.for Dynamic device Reconfiguration|
-| SSL                | MAPSSL   | Short page Service List                    |
-| SSOB               | MAPSSOB  | SubSystem Options Block                    |
-| SSRB               | MAPSSRB  | Suspended Service Request Block            |
-| STCB               | MAPSTCB  | Seconary Task Control Block                |
-| SVCENTRY           | MAPSVCE  | SVC table ENTRY                            |
-| SVCURT             | MAPSVCE  | SVC Update Recording Table entry           |
-| SVRB               | MAPSVRB  | SuperVisor Request Block                   |
-| SVT                | MAPSVT   | Supervisor Vector Table                    |
-| SWAPRFX            | MAPSWAPX | System Work Area PReFiX                    |
-| SWAREQPL           | MAPEPAL  | SWAREQ Parameter List                      |
-| S99RB              | MAPS99   | Dynalloc Request Block                     |
-| S99RBP             | MAPS99   | Dynalloc Request Block Pointer             |
-| S99RBX             | MAPS99   | Dynalloc Request Block eXtension           |
-| S99TUFLD           | MAPS99   | Dynalloc request Text Unit FieLD           |
-| S99TUNIT           | MAPS99   | Dynalloc request Text UNIT                 |
-| S99TUPL            | MAPS99   | Dynalloc request Text Unit Pointer List    |
-| TTRN               | MAPPDS   | Track, Record, iNdicator field             |
-| TAXE               | MAPTAXE  | TSO Terminal Attention eXit Element        |
-| TCB                | MAPTCB   | Task Control Block                         |
-| TCBFIX             | MAPTCB   | TCB preFIX                                 |
-| TCBXTNT2           | MAPTCB   | TCB eXTension                              |
-| TCCW               | MAPTCCW  | EXCP Translation Control Block             |
-| TCT                | MAPTCT   | SMF Timing Control Table                   |
-| TIOENTRY           | MAPTIOT  | Task I/O Table Entry                       |
-| TIOTHDR            | MAPTIOT  | Task I/O Table header                      |
-| TIOTPOOL           | MAPTIOT  | Task I/O Table Pool entry                  |
-| TQE                | MAPTQE   | Timer Queue Element                        |
-| TTRX               | MAPPDS   | Track, Record, available field             |
-| UCB                | MAPUCB   | Unit Control Block                         |
-| UCBOCR             | MAPUCB   | UCB extension - Optical Character Reader   |
-| UCBPDCTA           | MAPUCB   | UCB extension - Channel to channel Adapter |
-| UCBUCS             | MAPUCB   | UCB extension - Universal Character Set    |
-| UCB3540X           | MAPUCB   | UCB extension - 3540                       |
-| UCB3800X           | MAPUCB   | UCB extension - 3800 printer               |
-| UCM                | MAPUCM   | Unit Controle Module definition            |
-| UCMEFEXT           | MAPUCM   | UCM individual device Entry Fixed EXTension|
-| UCMEIL             | MAPUCM   | UCM Event Indication List                  |
-| UCMEPEXT           | MAPUCM   | UCM indiv. device Entry Pageable EXTension |
-| UCMFEXTA           | MAPUCM   | UCM Fixed EXTension bAse                   |
-| UCMFSAVE           | MAPUCM   | UCM Fixed extension SAVE area              |
-| UCMLIST            | MAPUCM   | UCM List of individual device entries      |
-| UCMPEXTA           | MAPUCM   | UCM Pageable EXTension bAse                |
-| UCMPRFX            | MAPUCM   | UCM MCS PReFiX area                        |
-| UCM2EXT            | MAPUCM   | UCM OS/VS2 EXTension                       |
-| VRA                | MAPVRA   | Variable Recording Area in SDWA            |
-| VSL                | MAPVSL   | Virtual Subarea List entry                 |
-| WQE                | MAPWQE   | WTO Queue Element                          |
-| WQEMAJ             | MAPWQE   | Major WQE                                  |
-| WQEMIN             | MAPWQE   | Minor WQE                                  |
-| WQESYAR            | MAPWQE   | WQE saved SYstem id-ARray                  |
-| WTOPL              | MAPWTOPL | Write To Operator Parameter List           |
-| XSB                | MAPXSB   | eXtended Status Block                      |
-| XSRB               | MAPSRB   | eXtended Service Request Block             |
+| DEB                | MAPDEB   | Data Extent Block                                     |
+| DEBACSMD           | MAPDEB   | DEB ACcesS Method Dependent section                   |
+| DEBDASD            | MAPDEB   | DEB Direct Access Storage Device section              |
+| DEBSUBNM           | MAPDEB   | DEB SUBroutine NaMe section                           |
+| DEBXTN             | MAPDEB   | DEB eXTeNsion section for OS/VS2                      |
+| DEB2XTN            | MAPDEB   | DEB 2nd eXTeNsion                                     |
+| DECB               | MAPDECB  | Data Event Control Block                              |
+| DESB               | MAPDES   | DirEntry Services Buffer header                       |
+| DESD               | MAPDES   | DirEntry Services member Data descriptor              |
+| DESL               | MAPDES   | DirEntry Services name List                           |
+| DESN               | MAPDES   | DirEntry Services Name record                         |
+| DESP               | MAPDES   | DirEntry Services Parmlist                            |
+| DESR               | MAPDES   | DirEntry Services Reason codes                        |
+| DESRCS             | MAPDES   | DirEntry Services Return CodeS                        |
+| DESX               | MAPDES   | DirEntry Services eXit plist                          |
+| DFA                | MAPDFA   | Data Facilities Area                                  |
+| DOCNTFLD           | MAPDOTU  | Dynamic Output length/parameter FieLD                 |
+| DOCNTLST           | MAPDOTU  | Dynamic Output LiST of text unit pointers             |
+| DOCNUNIT           | MAPDOTU  | Dynamic Output text UNIT                              |
+| DSAB               | MAPDSAB  | Data Set Association Block                            |
+| DSABANMI           | MAPDSAB  | DSAB Alternate NaMe Information block                 |
+| DSABQDB            | MAPDSABQ | DSAB Queue Descriptor Block                           |
+| DSCB1              | MAPDSCB1 | Data Set Control Block - format 1                     |
+| DSCB2              | MAPDSCB2 | Data Set Control Block - format 2                     |
+| DSCB3              | MAPDSCB3 | Data Set Control Block - format 3                     |
+| DSCB4              | MAPDSCB4 | Data Set Control Block - format 4                     |
+| DSCB5              | MAPDSCB5 | Data Set Control Block - format 5                     |
+| DST                | MAPDES   | Direntry Services Screen Table                        |
+| ECB                | MAPECB   | Event Control Block                                   |
+| ECBE               | MAPECB   | Event Control Block Extension                         |
+| ECVT               | MAPECVT  | Extended Communications Vector Table                  |
+| EMDSECT1           | MAPS99   | Dynalloc parameter list to IEFDB476                   |
+| EMDSECT2           | MAPS99   | Dynalloc message buffer area                          |
+| EMDSECT3           | MAPS99   | Dynalloc message buffer area array                    |
+| EPAL               | MAPEPAL  | External Parameter Area for Locate SWA mgr            |
+| EPAX               | MAPEPAL  | eXtended EPAL                                         |
+| EVNT               | MAPEVNT  | EVeNTs control block                                  |
+| EVNTENTRY          | MAPEVNT  | EVeNTs table ENTRY                                    |
+| FRRPL              | MAPFRRPL | Function Recovery Routine Parameter area              |
+| FRRS               | MAPFRRS  | Function Recovery Routine Stack                       |
+| FRRSENTR           | MAPFRRS  | FRR ENTRy                                             |
+| FRRSXENT           | MAPFRRS  | FRR ENTry eXtension                                   |
+| FRRSXSTK           | MAPFRRS  | FRR STacK eXtension                                   |
+| GVT                | MAPGVT   | GRS Vector Table                                      |
+| GVTX               | MAPGVTX  | GRS Vector Table eXtension                            |
+| IHSA               | MAPIHSA  | Interrupt Handler Save Area                           |
+| IOB                | MAPIOB   | Input/Output Block                                    |
+| IOQ                | MAPIOQ   | IOS Queue element                                     |
+| IOQE               | MAPIOQ   | IOS Queue element Extension                           |
+| IOSB               | MAPIOSB  | I/O Supervisor Block                                  |
+| IOSX               | MAPIOSX  | I/O Supervisor block eXtension                        |
+| JCT                | MAPJCT   | Job Control Table                                     |
+| JCTX               | MAPJCTX  | Job Control Table eXtension                           |
+| JESCT              | MAPJESCT | JES Communication Table                               |
+| JESMNTBL           | MAPJESCT | JES MouNTaBLe device class table                      |
+| JESPEXT            | MAPJESCT | JESCT Pageable EXTension                              |
+| JFCB               | MAPJFCB  | Job File Control Block                                |
+| JFCBE              | MAPJFCBE | Job File Control Block Extension for 3800             |
+| JFCBX              | MAPJFCBX | Job File Control Block eXtension                      |
+| JSCB               | MAPJSCB  | Job Step Control BLock                                |
+| LCRTPL             | MAPLMASM | Latch Management CReaTe Parameter List                |
+| LCT                | MAPLCT   | Linkage Control Table                                 |
+| LDA                | MAPLDA   | VSM Local Data Area                                   |
+| LLE                | MAPLLE   | Load List Element                                     |
+| LOBTPL             | MAPLMASM | Latch Management OBTain Parameter List                |
+| LPDE               | MAPLPDE  | Link Pack Directory Entry                             |
+| LPRGPL             | MAPLMASM | Latch Management PuRGe Parameter List                 |
+| LRELPL             | MAPLMASM | Latch Management RELease Parameter List               |
+| NTCRPL             | MAPIEANT | Named Token CReate Parameter List                     |
+| NTDLPL             | MAPIEANT | Named Token DeLete Parameter List                     |
+| NTRTPL             | MAPIEANT | Named Token ReTrieve Parameter List                   |
+| OC24               | MAPOCPL  | Open/Close parameter list (24-bit mode)               |
+| OC31               | MAPOCPL  | Open/Close parameter list (31-bit mode)               |
+| ORE                | MAPORE   | Operator Reply Element                                |
+| OUCB               | MAPOUCB  | ResOurces manager User Control Block                  |
+| PCCA               | MAPPCCA  | Physical Configuration Communication Area             |
+| PCCAVT             | MAPPCCAV | PCCA Vector Table                                     |
+| PDAB               | MAPPDAB  | Parallel Data Access Block                            |
+| PDS                | MAPPDS   | Partitioned DataSet directory entry                   |
+| PDS2               | MAPPDS   | Partitioned DataSet (extended) direntry               |
+| PEL                | MAPPEL   | Parameter Element List (ENQ/DEQ/RESERVE)              |
+| PMAR               | MAPPMAP  | Program Management Attribute Record                   |
+| PMARA              | MAPPMAP  | PMAR - load module extension                          |
+| PMARL              | MAPPMAP  | PMAR - program object extension                       |
+| PMARR              | MAPPMAP  | PMAR - internal extension                             |
+| PRB                | MAPPRB   | Program Request Block                                 |
+| PRM_LIST_BUFFER    | MAPPRMLB | PaRMlib services LIST BUFFER                          |
+| PRM_MESSAGE_BUFFER | MAPPRMLB | PaRMlib services MESSAGE BUFFER                       |
+| PRM_READ_BUFFER    | MAPPRMLB | PaRMlib services BUFFER for member READ               |
+| PSA                | MAPPSA   | Prefixed Storage Area                                 |
+| PSL                | MAPPSL   | Page Service List entry                               |
+| PVT                | MAPPVT   | RSM Page Vector Table                                 |
+| PVTEXT             | MAPPVT   | RSM Page Vector Table EXTension                       |
+| PVTVVTAB           | MAPPVT   | RSM Page Vector VDAC TABle                            |
+| QCB                | MAPQCB   | GRS Queue Control Block                               |
+| QEL                | MAPQEL   | GRS Queue ELement                                     |
+| QHT                | MAPQHT   | GRS Queue Hash Table header                           |
+| QHTENT             | MAPQHT   | GRS Queue Hash Table ENTry                            |
+| RB                 | MAPRB    | Request Block                                         |
+| RCTD               | MAPRCTD  | Region Control Task Data area                         |
+| RDW                | MAPDCB   | Record Descriptor Word                                |
+| RMCT               | MAPRMCT  | System Resources Manager Control Table                |
+| RMPL               | MAPRMPL  | Resource Manager Parameter List                       |
+| RMPLPT             | MAPRMPL  | PoinTer to RMPL                                       |
+| RMPLP2             | MAPRMPL  | Pointer to userparm for resmgr routine                |
+| RPL                | MAPRPL   | Request Parameter List                                |
+| RPL6               | MAPRPL   | RPL extension for LU 6.2                              |
+| RQE                | MAPRQE   | EXCP Request Queue Element                            |
+| RTMW               | MAPRT1W  | RTM1 save/Work area                                   |
+| RT1TRACK           | MAPRT1W  | RTM1 TRACKing area                                    |
+| RT1TRECC           | MAPRT1W  | RTM1 RECursion Control data                           |
+| RT1W               | MAPRT1W  | RTM1 Work area                                        |
+| SAVEAREA           | MAPSAVE  | Standard SAVE AREA                                    |
+| SCCB               | MAPSCCB  | Service Call Control Block                            |
+| SCCBCP             | MAPSCCB  | SCCB CPu information entry                            |
+| SCCBHSA            | MAPSCCB  | SCCB HSA information entry                            |
+| SCCBMPF            | MAPSCCB  | SCCB MPF information entry                            |
+| SCT                | MAPSCT   | Step Control Table                                    |
+| SCTX               | MAPSCTX  | Step Control Table eXtension                          |
+| SCVT               | MAPSCVT  | Secondary Communications Vector Table                 |
+| SCW                | MAPDCB   | Segment Control Word                                  |
+| SDW                | MAPDCB   | Segment Descriptor Word                               |
+| SDWA               | MAPSDWA  | System Diagnostic Work Area                           |
+| SDWANRC1           | MAPSDWA  | SDWA Non-ReCordable extension 1                       |
+| SDWANRC2           | MAPSDWA  | SDWA Non-ReCordable extension 2                       |
+| SDWANRC3           | MAPSDWA  | SDWA Non-ReCordable extension 3                       |
+| SDWAPTRS           | MAPSDWA  | SDWA PoinTeRS extension block                         |
+| SDWARC1            | MAPSDWA  | SDWA ReCordable extension 1                           |
+| SDWARC2            | MAPSDWA  | SDWA ReCordable extension 2                           |
+| SDWARC3            | MAPSDWA  | SDWA ReCordable extension 3                           |
+| SIOT               | MAPSIOT  | Step Input/Output Table                               |
+| SMCA               | MAPSMCA  | SMf Control tAble                                     |
+| SMDE               | MAPSMDA  | System Managed Directory Entry basic section          |
+| SMDE_FD            | MAPSMDA  | SMDE hfs File Descriptor section                      |
+| SMDE_NAME          | MAPSMDA  | SMDE NAME section                                     |
+| SMDE_NLST          | MAPSMDA  | SMDE NoteLiST section                                 |
+| SMDE_PNAME         | MAPSMDA  | SMDE Primary NAME section                             |
+| SMDE_TOKEN         | MAPSMDA  | SMDE TOKEN section                                    |
+| SNAPDLIST          | MAPSNAP  | SNAP Dataspace LIST entry                             |
+| SNAPHLIST          | MAPSNAP  | SNAP Header LIST entry                                |
+| SNAPLIST           | MAPSNAP  | SNAP storage LIST entry                               |
+| SRB                | MAPSRB   | Service Request Block                                 |
+| SSDR               | MAPSSDR  | SSOB ext.for Dynamic device Reconfiguration           |
+| SSL                | MAPSSL   | Short page Service List                               |
+| SSOB               | MAPSSOB  | SubSystem Options Block                               |
+| SSRB               | MAPSSRB  | Suspended Service Request Block                       |
+| STCB               | MAPSTCB  | Seconary Task Control Block                           |
+| SVCENTRY           | MAPSVCE  | SVC table ENTRY                                       |
+| SVCURT             | MAPSVCE  | SVC Update Recording Table entry                      |
+| SVRB               | MAPSVRB  | SuperVisor Request Block                              |
+| SVT                | MAPSVT   | Supervisor Vector Table                               |
+| SWAPRFX            | MAPSWAPX | System Work Area PReFiX                               |
+| SWAREQPL           | MAPEPAL  | SWAREQ Parameter List                                 |
+| S99RB              | MAPS99   | Dynalloc Request Block                                |
+| S99RBP             | MAPS99   | Dynalloc Request Block Pointer                        |
+| S99RBX             | MAPS99   | Dynalloc Request Block eXtension                      |
+| S99TUFLD           | MAPS99   | Dynalloc request Text Unit FieLD                      |
+| S99TUNIT           | MAPS99   | Dynalloc request Text UNIT                            |
+| S99TUPL            | MAPS99   | Dynalloc request Text Unit Pointer List               |
+| TTRN               | MAPPDS   | Track, Record, iNdicator field                        |
+| TAXE               | MAPTAXE  | TSO Terminal Attention eXit Element                   |
+| TCB                | MAPTCB   | Task Control Block                                    |
+| TCBFIX             | MAPTCB   | TCB preFIX                                            |
+| TCBXTNT2           | MAPTCB   | TCB eXTension                                         |
+| TCCW               | MAPTCCW  | EXCP Translation Control Block                        |
+| TCT                | MAPTCT   | SMF Timing Control Table                              |
+| TIOENTRY           | MAPTIOT  | Task I/O Table Entry                                  |
+| TIOTHDR            | MAPTIOT  | Task I/O Table header                                 |
+| TIOTPOOL           | MAPTIOT  | Task I/O Table Pool entry                             |
+| TQE                | MAPTQE   | Timer Queue Element                                   |
+| TTRX               | MAPPDS   | Track, Record, available field                        |
+| UCB                | MAPUCB   | Unit Control Block                                    |
+| UCBOCR             | MAPUCB   | UCB extension - Optical Character Reader              |
+| UCBPDCTA           | MAPUCB   | UCB extension - Channel to channel Adapter            |
+| UCBUCS             | MAPUCB   | UCB extension - Universal Character Set               |
+| UCB3540X           | MAPUCB   | UCB extension - 3540                                  |
+| UCB3800X           | MAPUCB   | UCB extension - 3800 printer                          |
+| UCM                | MAPUCM   | Unit Controle Module definition                       |
+| UCMEFEXT           | MAPUCM   | UCM individual device Entry Fixed EXTension           |
+| UCMEIL             | MAPUCM   | UCM Event Indication List                             |
+| UCMEPEXT           | MAPUCM   | UCM indiv. device Entry Pageable EXTension            |
+| UCMFEXTA           | MAPUCM   | UCM Fixed EXTension bAse                              |
+| UCMFSAVE           | MAPUCM   | UCM Fixed extension SAVE area                         |
+| UCMLIST            | MAPUCM   | UCM List of individual device entries                 |
+| UCMPEXTA           | MAPUCM   | UCM Pageable EXTension bAse                           |
+| UCMPRFX            | MAPUCM   | UCM MCS PReFiX area                                   |
+| UCM2EXT            | MAPUCM   | UCM OS/VS2 EXTension                                  |
+| VRA                | MAPVRA   | Variable Recording Area in SDWA                       |
+| VSL                | MAPVSL   | Virtual Subarea List entry                            |
+| WQE                | MAPWQE   | WTO Queue Element                                     |
+| WQEMAJ             | MAPWQE   | Major WQE                                             |
+| WQEMIN             | MAPWQE   | Minor WQE                                             |
+| WQESYAR            | MAPWQE   | WQE saved SYstem id-ARray                             |
+| WTOPL              | MAPWTOPL | Write To Operator Parameter List                      |
+| XSB                | MAPXSB   | eXtended Status Block                                 |
+| XSRB               | MAPSRB   | eXtended Service Request Block                        |
 
 =======
 
