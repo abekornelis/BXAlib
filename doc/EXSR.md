@@ -17,7 +17,9 @@ specifies the label of a SUBR statement or (reg)
 
 ## COND
 
-specifies a condition for conditional execution
+specifies a condition for conditional execution.
+
+COND is a condition, as described in the [IF macro](IF.md)
 
 ## TYPE
 
