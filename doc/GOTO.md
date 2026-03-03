@@ -17,7 +17,7 @@ There are 5 syntax variations:
 4. GOTO label,(condition)
 5. GOTO label,(UNLESS,condition)
 
-condition: as in IF macro
+condition: as in [IF macro](IF.md)
 
 ## Macro code
 

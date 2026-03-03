@@ -2,7 +2,7 @@ Bixoft eXtended Assembly language consists of a set of macros that make coding, 
 It is available from this repository under the terms of the [GNU v2.0 License](LICENSE).
 
 Some of the features that Bixoft eXtended Assembly language offers:
-- Strong typing for enhanced early error detection
+- [doc/Strong typing](StrongTypes.md) for enhanced early error detection
 - Enhanced USING/USE/DROP to mark register usage
 - Dynamic register allocation during assembly
 - Inheritance of data attributes
